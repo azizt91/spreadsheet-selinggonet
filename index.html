@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Dashboard</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a5acd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Sistem manajemen pelanggan ISP dengan integrasi Google Sheets">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/selinggonet.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/selinggonet.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="login-page">
+    <div class="login-box">
+        <h2>Selamat Datang</h2>
+        <p>Silakan masuk untuk melanjutkan</p>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Login</button>
+        </form>
+        <p id="error-message" class="error-text"></p>
+    </div>
+    <script src="config.js"></script>
+    <script src="login.js"></script>
+    <script src="pwa-installer.js"></script>
+</body>
+</html>

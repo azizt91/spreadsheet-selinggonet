@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a5acd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Dashboard sistem manajemen pelanggan ISP">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/selinggonet.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/selinggonet.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="assets/selinggonet.png" alt="Selinggonet Logo" class="logo-image">
+            <span>Selinggonet</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="pelanggan.html"><i class="fas fa-users"></i> Pelanggan</a></li>
+                <li><a href="tagihan.html"><i class="fas fa-file-invoice"></i> Tagihan</a></li>
+                <li><a href="lunas.html"><i class="fas fa-check-circle"></i> Lunas</a></li>
+                <li><a href="pengeluaran.html"><i class="fas fa-sign-out-alt"></i> Pengeluaran</a></li>
+            </ul>
+        </nav>
+        <div class="logout">
+            <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="main-content">
+        <header>
+            <button class="hamburger-btn" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+            <!-- KONTROL FILTER BARU -->
+            <div class="filter-container">
+                <select id="filter-bulan"></select>
+                <select id="filter-tahun"></select>
+            </div>
+        </header>
+        <main>
+            <div class="cards-container">
+                <!-- Kartu statistik akan dimuat di sini oleh JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="pwa-installer.js"></script>
+</body>
+</html>

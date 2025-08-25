@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Tagihan</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a5acd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Manajemen tagihan pelanggan ISP">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/selinggonet.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/selinggonet.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar (Sama seperti halaman lain) -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="assets/selinggonet.png" alt="Selinggonet Logo" class="logo-image">
+            <span>Selinggonet</span></div>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="pelanggan.html"><i class="fas fa-users"></i> Pelanggan</a></li>
+                <li><a href="tagihan.html" class="active"><i class="fas fa-file-invoice"></i> Tagihan</a></li>
+                <li><a href="lunas.html"><i class="fas fa-check-circle"></i> Lunas</a></li>
+                <li><a href="pengeluaran.html"><i class="fas fa-sign-out-alt"></i> Pengeluaran</a></li>
+            </ul>
+        </nav>
+        <div class="logout"><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+    </div>
+
+    <!-- Konten Utama Halaman -->
+    <div class="main-content">
+        <header>
+            <button class="hamburger-btn" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2><i class="fas fa-file-invoice-dollar"></i> Manajemen Tagihan</h2>
+            <div class="header-actions">
+                <input type="text" id="search-input" placeholder="Cari tagihan...">
+            </div>
+        </header>
+        <main>
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="rows-per-page-selector">
+                        <label for="rows-per-page">Baris per halaman:</label>
+                        <select id="rows-per-page">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                <table id="tagihan-table">
+                    <thead>
+                        <tr>
+                            <th>IDPL</th>
+                            <th>NAMA</th>
+                            <th>PERIODE TAGIHAN</th>
+                            <th>TAGIHAN</th>
+                            <th>STATUS</th>
+                            <th>AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tagihan-body"></tbody>
+                </table>
+            </div>
+            <!-- FOOTER BARU UNTUK PAGINATION -->
+            <footer class="table-footer">
+                <div id="pagination-info"></div>
+                <div id="pagination-controls"></div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Modal Konfirmasi Pembayaran -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content payment-modal-content">
+            <div class="payment-modal-header">
+                <div class="payment-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h2 id="payment-modal-title">Konfirmasi Pembayaran</h2>
+            </div>
+            <div class="payment-modal-body">
+                <div class="payment-info">
+                    <div class="payment-detail">
+                        <strong>Nama Pelanggan:</strong>
+                        <span id="payment-customer-name"></span>
+                    </div>
+                    <div class="payment-detail">
+                        <strong>Periode Tagihan:</strong>
+                        <span id="payment-period"></span>
+                    </div>
+                    <div class="payment-detail">
+                        <strong>Jumlah Tagihan:</strong>
+                        <span id="payment-amount"></span>
+                    </div>
+                </div>
+                <div class="payment-question">
+                    <p>Apakah Anda yakin ingin memproses pembayaran ini?</p>
+                </div>
+            </div>
+            <div class="payment-modal-footer">
+                <button type="button" class="btn btn-cancel" id="payment-cancel-btn">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+                <button type="button" class="btn btn-confirm" id="payment-confirm-btn">
+                    <i class="fas fa-check"></i> Proses Pembayaran
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <script src="auth.js?v=2.0"></script>
+    <script src="tagihan.js?v=2.0"></script>
+    <script src="pwa-installer.js?v=2.0"></script>
+</body>
+</html>

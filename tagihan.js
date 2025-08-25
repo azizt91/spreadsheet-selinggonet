@@ -1,0 +1,441 @@
+// tagihan.js (Versi Final dengan Pencarian & Pagination)
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Logika session check & logout sudah dihandle oleh auth.js.
+
+    // ===============================================
+    // State Management & Global Variables
+    // ===============================================
+    const API_TAGIHAN_URL = 'http://localhost:3000/tagihan';
+    const API_BAYAR_URL = 'http://localhost:3000/bayar';
+    let allTagihanData = []; // Simpan semua data asli
+    let filteredData = [];   // Data yang ditampilkan setelah filter
+    let currentPage = 1;
+    let rowsPerPage = 10;
+
+    // ===============================================
+    // DOM Element Selectors
+    // ===============================================
+    const tableBody = document.getElementById('tagihan-body');
+    const searchInput = document.getElementById('search-input');
+    const paginationControls = document.getElementById('pagination-controls');
+    const paginationInfo = document.getElementById('pagination-info');
+    const rowsPerPageSelector = document.getElementById('rows-per-page');
+    
+    // Payment Modal Elements
+    const paymentModal = document.getElementById('payment-modal');
+    const paymentCustomerName = document.getElementById('payment-customer-name');
+    const paymentPeriod = document.getElementById('payment-period');
+    const paymentAmount = document.getElementById('payment-amount');
+    const paymentCancelBtn = document.getElementById('payment-cancel-btn');
+    const paymentConfirmBtn = document.getElementById('payment-confirm-btn');
+    
+    let currentPaymentData = null; // Store current payment data
+    
+    // Debug: Check if modal elements exist
+    console.log('Payment modal elements check:');
+    console.log('paymentModal:', paymentModal);
+    console.log('paymentConfirmBtn:', paymentConfirmBtn);
+
+    // ===============================================
+    // Initial Setup
+    // ===============================================
+    initializeEventListeners();
+    fetchTagihan();
+
+    // ===============================================
+    // Event Listeners Setup
+    // ===============================================
+    function initializeEventListeners() {
+        // Event listener untuk input pencarian
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            filteredData = allTagihanData.filter(item =>
+                Object.values(item).some(val =>
+                    String(val).toLowerCase().includes(searchTerm)
+                )
+            );
+            currentPage = 1;
+            renderPage();
+        });
+
+        // Event listener untuk dropdown jumlah baris
+        rowsPerPageSelector.addEventListener('change', () => {
+            rowsPerPage = parseInt(rowsPerPageSelector.value, 10);
+            currentPage = 1;
+            renderPage();
+        });
+
+        // Event listener untuk tombol LUNAS dan WhatsApp
+        tableBody.addEventListener('click', handleButtonClick);
+        
+        // Payment modal event listeners
+        if (paymentCancelBtn) {
+            paymentCancelBtn.addEventListener('click', closePaymentModal);
+        }
+        if (paymentConfirmBtn) {
+            paymentConfirmBtn.addEventListener('click', processPayment);
+        }
+        
+        // Close modal when clicking outside
+        if (paymentModal) {
+            paymentModal.addEventListener('click', (event) => {
+                if (event.target === paymentModal) {
+                    closePaymentModal();
+                }
+            });
+        }
+    }
+
+    // ===============================================
+    // Main Data Fetch & Display Logic
+    // ===============================================
+    async function fetchTagihan() {
+        try {
+            const response = await fetch(API_TAGIHAN_URL);
+            if (!response.ok) throw new Error('Gagal mengambil data tagihan');
+            const rawData = await response.json();
+            
+            // Filter out empty rows - only include rows with valid IDPL and NAMA
+            allTagihanData = rawData.filter(item => {
+                return item.IDPL && 
+                       item.IDPL.trim() !== '' && 
+                       item.NAMA && 
+                       item.NAMA.trim() !== '' &&
+                       item.IDPL !== 'N/A' && 
+                       item.NAMA !== 'N/A';
+            });
+            
+            filteredData = [...allTagihanData]; // Salin data ke array filter
+            renderPage();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data.</td></tr>`;
+        }
+    }
+
+    function renderPage() {
+        renderTable();
+        renderPagination();
+    }
+
+    function renderTable() {
+        tableBody.innerHTML = '';
+        if (filteredData.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Tidak ada tagihan ditemukan.</td></tr>`;
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const pageData = filteredData.slice(startIndex, endIndex);
+
+        pageData.forEach(item => {
+            const status = item.STATUS || 'N/A';
+            const row = `
+                <tr>
+                    <td>${item.IDPL || ''}</td>
+                    <td>${item.NAMA || ''}</td>
+                    <td>${item['PERIODE TAGIHAN'] || ''}</td>
+                    <td>${item.TAGIHAN || ''}</td>
+                    <td><span class="status-pill status-belum-lunas">${status}</span></td>
+                    <td>
+                        <button class="btn action-btn btn-success pay-btn" data-row-number="${item.rowNumber}">LUNAS</button>
+                        <button class="btn action-btn btn-whatsapp wa-btn" data-row-number="${item.rowNumber}">
+                            <i class="fab fa-whatsapp"></i> WA
+                        </button>
+                    </td>
+                </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        paginationControls.innerHTML = '';
+
+        if (totalPages <= 1) {
+            paginationInfo.textContent = `Menampilkan ${filteredData.length} dari ${filteredData.length} data`;
+            return;
+        }
+
+        // Previous Button
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '&laquo;';
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage();
+            }
+        });
+        paginationControls.appendChild(prevButton);
+
+        // Page Number Buttons (LOGIKA BARU)
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            if (i === currentPage) {
+                pageButton.classList.add('active');
+            }
+            pageButton.addEventListener('click', () => {
+                currentPage = i;
+                renderPage();
+            });
+            paginationControls.appendChild(pageButton);
+        }
+
+        // Next Button
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '&raquo;';
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPage();
+            }
+        });
+        paginationControls.appendChild(nextButton);
+
+        const startItem = (currentPage - 1) * rowsPerPage + 1;
+        const endItem = Math.min(startItem + rowsPerPage - 1, filteredData.length);
+        paginationInfo.textContent = `Menampilkan ${startItem}-${endItem} dari ${filteredData.length} data`;
+    }
+
+    // ===============================================
+    // Payment Modal Functions
+    // ===============================================
+    function showPaymentModal(rowData) {
+        currentPaymentData = rowData;
+        
+        // Populate modal with payment data
+        paymentCustomerName.textContent = rowData.NAMA || 'N/A';
+        paymentPeriod.textContent = rowData['PERIODE TAGIHAN'] || 'N/A';
+        paymentAmount.textContent = rowData.TAGIHAN || 'N/A';
+        
+        // Show modal
+        paymentModal.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closePaymentModal() {
+        paymentModal.classList.remove('show');
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        currentPaymentData = null;
+    }
+    
+    async function processPayment() {
+        if (!currentPaymentData) return;
+        
+        const rowNumber = currentPaymentData.rowNumber;
+        const rowData = currentPaymentData;
+        
+        try {
+            // Disable button to prevent double-click
+            paymentConfirmBtn.disabled = true;
+            paymentConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            
+            const response = await fetch(API_BAYAR_URL, { 
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ rowNumber, rowData }) 
+            });
+            const result = await response.json();
+            
+            if (!response.ok) throw new Error(result.message);
+            
+            // Close modal and show success
+            closePaymentModal();
+            showSuccessNotification(result.message);
+            fetchTagihan(); // Reload table
+            
+        } catch (error) {
+            console.error('Error processing payment:', error);
+            showErrorNotification(`Error: ${error.message}`);
+        } finally {
+            // Re-enable button
+            paymentConfirmBtn.disabled = false;
+            paymentConfirmBtn.innerHTML = '<i class="fas fa-check"></i> Proses Pembayaran';
+        }
+    }
+
+    // ===============================================
+    // Action Handler
+    // ===============================================
+    async function handleButtonClick(event) {
+        const button = event.target.closest('button');
+        if (!button) return;
+        
+        const rowNumber = button.dataset.rowNumber;
+        const rowData = allTagihanData.find(item => item.rowNumber == rowNumber);
+        
+        if (button.classList.contains('pay-btn')) {
+            console.log('Payment button clicked!'); // Debug
+            console.log('rowData:', rowData); // Debug
+            console.log('paymentModal exists:', !!paymentModal); // Debug
+            
+            if (rowData) {
+                if (paymentModal) {
+                    console.log('Showing payment modal'); // Debug
+                    showPaymentModal(rowData);
+                } else {
+                    console.error('Payment modal not found! Using fallback confirm.');
+                    // Fallback to browser confirm if modal not found
+                    if (confirm(`Proses pembayaran untuk ${rowData.NAMA} (${rowData['PERIODE TAGIHAN']})?`)) {
+                        processPaymentDirect(rowNumber, rowData);
+                    }
+                }
+            }
+        } else if (button.classList.contains('wa-btn')) {
+            console.log('WhatsApp button clicked!'); // Debug
+            if (rowData) {
+                sendWhatsAppMessage(rowData);
+            }
+        }
+    }
+    
+    // ===============================================
+    // Notification Functions
+    // ===============================================
+    function showSuccessNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1002;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            animation: slideInRight 0.3s ease;
+        `;
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.parentNode.removeChild(notification), 300);
+            }
+        }, 3000);
+    }
+    
+    function showErrorNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1002;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            animation: slideInRight 0.3s ease;
+        `;
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.parentNode.removeChild(notification), 300);
+            }
+        }, 4000);
+    }
+    
+    // Fallback function for direct payment processing
+    async function processPaymentDirect(rowNumber, rowData) {
+        try {
+            const response = await fetch(API_BAYAR_URL, { 
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ rowNumber, rowData }) 
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+            
+            alert(result.message);
+            fetchTagihan(); // Reload table
+        } catch (error) {
+            console.error('Error processing payment:', error);
+            alert(`Error: ${error.message}`);
+        }
+    }
+    
+    // ===============================================
+    // WhatsApp Message Function
+    // ===============================================
+    function sendWhatsAppMessage(rowData) {
+        const customerName = rowData.NAMA || 'Pelanggan';
+        const customerId = rowData.IDPL || '';
+        const whatsappNumber = rowData.WHATSAPP || '';
+        const billAmount = rowData.TAGIHAN || '';
+        const billPeriod = rowData['PERIODE TAGIHAN'] || '';
+        
+        // Validate WhatsApp number
+        if (!whatsappNumber) {
+            alert('Nomor WhatsApp pelanggan tidak tersedia!');
+            return;
+        }
+        
+        // Generate the message
+        const message = `Informasi Tagihan WiFi Anda
+
+Hai Bapak/Ibu ${customerName},
+ID Pelanggan: ${customerId}
+
+Informasi tagihan Bapak/Ibu bulan ini adalah:
+Jumlah Tagihan: ${billAmount}
+Periode Tagihan: ${billPeriod}
+
+Bayar tagihan Anda di salah satu rekening di bawah ini:
+• Seabank 901307925714 An. TAUFIQ AZIZ
+• BCA 3621053653 An. TAUFIQ AZIZ
+• BSI 7211806138 An. TAUFIQ AZIZ
+• Dana 089609497390 An. TAUFIQ AZIZ
+
+Terima kasih atas kepercayaan Anda menggunakan layanan kami.
+_____________________________
+*Ini adalah pesan otomatis. Jika telah membayar tagihan, abaikan pesan ini.`;
+        
+        // Clean phone number (remove non-numeric characters except +)
+        let cleanedNumber = whatsappNumber.replace(/[^0-9+]/g, '');
+        
+        // Add country code if not present
+        if (!cleanedNumber.startsWith('+') && !cleanedNumber.startsWith('62')) {
+            if (cleanedNumber.startsWith('0')) {
+                cleanedNumber = '62' + cleanedNumber.substring(1);
+            } else {
+                cleanedNumber = '62' + cleanedNumber;
+            }
+        }
+        
+        // Encode message for URL
+        const encodedMessage = encodeURIComponent(message);
+        
+        // Generate WhatsApp URL
+        const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${encodedMessage}`;
+        
+        // Open WhatsApp in new tab
+        window.open(whatsappUrl, '_blank');
+        
+        // Show success notification
+        showSuccessNotification(`Pesan WhatsApp untuk ${customerName} telah dibuka!`);
+    }
+});
