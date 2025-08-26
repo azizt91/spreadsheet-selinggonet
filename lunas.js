@@ -52,28 +52,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     // Main Data Fetch & Display Logic
     // ===============================================
-    async function fetchLunas() {
-        try {
-            const response = await fetch(API_URL); // API_URL sudah benar
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const responseData = await response.json();
-
-            allLunasData = data.reverse(); 
-
-            // --- PERBAIKAN UTAMA: Penanganan Error ---
-            if (!Array.isArray(responseData)) {
-                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-                throw new TypeError('Format data yang diterima dari server salah.');
-            }
-            
-            allLunasData = responseData.reverse(); 
-            filteredData = [...allLunasData];
-            renderPage();
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+async function fetchLunas() {
+    try {
+        const response = await fetch(API_URL); // API_URL sudah benar
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const responseData = await response.json();
+
+        // --- PERBAIKAN UTAMA DI SINI ---
+        // 1. Cek dulu apakah responsnya adalah array
+        if (!Array.isArray(responseData)) {
+            // 2. Jika bukan, lempar error yang jelas
+            if (responseData && responseData.error) {
+                throw new Error(`Error dari server: ${responseData.error}`);
+            }
+            throw new TypeError('Format data yang diterima dari server salah.');
+        }
+        
+        // 3. Hanya jalankan .reverse() jika data adalah array
+        allLunasData = responseData.reverse(); 
+        
+        filteredData = [...allLunasData];
+        renderPage();
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        // Tampilkan pesan error yang lebih informatif di tabel
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
     }
+}
+
 
     function renderPage() {
         renderTable();
