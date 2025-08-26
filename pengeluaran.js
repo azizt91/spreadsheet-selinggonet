@@ -1,4 +1,4 @@
-         // pengeluaran.js (Versi Final dengan Perbaikan Urutan, Edit Tanggal, dan Format Tampilan)
+// pengeluaran.js (Versi Final dengan Perbaikan Urutan, Edit Tanggal, Format Tampilan, dan Pagination)
 
 document.addEventListener('DOMContentLoaded', () => {
     // State Management & Global Variables
@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new TypeError('Format data yang diterima dari server salah.');
             }
             
-            // PERBAIKAN 1: Mengurutkan data terbaru di atas secara andal
             allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
             
             filteredData = [...allData];
@@ -75,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPage() {
         renderTable();
-        renderPagination();
+        renderPagination(); // Memastikan pagination selalu di-render
     }
 
     function renderTable() {
@@ -93,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 minimumFractionDigits: 0 
             }).format(String(item.JUMLAH || '0').replace(/[^0-9]/g, ''));
 
-            // PERBAIKAN 3: Format tampilan tanggal di tabel
             const tanggalDisplay = item.TANGGAL ? new Date(item.TANGGAL).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
 
             const row = `
@@ -111,7 +109,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderPagination() { /* ...Tidak ada perubahan di sini... */ }
+    // ===============================================
+    // PAGINATION LOGIC (DIKEMBALIKAN)
+    // ===============================================
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        paginationControls.innerHTML = '';
+
+        if (totalPages <= 1) {
+            paginationInfo.textContent = `Menampilkan ${filteredData.length} dari ${filteredData.length} data`;
+            return;
+        }
+
+        const createButton = (text, page, isDisabled = false, isActive = false) => {
+            const button = document.createElement('button');
+            button.innerHTML = text;
+            button.disabled = isDisabled;
+            if (isActive) button.classList.add('active');
+            button.addEventListener('click', () => {
+                currentPage = page;
+                renderPage();
+            });
+            return button;
+        };
+
+        paginationControls.appendChild(createButton('&laquo;', currentPage - 1, currentPage === 1));
+
+        const pagesToShow = [];
+        const maxVisibleButtons = 7;
+        if (totalPages <= maxVisibleButtons) {
+            for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+        } else {
+            pagesToShow.push(1);
+            if (currentPage > 4) pagesToShow.push('...');
+            let start = Math.max(2, currentPage - 1);
+            let end = Math.min(totalPages - 1, currentPage + 1);
+            for (let i = start; i <= end; i++) pagesToShow.push(i);
+            if (currentPage < totalPages - 3) pagesToShow.push('...');
+            pagesToShow.push(totalPages);
+        }
+
+        pagesToShow.forEach(page => {
+            if (page === '...') {
+                const span = document.createElement('span');
+                span.textContent = '...';
+                span.style.margin = '0 10px';
+                paginationControls.appendChild(span);
+            } else {
+                paginationControls.appendChild(createButton(page, page, false, page === currentPage));
+            }
+        });
+
+        paginationControls.appendChild(createButton('&raquo;', currentPage + 1, currentPage === totalPages));
+
+        const startItem = (currentPage - 1) * rowsPerPage + 1;
+        const endItem = Math.min(startItem + rowsPerPage - 1, filteredData.length);
+        paginationInfo.textContent = `Menampilkan ${startItem}-${endItem} dari ${filteredData.length} data`;
+    }
 
     // ===============================================
     // MODAL & FORM LOGIC (DIPERBAIKI)
@@ -123,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         form.reset();
         document.getElementById('rowNumber').value = '';
         document.getElementById('modal-title').textContent = 'Tambah Pengeluaran';
-        // Set tanggal hari ini sebagai default
         document.getElementById('tanggal').valueAsDate = new Date();
         openModal(formModal);
     }
@@ -138,10 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('deskripsi').value = dataToEdit['DESKRIPSI PENGELUARAN'] || '';
         document.getElementById('jumlah').value = String(dataToEdit.JUMLAH || '').replace(/\D/g, '');
 
-        // PERBAIKAN 2: Tanggal muncul dengan benar saat edit
         if (dataToEdit.TANGGAL) {
-            // Menggunakan valueAsDate akan secara otomatis menangani konversi
-            // dari string tanggal (termasuk format ISO) ke format yang benar untuk input
             document.getElementById('tanggal').valueAsDate = new Date(dataToEdit.TANGGAL);
         } else {
             document.getElementById('tanggal').value = '';
@@ -161,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             DESKRIPSI_PENGELUARAN: document.getElementById('deskripsi').value,
             JUMLAH: document.getElementById('jumlah').value,
-            TANGGAL: document.getElementById('tanggal').value, // Format YYYY-MM-DD dari input
+            TANGGAL: document.getElementById('tanggal').value,
         };
 
         try {
@@ -221,5 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+
    
             
