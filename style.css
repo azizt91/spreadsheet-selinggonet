@@ -519,45 +519,7 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
         transform: scale(1.1);
     }
     
-    /* =================================================================== */
-    /* --- COLORED BILLING PERIOD PILLS --- */
-    /* =================================================================== */
-    .period-pill {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        text-align: center;
-        color: white;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        min-width: 100px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .period-pill:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Month-specific colors */
-    .period-pill.januari { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-    .period-pill.februari { background: linear-gradient(135deg, #e67e22, #d35400); }
-    .period-pill.maret { background: linear-gradient(135deg, #f39c12, #e67e22); }
-    .period-pill.april { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-    .period-pill.mei { background: linear-gradient(135deg, #1abc9c, #16a085); }
-    .period-pill.juni { background: linear-gradient(135deg, #3498db, #2980b9); }
-    .period-pill.juli { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
-    .period-pill.agustus { background: linear-gradient(135deg, #34495e, #2c3e50); }
-    .period-pill.september { background: linear-gradient(135deg, #f1c40f, #f39c12); }
-    .period-pill.oktober { background: linear-gradient(135deg, #e91e63, #ad1457); }
-    .period-pill.november { background: linear-gradient(135deg, #795548, #5d4037); }
-    .period-pill.desember { background: linear-gradient(135deg, #607d8b, #455a64); }
-    
-    /* Default color for unknown periods */
-    .period-pill.default { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
-    
+    /* Mobile responsive adjustments for pills in customer modal */
     .bills-table {
         font-size: 12px;
     }
@@ -571,7 +533,8 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
         padding: 4px 8px;
         font-size: 10px;
     }
-}
+    
+    }
 
 /* =================================================================== */
 /* --- PAYMENT CONFIRMATION MODAL --- */
@@ -771,6 +734,45 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     background-color: rgba(255, 193, 7, 0.1); /* Kuning transparan */
     color: #b08800; /* Kuning gelap */
 }
+
+/* =================================================================== */
+/* --- COLORED BILLING PERIOD PILLS --- */
+/* =================================================================== */
+.period-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    min-width: 100px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.period-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Month-specific colors */
+.period-pill.januari { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.period-pill.februari { background: linear-gradient(135deg, #e67e22, #d35400); }
+.period-pill.maret { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.period-pill.april { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.period-pill.mei { background: linear-gradient(135deg, #1abc9c, #16a085); }
+.period-pill.juni { background: linear-gradient(135deg, #3498db, #2980b9); }
+.period-pill.juli { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+.period-pill.agustus { background: linear-gradient(135deg, #34495e, #2c3e50); }
+.period-pill.september { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+.period-pill.oktober { background: linear-gradient(135deg, #e91e63, #ad1457); }
+.period-pill.november { background: linear-gradient(135deg, #795548, #5d4037); }
+.period-pill.desember { background: linear-gradient(135deg, #607d8b, #455a64); }
+
+/* Default color for unknown periods */
+.period-pill.default { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
 
 /* =================================================================== */
 /* --- KONTROL FILTER DI HEADER --- */
