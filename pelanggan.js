@@ -1,8 +1,6 @@
-           // pelanggan.js (Versi Final dengan Pencarian & Pagination)
+// pelanggan.js (Versi Final dengan Perbaikan Format Tanggal, Pengurutan, CRUD, dan Pagination Lengkap)
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Logika session check & logout sudah dihandle oleh auth.js.
-
     // ===============================================
     // State Management & Global Variables
     // ===============================================
@@ -29,8 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationControls = document.getElementById('pagination-controls');
     const paginationInfo = document.getElementById('pagination-info');
     const rowsPerPageSelector = document.getElementById('rows-per-page');
-
-    // Modals
     const formModal = document.getElementById('form-modal');
     const viewModal = document.getElementById('view-modal');
     const form = document.getElementById('data-form');
@@ -46,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
-        // Event listener untuk input pencarian
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
             filteredData = allData.filter(item =>
@@ -58,14 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPage();
         });
 
-        // Event listener untuk dropdown jumlah baris
         rowsPerPageSelector.addEventListener('change', () => {
             rowsPerPage = parseInt(rowsPerPageSelector.value, 10);
-            currentPage = 1; // Kembali ke halaman pertama
+            currentPage = 1;
             renderPage();
         });
 
-        // Event listener untuk modal
         document.getElementById('show-add-modal-btn').addEventListener('click', showAddModal);
         formModal.querySelector('.close-btn').addEventListener('click', () => closeModal(formModal));
         viewModal.querySelector('.close-btn').addEventListener('click', () => closeModal(viewModal));
@@ -74,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.target == viewModal) closeModal(viewModal);
         });
 
-        // Event listener untuk form dan tabel
         form.addEventListener('submit', handleFormSubmit);
         tableBody.addEventListener('click', handleTableClick);
         document.getElementById('paket').addEventListener('change', handlePaketChange);
@@ -89,13 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const responseData = await response.json();
 
-            // --- PERBAIKAN UTAMA: Penanganan Error ---
             if (!Array.isArray(responseData)) {
                 if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
                 throw new TypeError('Format data yang diterima dari server salah.');
             }
             
-            allData = responseData;
+            // Mengurutkan data terbaru (rowNumber terbesar) di paling atas
+            allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
             filteredData = [...allData];
             renderPage();
         } catch (error) {
@@ -123,6 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pageData.forEach(item => {
             const status = item.STATUS || 'N/A';
             const statusClass = status.toUpperCase() === 'AKTIF' ? 'status-aktif' : 'status-nonaktif';
+            
+            // PERBAIKAN: Format tampilan tanggal
+            const tanggalPasangDisplay = item['TANGGAL PASANG'] 
+                ? new Date(item['TANGGAL PASANG']).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) 
+                : '-';
+
             const row = `
                 <tr>
                     <td>${item.IDPL || ''}</td>
@@ -130,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${item.WHATSAPP || ''}</td>
                     <td>${item.PAKET || ''}</td>
                     <td><span class="status-pill ${statusClass}">${status}</span></td>
-                    <td>${item['TANGGAL PASANG'] || ''}</td>
+                    <td>${tanggalPasangDisplay}</td>
                     <td>
                         <button class="btn action-btn view-btn" data-row="${item.rowNumber}"><i class="fas fa-eye"></i></button>
                         <button class="btn action-btn edit-btn" data-row="${item.rowNumber}"><i class="fas fa-edit"></i></button>
@@ -150,40 +148,46 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const prevButton = document.createElement('button');
-        prevButton.innerHTML = '&laquo;';
-        prevButton.disabled = currentPage === 1;
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                renderPage();
-            }
-        });
-        paginationControls.appendChild(prevButton);
-
-        for (let i = 1; i <= totalPages; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.textContent = i;
-            if (i === currentPage) {
-                pageButton.classList.add('active');
-            }
-            pageButton.addEventListener('click', () => {
-                currentPage = i;
+        const createButton = (text, page, isDisabled = false, isActive = false) => {
+            const button = document.createElement('button');
+            button.innerHTML = text;
+            button.disabled = isDisabled;
+            if (isActive) button.classList.add('active');
+            button.addEventListener('click', () => {
+                currentPage = page;
                 renderPage();
             });
-            paginationControls.appendChild(pageButton);
+            return button;
+        };
+
+        paginationControls.appendChild(createButton('&laquo;', currentPage - 1, currentPage === 1));
+
+        const pagesToShow = [];
+        const maxVisibleButtons = 7;
+        if (totalPages <= maxVisibleButtons) {
+            for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+        } else {
+            pagesToShow.push(1);
+            if (currentPage > 4) pagesToShow.push('...');
+            let start = Math.max(2, currentPage - 1);
+            let end = Math.min(totalPages - 1, currentPage + 1);
+            for (let i = start; i <= end; i++) pagesToShow.push(i);
+            if (currentPage < totalPages - 3) pagesToShow.push('...');
+            pagesToShow.push(totalPages);
         }
 
-        const nextButton = document.createElement('button');
-        nextButton.innerHTML = '&raquo;';
-        nextButton.disabled = currentPage === totalPages;
-        nextButton.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderPage();
+        pagesToShow.forEach(page => {
+            if (page === '...') {
+                const span = document.createElement('span');
+                span.textContent = '...';
+                span.style.margin = '0 10px';
+                paginationControls.appendChild(span);
+            } else {
+                paginationControls.appendChild(createButton(page, page, false, page === currentPage));
             }
         });
-        paginationControls.appendChild(nextButton);
+
+        paginationControls.appendChild(createButton('&raquo;', currentPage + 1, currentPage === totalPages));
 
         const startItem = (currentPage - 1) * rowsPerPage + 1;
         const endItem = Math.min(startItem + rowsPerPage - 1, filteredData.length);
@@ -213,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal(modalElement) {
         modalElement.classList.add('show');
     }
+    
     function closeModal(modalElement) {
         modalElement.classList.remove('show');
     }
@@ -253,14 +258,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = document.getElementById('view-modal-body');
         body.innerHTML = '';
         
-        // Only show specified fields: NAMA, ALAMAT, JENIS KELAMIN, PAKET, WHATSAPP, TANGGAL PASANG, JENIS PERANGKAT, IP STATIC / PPOE
-        const fields = ['NAMA', 'ALAMAT', 'JENIS KELAMIN', 'PAKET', 'WHATSAPP', 'TANGGAL PASANG', 'JENIS PERANGKAT', 'IP STATIC / PPOE'];
+        const fields = ['IDPL', 'NAMA', 'ALAMAT', 'JENIS KELAMIN', 'WHATSAPP', 'PAKET', 'TAGIHAN', 'STATUS', 'TANGGAL PASANG', 'JENIS PERANGKAT', 'IP STATIC / PPOE'];
         fields.forEach(field => {
-            const value = dataToView[field] || '-';
+            let value = dataToView[field] || '-';
+            if (field === 'TANGGAL PASANG' && dataToView[field]) {
+                value = new Date(dataToView[field]).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            }
             body.innerHTML += `<div class="view-item"><strong>${field}</strong><span>${value}</span></div>`;
         });
         
-        // Load unpaid bills for this customer
         loadUnpaidBills(dataToView.IDPL, dataToView.NAMA);
         
         openModal(viewModal);
@@ -285,21 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
             jenisPerangkat: document.getElementById('jenisPerangkat').value,
         };
         
-        // Untuk mode edit, kita perlu mengirim semua kolom agar tidak terhapus di sheet
-        if (isEditing) {
-            const originalData = allData.find(item => item.rowNumber == rowNumber);
-            formData.NAMA = formData.nama;
-            formData.ALAMAT = formData.alamat;
-            formData.WHATSAPP = formData.whatsapp;
-            formData['JENIS KELAMIN'] = formData.jenisKelamin;
-            formData.PAKET = formData.paket;
-            formData.TAGIHAN = formData.tagihan;
-            formData.STATUS = formData.status;
-            formData['JENIS PERANGKAT'] = formData.jenisPerangkat;
-            formData['IP STATIC / PPOE'] = originalData ? originalData['IP STATIC / PPOE'] : '';
-            formData.FOTO = originalData ? originalData.FOTO : '';
-        }
-
         try {
             const response = await fetch(API_BASE_URL, {
                 method: 'POST',
@@ -329,18 +320,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const rowNumber = button.dataset.row;
         if (button.classList.contains('view-btn')) {
             showViewModal(rowNumber);
-        }
-        if (button.classList.contains('edit-btn')) {
+        } else if (button.classList.contains('edit-btn')) {
             showEditModal(rowNumber);
-        }
-        if (button.classList.contains('delete-btn')) {
-            if (confirm(`Apakah Anda yakin ingin menghapus data ini?`)) {
-                deleteData(rowNumber);
-            }
+        } else if (button.classList.contains('delete-btn')) {
+            deleteData(rowNumber);
         }
     }
 
     async function deleteData(rowNumber) {
+        if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
+
         try {
             const response = await fetch(API_BASE_URL, {
                 method: 'POST',
@@ -370,36 +359,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const unpaidBillsBody = document.getElementById('unpaid-bills-body');
         
         try {
-            // Show loading state
             noBillsMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i><p>Memuat tagihan...</p>';
             noBillsMessage.style.display = 'block';
             billsTableContainer.style.display = 'none';
             
-            // Fetch unpaid bills from tagihan endpoint
             const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`);
             if (!response.ok) throw new Error('Gagal mengambil data tagihan');
+            const responseData = await response.json();
+
+            if (!Array.isArray(responseData)) {
+                throw new Error('Format data tagihan tidak valid.');
+            }
             
-            const allBills = await response.json();
-            
-            // Filter bills for this specific customer
-            const customerBills = allBills.filter(bill => 
+            const customerBills = responseData.filter(bill => 
                 bill.IDPL === customerIdpl && 
-                bill.IDPL && bill.IDPL.trim() !== '' &&
-                bill.NAMA && bill.NAMA.trim() !== '' &&
-                bill.STATUS && 
-                bill.STATUS.toUpperCase() === 'BELUM LUNAS'
+                bill.STATUS && bill.STATUS.toUpperCase() === 'BELUM LUNAS'
             );
             
             if (customerBills.length === 0) {
-                // No unpaid bills
                 noBillsMessage.innerHTML = '<i class="fas fa-check-circle"></i><p>Tidak ada tagihan yang belum lunas</p>';
-                noBillsMessage.style.display = 'block';
-                billsTableContainer.style.display = 'none';
             } else {
-                // Display unpaid bills in table
                 noBillsMessage.style.display = 'none';
                 billsTableContainer.style.display = 'block';
-                
                 unpaidBillsBody.innerHTML = '';
                 customerBills.forEach(bill => {
                     const row = document.createElement('tr');
@@ -411,12 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     unpaidBillsBody.appendChild(row);
                 });
             }
-            
         } catch (error) {
             console.error('Error loading unpaid bills:', error);
-            noBillsMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Gagal memuat data tagihan</p>';
-            noBillsMessage.style.display = 'block';
-            billsTableContainer.style.display = 'none';
+            noBillsMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i><p>Gagal memuat data tagihan. ${error.message}</p>`;
         }
     }
-}); 
+});
