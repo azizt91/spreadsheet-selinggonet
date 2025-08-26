@@ -54,19 +54,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
 async function fetchLunas() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL); // API_URL sudah dikonfigurasi dengan benar
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const responseData = await response.json();
 
+        // 1. Pengecekan keamanan untuk memastikan data adalah array
         if (!Array.isArray(responseData)) {
             if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
             throw new TypeError('Format data yang diterima dari server salah.');
         }
         
-        // --- PERBAIKAN DI SINI: Ganti .reverse() dengan .sort() ---
-        // Mengurutkan data berdasarkan rowNumber dari yang terbesar (paling baru) ke terkecil.
+        // --- PERBAIKAN UTAMA DI SINI ---
+        // Ganti .reverse() dengan .sort() untuk pengurutan yang andal
+        // Ini akan mengurutkan data berdasarkan rowNumber dari yang terbesar ke terkecil.
         allLunasData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
         
         filteredData = [...allLunasData];
@@ -74,6 +76,7 @@ async function fetchLunas() {
 
     } catch (error) {
         console.error('Error fetching data:', error);
+        // Menampilkan pesan error yang lebih jelas di dalam tabel
         tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
     }
 }
