@@ -5,53 +5,51 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# INI ADALAH ATURAN TES BARU KITA
+[[redirects]]
+  from = "/test"
+  to = "/.netlify/functions/test"
+  status = 200
+
 # Redirect API calls to Netlify Functions
 [[redirects]]
   from = "/login"
   to = "/.netlify/functions/auth"
   status = 200
-
 [[redirects]]
   from = "/pelanggan/*"
   to = "/.netlify/functions/pelanggan"
   status = 200
-
 [[redirects]]
   from = "/pelanggan"
   to = "/.netlify/functions/pelanggan"
   status = 200
-
 [[redirects]]
   from = "/tagihan"
   to = "/.netlify/functions/tagihan"
   status = 200
-
 [[redirects]]
   from = "/lunas"
   to = "/.netlify/functions/lunas"
   status = 200
-
 [[redirects]]
   from = "/pengeluaran/*"
   to = "/.netlify/functions/pengeluaran"
   status = 200
-
 [[redirects]]
   from = "/pengeluaran"
   to = "/.netlify/functions/pengeluaran"
   status = 200
-
 [[redirects]]
   from = "/bayar"
   to = "/.netlify/functions/bayar"
   status = 200
-
 [[redirects]]
   from = "/dashboard-stats"
   to = "/.netlify/functions/dashboard-stats"
   status = 200
 
-# SPA fallback (MUST BE LAST)
+# SPA fallback (PASTIKAN INI TETAP PALING BAWAH)
 [[redirects]]
   from = "/*"
   to = "/index.html"
