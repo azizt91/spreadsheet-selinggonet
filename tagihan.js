@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_TAGIHAN_URL = window.AppConfig.getApiUrl('/tagihan');
-    const API_BAYAR_URL = window.AppConfig.getApiUrl('/bayar');
+    const API_TAGIHAN_URL = `${window.AppConfig.API_BASE_URL}?action=getTagihan`;
+    const API_BAYAR_URL = window.AppConfig.API_BASE_URL;
     let allTagihanData = []; // Simpan semua data asli
     let filteredData = [];   // Data yang ditampilkan setelah filter
     let currentPage = 1;
@@ -237,8 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const response = await fetch(API_BAYAR_URL, { 
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ rowNumber, rowData }) 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'bayar',
+                    rowNumber: rowNumber,
+                    rowData: rowData
+                })
             });
             const result = await response.json();
             
@@ -364,8 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(API_BAYAR_URL, { 
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ rowNumber, rowData }) 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'bayar',
+                    rowNumber: rowNumber,
+                    rowData: rowData
+                })
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message);

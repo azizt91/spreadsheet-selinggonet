@@ -1,13 +1,12 @@
 // config.js - API Configuration
 const config = {
-    // Detect if we're running on Netlify or locally
-    API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:3000'  // Local development
-        : '',  // Production (Netlify) - use relative URLs
+    // GANTI URL DI BAWAH INI DENGAN WEB APP URL DARI GOOGLE APPS SCRIPT ANDA
+    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyQ38Yz7FcAo9jxa3hvXoP0vZsx45fiaaVH_a811BbI3Gqc8y0kBSkGhi-zORjm-2qH-Q/exec', // <-- GANTI DENGAN URL WEB APP ANDA
     
-    // API endpoints
+    // Fungsi untuk mendapatkan URL API
     getApiUrl: function(endpoint) {
-        return this.API_BASE_URL + endpoint;
+        // Untuk Google Apps Script, endpoint akan dikirim sebagai parameter action
+        return this.API_BASE_URL;
     }
 };
 

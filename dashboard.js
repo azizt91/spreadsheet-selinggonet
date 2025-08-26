@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Mengirim parameter filter ke backend
-            const response = await fetch(window.AppConfig.getApiUrl(`/dashboard-stats?bulan=${bulan}&tahun=${tahun}`));
+            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getDashboardStats&bulan=${bulan}&tahun=${tahun}`);
             if (!response.ok) throw new Error('Gagal mengambil data statistik');
             
             const stats = await response.json();

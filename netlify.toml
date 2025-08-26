@@ -1,58 +1,10 @@
 [build]
-  functions = "netlify/functions"
   publish = "."
 
 [build.environment]
   NODE_VERSION = "18"
 
-# --- BLOK BARU UNTUK MEMPERBAIKI MASALAH DEPENDENCY ---
-[functions]
-  external_node_modules = ["googleapis"]
-# ----------------------------------------------------
-
-# Redirect API calls to Netlify Functions
-[[redirects]]
-  from = "/test"
-  to = "/.netlify/functions/test"
-  status = 200
-[[redirects]]
-  from = "/login"
-  to = "/.netlify/functions/auth"
-  status = 200
-[[redirects]]
-  from = "/pelanggan/*"
-  to = "/.netlify/functions/pelanggan"
-  status = 200
-[[redirects]]
-  from = "/pelanggan"
-  to = "/.netlify/functions/pelanggan"
-  status = 200
-[[redirects]]
-  from = "/tagihan"
-  to = "/.netlify/functions/tagihan"
-  status = 200
-[[redirects]]
-  from = "/lunas"
-  to = "/.netlify/functions/lunas"
-  status = 200
-[[redirects]]
-  from = "/pengeluaran/*"
-  to = "/.netlify/functions/pengeluaran"
-  status = 200
-[[redirects]]
-  from = "/pengeluaran"
-  to = "/.netlify/functions/pengeluaran"
-  status = 200
-[[redirects]]
-  from = "/bayar"
-  to = "/.netlify/functions/bayar"
-  status = 200
-[[redirects]]
-  from = "/dashboard-stats"
-  to = "/.netlify/functions/dashboard-stats"
-  status = 200
-
-# SPA fallback (PASTIKAN INI TETAP PALING BAWAH)
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"

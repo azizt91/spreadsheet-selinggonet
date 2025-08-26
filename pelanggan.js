@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_URL = window.AppConfig.getApiUrl('/pelanggan');
+    const API_URL = `${window.AppConfig.API_BASE_URL}?action=getPelanggan`;
     let allData = [];
     let filteredData = [];
     let currentPage = 1;
@@ -298,10 +298,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+            const response = await fetch(window.AppConfig.API_BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: isEditing ? 'updatePelanggan' : 'addPelanggan',
+                    rowNumber: isEditing ? rowNumber : undefined,
+                    data: formData
+                })
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'Gagal menyimpan data');
@@ -335,7 +339,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteData(rowNumber) {
         try {
-            const response = await fetch(`${API_URL}/${rowNumber}`, { method: 'DELETE' });
+            const response = await fetch(window.AppConfig.API_BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'deletePelanggan',
+                    rowNumber: rowNumber
+                })
+            });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'Gagal menghapus data');
             
@@ -362,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
             billsTableContainer.style.display = 'none';
             
             // Fetch unpaid bills from tagihan endpoint
-            const response = await fetch(window.AppConfig.getApiUrl('/tagihan'));
+            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`);
             if (!response.ok) throw new Error('Gagal mengambil data tagihan');
             
             const allBills = await response.json();

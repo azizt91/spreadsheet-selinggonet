@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_URL = window.AppConfig.getApiUrl('/lunas');
+    const API_URL = `${window.AppConfig.API_BASE_URL}?action=getLunas`;
     let allLunasData = [];
     let filteredData = [];
     let currentPage = 1;

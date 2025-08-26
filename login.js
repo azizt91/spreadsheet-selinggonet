@@ -17,10 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch(window.AppConfig.getApiUrl('/login'), {
+            const response = await fetch(window.AppConfig.API_BASE_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'login',
+                    username: username,
+                    password: password
+                })
             });
             const result = await response.json();
             if (response.ok) {
