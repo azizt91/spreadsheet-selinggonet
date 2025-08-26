@@ -1,12 +1,11 @@
 {
   "name": "selinggonet-isp-management",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ISP Customer Management System with Google Sheets Integration",
-  "main": "server.js",
+  "main": "index.html",
   "scripts": {
-    "start": "node server.js",
-    "build": "echo 'No build step required for static files'",
-    "dev": "node server.js"
+    "start": "echo \"Error: no start script specified\" && exit 1",
+    "build": "echo 'No build step required for static files'"
   },
   "keywords": [
     "isp",
@@ -18,9 +17,8 @@
   "author": "Selinggonet",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
     "googleapis": "^126.0.1",
-    "cors": "^2.8.5"
+    "crypto": "1.0.1"
   },
   "engines": {
     "node": ">=18.0.0"
