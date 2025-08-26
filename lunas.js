@@ -102,7 +102,7 @@ async function fetchLunas() {
             const status = item.STATUS || 'N/A';
             const row = `
                 <tr>
-                    <td>${item.IDL || ''}</td>
+                    <td>${item.IDPL || ''}</td>
                     <td>${item.NAMA || ''}</td>
                     <td>${item['PERIODE TAGIHAN'] || ''}</td>
                     <td>${item['TANGGAL BAYAR'] || ''}</td>
