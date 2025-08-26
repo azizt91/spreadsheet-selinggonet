@@ -5,10 +5,14 @@ const spreadsheetId = '1t5wDtV4yATXitTjk9S2jutziUI8KAj23FOaEM2inGPM';
 
 // Helper untuk otentikasi dan koneksi ke API
 async function getSheetsApi() {
-    // Use environment variables for credentials in production
-    const credentials = process.env.GOOGLE_CREDENTIALS ? 
-        JSON.parse(process.env.GOOGLE_CREDENTIALS) : 
-        require('../../credentials.json');
+    // PERBAIKAN DI SINI:
+    // Hanya gunakan environment variable untuk credentials di production.
+    // Hapus fallback ke require('credentials.json').
+    if (!process.env.GOOGLE_CREDENTIALS) {
+        throw new Error('GOOGLE_CREDENTIALS environment variable is not set.');
+    }
+    
+    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
     
     const auth = new google.auth.GoogleAuth({
         credentials,
