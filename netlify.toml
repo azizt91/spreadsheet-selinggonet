@@ -5,11 +5,6 @@
 [build.environment]
   NODE_VERSION = "18"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
 # Redirect API calls to Netlify Functions
 [[redirects]]
   from = "/login"
@@ -56,7 +51,7 @@
   to = "/.netlify/functions/dashboard-stats"
   status = 200
 
-# SPA fallback
+# SPA fallback (MUST BE LAST)
 [[redirects]]
   from = "/*"
   to = "/index.html"
