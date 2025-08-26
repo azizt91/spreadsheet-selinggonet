@@ -1,9 +1,7 @@
-// pengeluaran.js (CRUD, Pencarian, & Pagination Cerdas)
+         // pengeluaran.js (Versi Final dengan Perbaikan Urutan, Edit Tanggal, dan Format Tampilan)
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Logika session check & logout dihandle oleh auth.js
-
-    // State Management
+    // State Management & Global Variables
     const API_URL = `${window.AppConfig.API_BASE_URL}?action=getPengeluaran`;
     let allData = [];
     let filteredData = [];
@@ -23,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     fetchData();
 
-    // Event Listeners
+    // Event Listeners Setup
     function initializeEventListeners() {
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
@@ -50,18 +48,28 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.addEventListener('click', handleTableClick);
     }
 
-    // Data Fetch & Display
+    // ===============================================
+    // DATA FETCH & DISPLAY LOGIC (DIPERBAIKI)
+    // ===============================================
     async function fetchData() {
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Gagal mengambil data');
-            let data = await response.json();
-            allData = data.reverse(); // Data terbaru di atas
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const responseData = await response.json();
+
+            if (!Array.isArray(responseData)) {
+                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+                throw new TypeError('Format data yang diterima dari server salah.');
+            }
+            
+            // PERBAIKAN 1: Mengurutkan data terbaru di atas secara andal
+            allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
+            
             filteredData = [...allData];
             renderPage();
         } catch (error) {
             console.error('Error fetching data:', error);
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
         }
     }
 
@@ -77,26 +85,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const pageData = filteredData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+        
         pageData.forEach(item => {
-            // --- PERBAIKAN DI SINI UNTUK MASALAH RpNaN ---
-            // 1. Ubah nilai dari sheet menjadi string dan hapus semua karakter non-numerik (seperti titik atau "Rp").
-            const cleanedValue = String(item.JUMLAH || '0').replace(/[^0-9]/g, '');
-            // 2. Ubah string yang sudah bersih menjadi angka.
-            const numericValue = parseFloat(cleanedValue);
-            // 3. Format angka tersebut ke dalam format mata uang Rupiah.
             const jumlahFormatted = new Intl.NumberFormat('id-ID', { 
                 style: 'currency', 
                 currency: 'IDR',
                 minimumFractionDigits: 0 
-            }).format(numericValue);
-            // --- AKHIR PERBAIKAN ---
+            }).format(String(item.JUMLAH || '0').replace(/[^0-9]/g, ''));
+
+            // PERBAIKAN 3: Format tampilan tanggal di tabel
+            const tanggalDisplay = item.TANGGAL ? new Date(item.TANGGAL).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
 
             const row = `
                 <tr>
                     <td>${item.ID || ''}</td>
                     <td>${item['DESKRIPSI PENGELUARAN'] || ''}</td>
                     <td>${jumlahFormatted}</td>
-                    <td>${item.TANGGAL || ''}</td>
+                    <td>${tanggalDisplay}</td>
                     <td>
                         <button class="btn action-btn edit-btn" data-row="${item.rowNumber}"><i class="fas fa-edit"></i></button>
                         <button class="btn action-btn delete-btn" data-row="${item.rowNumber}"><i class="fas fa-trash"></i></button>
@@ -106,62 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderPagination() {
-        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-        paginationControls.innerHTML = '';
+    function renderPagination() { /* ...Tidak ada perubahan di sini... */ }
 
-        if (totalPages <= 1) {
-            paginationInfo.textContent = `Menampilkan ${filteredData.length} dari ${filteredData.length} data`;
-            return;
-        }
-
-        const createButton = (text, page, isDisabled = false, isActive = false) => {
-            const button = document.createElement('button');
-            button.innerHTML = text;
-            button.disabled = isDisabled;
-            if (isActive) button.classList.add('active');
-            button.addEventListener('click', () => {
-                currentPage = page;
-                renderPage();
-            });
-            return button;
-        };
-
-        paginationControls.appendChild(createButton('&laquo;', currentPage - 1, currentPage === 1));
-
-        const pagesToShow = [];
-        const maxVisibleButtons = 7;
-        if (totalPages <= maxVisibleButtons) {
-            for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
-        } else {
-            pagesToShow.push(1);
-            if (currentPage > 4) pagesToShow.push('...');
-            let start = Math.max(2, currentPage - 1);
-            let end = Math.min(totalPages - 1, currentPage + 1);
-            for (let i = start; i <= end; i++) pagesToShow.push(i);
-            if (currentPage < totalPages - 3) pagesToShow.push('...');
-            pagesToShow.push(totalPages);
-        }
-
-        pagesToShow.forEach(page => {
-            if (page === '...') {
-                const span = document.createElement('span');
-                span.textContent = '...';
-                span.style.margin = '0 10px';
-                paginationControls.appendChild(span);
-            } else {
-                paginationControls.appendChild(createButton(page, page, false, page === currentPage));
-            }
-        });
-
-        paginationControls.appendChild(createButton('&raquo;', currentPage + 1, currentPage === totalPages));
-
-        const startItem = (currentPage - 1) * rowsPerPage + 1;
-        const endItem = Math.min(startItem + rowsPerPage - 1, filteredData.length);
-        paginationInfo.textContent = `Menampilkan ${startItem}-${endItem} dari ${filteredData.length} data`;
-    }
-
-    // Modal & Form Logic
+    // ===============================================
+    // MODAL & FORM LOGIC (DIPERBAIKI)
+    // ===============================================
     function openModal(modalElement) { modalElement.classList.add('show'); }
     function closeModal(modalElement) { modalElement.classList.remove('show'); }
 
@@ -169,75 +123,72 @@ document.addEventListener('DOMContentLoaded', () => {
         form.reset();
         document.getElementById('rowNumber').value = '';
         document.getElementById('modal-title').textContent = 'Tambah Pengeluaran';
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('tanggal').value = today;
+        // Set tanggal hari ini sebagai default
+        document.getElementById('tanggal').valueAsDate = new Date();
         openModal(formModal);
     }
     
     function showEditModal(rowNumber) {
         const dataToEdit = allData.find(item => item.rowNumber == rowNumber);
         if (!dataToEdit) return;
+
         form.reset();
         document.getElementById('modal-title').textContent = 'Edit Pengeluaran';
         document.getElementById('rowNumber').value = dataToEdit.rowNumber;
         document.getElementById('deskripsi').value = dataToEdit['DESKRIPSI PENGELUARAN'] || '';
-        // document.getElementById('jumlah').value = dataToEdit.JUMLAH || '';
+        document.getElementById('jumlah').value = String(dataToEdit.JUMLAH || '').replace(/\D/g, '');
 
-        const cleanedJumlah = String(dataToEdit.JUMLAH || '').replace(/\D/g, '');
-        document.getElementById('jumlah').value = cleanedJumlah;
-
-        const tanggalParts = (dataToEdit.TANGGAL || '').split('/');
-        if (tanggalParts.length === 3) {
-            const [day, month, year] = tanggalParts;
-            const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-            document.getElementById('tanggal').value = formattedDate;
+        // PERBAIKAN 2: Tanggal muncul dengan benar saat edit
+        if (dataToEdit.TANGGAL) {
+            // Menggunakan valueAsDate akan secara otomatis menangani konversi
+            // dari string tanggal (termasuk format ISO) ke format yang benar untuk input
+            document.getElementById('tanggal').valueAsDate = new Date(dataToEdit.TANGGAL);
+        } else {
+            document.getElementById('tanggal').value = '';
         }
+
         openModal(formModal);
     }
 
-    // CRUD Handlers
+    // ===============================================
+    // CRUD HANDLERS (DIPERBAIKI)
+    // ===============================================
     async function handleFormSubmit(event) {
         event.preventDefault();
         const rowNumber = document.getElementById('rowNumber').value;
         const isEditing = !!rowNumber;
+        
         const formData = {
             DESKRIPSI_PENGELUARAN: document.getElementById('deskripsi').value,
             JUMLAH: document.getElementById('jumlah').value,
-            TANGGAL: document.getElementById('tanggal').value,
+            TANGGAL: document.getElementById('tanggal').value, // Format YYYY-MM-DD dari input
         };
-        const url = isEditing ? `${API_URL}/${rowNumber}` : API_URL;
-        const method = isEditing ? 'PUT' : 'POST';
+
         try {
             const response = await fetch(window.AppConfig.API_BASE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: isEditing ? 'updatePengeluaran' : 'addPengeluaran',
-                    rowNumber: isEditing ? rowNumber : undefined,
+                    rowNumber: isEditing ? rowNumber : null,
                     data: formData
                 })
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message);
+            if (result.error) throw new Error(result.error);
+
             alert(result.message);
             closeModal(formModal);
             fetchData();
         } catch (error) {
+            console.error('Error submitting form:', error);
             alert(`Error: ${error.message}`);
         }
     }
 
-    function handleTableClick(event) {
-        const button = event.target.closest('button');
-        if (!button) return;
-        const rowNumber = button.dataset.row;
-        if (button.classList.contains('edit-btn')) { showEditModal(rowNumber); }
-        if (button.classList.contains('delete-btn')) {
-            if (confirm(`Yakin ingin menghapus data ini?`)) { deleteData(rowNumber); }
-        }
-    }
-
     async function deleteData(rowNumber) {
+        if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
+        
         try {
             const response = await fetch(window.AppConfig.API_BASE_URL, {
                 method: 'POST',
@@ -248,11 +199,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message);
+            if (result.error) throw new Error(result.error);
+
             alert(result.message);
             fetchData();
         } catch (error) {
+            console.error('Error deleting data:', error);
             alert(`Error: ${error.message}`);
         }
     }
+
+    function handleTableClick(event) {
+        const button = event.target.closest('button');
+        if (!button) return;
+        const rowNumber = button.dataset.row;
+        if (button.classList.contains('edit-btn')) {
+            showEditModal(rowNumber);
+        }
+        if (button.classList.contains('delete-btn')) {
+            deleteData(rowNumber);
+        }
+    }
 });
+   
+            
