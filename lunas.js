@@ -58,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const responseData = await response.json();
 
+            allLunasData = data.reverse(); 
+
             // --- PERBAIKAN UTAMA: Penanganan Error ---
             if (!Array.isArray(responseData)) {
                 if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);

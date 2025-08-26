@@ -165,10 +165,9 @@ body.login-page {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Special styling for financial cards */
+/* Remove special styling for financial cards - keep them uniform */
 .card.financial-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-left: 4px solid #20b2aa;
+    /* Keep same styling as regular cards */
 }
 .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); }
 .card .card-icon { font-size: 24px; width: 50px; height: 50px; border-radius: 50%; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
