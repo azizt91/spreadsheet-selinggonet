@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Logika session check & logout dihandle oleh auth.js
 
     // State Management
-    const API_URL = 'http://localhost:3000/pengeluaran';
+    const API_URL = window.AppConfig.getApiUrl('/pengeluaran');
     let allData = [];
     let filteredData = [];
     let currentPage = 1;

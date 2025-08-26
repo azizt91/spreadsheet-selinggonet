@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_TAGIHAN_URL = 'http://localhost:3000/tagihan';
-    const API_BAYAR_URL = 'http://localhost:3000/bayar';
+    const API_TAGIHAN_URL = window.AppConfig.getApiUrl('/tagihan');
+    const API_BAYAR_URL = window.AppConfig.getApiUrl('/bayar');
     let allTagihanData = []; // Simpan semua data asli
     let filteredData = [];   // Data yang ditampilkan setelah filter
     let currentPage = 1;

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_URL = 'http://localhost:3000/pelanggan';
+    const API_URL = window.AppConfig.getApiUrl('/pelanggan');
     let allData = [];
     let filteredData = [];
     let currentPage = 1;
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             billsTableContainer.style.display = 'none';
             
             // Fetch unpaid bills from tagihan endpoint
-            const response = await fetch('http://localhost:3000/tagihan');
+            const response = await fetch(window.AppConfig.getApiUrl('/tagihan'));
             if (!response.ok) throw new Error('Gagal mengambil data tagihan');
             
             const allBills = await response.json();
