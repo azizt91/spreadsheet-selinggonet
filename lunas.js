@@ -28,6 +28,40 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchLunas();
 
     // ===============================================
+    // Color Assignment for Billing Periods
+    // ===============================================
+    function getPeriodColorClass(periode) {
+        if (!periode || typeof periode !== 'string') return 'default';
+        
+        const periodeText = periode.toLowerCase().trim();
+        
+        // Map Indonesian month names to color classes
+        const monthColorMap = {
+            'januari': 'januari',
+            'februari': 'februari', 
+            'maret': 'maret',
+            'april': 'april',
+            'mei': 'mei',
+            'juni': 'juni',
+            'juli': 'juli',
+            'agustus': 'agustus',
+            'september': 'september',
+            'oktober': 'oktober',
+            'november': 'november',
+            'desember': 'desember'
+        };
+        
+        // Find the month in the period string
+        for (const [month, colorClass] of Object.entries(monthColorMap)) {
+            if (periodeText.includes(month)) {
+                return colorClass;
+            }
+        }
+        
+        return 'default'; // fallback color
+    }
+
+    // ===============================================
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
@@ -100,11 +134,14 @@ async function fetchLunas() {
 
         pageData.forEach(item => {
             const status = item.STATUS || 'N/A';
+            const periode = item['PERIODE TAGIHAN'] || '';
+            const colorClass = getPeriodColorClass(periode);
+            
             const row = `
                 <tr>
                     <td>${item.IDPL || ''}</td>
                     <td>${item.NAMA || ''}</td>
-                    <td>${item['PERIODE TAGIHAN'] || ''}</td>
+                    <td><span class="period-pill ${colorClass}">${periode}</span></td>
                     <td>${item['TANGGAL BAYAR'] || ''}</td>
                     <td><span class="status-pill status-lunas">${status}</span></td>
                 </tr>`;

@@ -259,13 +259,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = document.getElementById('view-modal-body');
         body.innerHTML = '';
         
-        const fields = ['IDPL', 'NAMA', 'ALAMAT', 'JENIS KELAMIN', 'WHATSAPP', 'PAKET', 'TAGIHAN', 'STATUS', 'TANGGAL PASANG', 'JENIS PERANGKAT', 'IP STATIC / PPOE'];
+        const fields = ['IDPL', 'NAMA', 'ALAMAT', 'JENIS KELAMIN', 'WHATSAPP', 'PAKET', 'TAGIHAN', 'STATUS', 'TANGGAL PASANG', 'JENIS PERANGKAT', 'IP STATIC / PPOE', 'FOTO'];
         fields.forEach(field => {
             let value = dataToView[field] || '-';
             if (field === 'TANGGAL PASANG' && dataToView[field]) {
                 value = new Date(dataToView[field]).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
             }
-            body.innerHTML += `<div class="view-item"><strong>${field}</strong><span>${value}</span></div>`;
+            
+            // Special handling for FOTO field - display as image
+            if (field === 'FOTO' && value !== '-') {
+                body.innerHTML += `<div class="view-item"><strong>${field}</strong><span><img src="${value}" alt="Foto Profil" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;"></span></div>`;
+            } else {
+                body.innerHTML += `<div class="view-item"><strong>${field}</strong><span>${value}</span></div>`;
+            }
         });
         
         loadUnpaidBills(dataToView.IDPL, dataToView.NAMA);
@@ -292,6 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
             jenisPerangkat: document.getElementById('jenisPerangkat').value,
             ipStatic: document.getElementById('ipStatic').value,
         };
+        
+        // Debug: Log form data to console
+        console.log('Form data being sent:', formData);
+        console.log('IP Static field value:', formData.ipStatic);
         
         try {
             const response = await fetch(API_BASE_URL, {
@@ -355,6 +365,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // UNPAID BILLS FUNCTIONALITY
     // ===============================================
+    
+    // Color Assignment for Billing Periods
+    function getPeriodColorClass(periode) {
+        if (!periode || typeof periode !== 'string') return 'default';
+        
+        const periodeText = periode.toLowerCase().trim();
+        
+        // Map Indonesian month names to color classes
+        const monthColorMap = {
+            'januari': 'januari',
+            'februari': 'februari', 
+            'maret': 'maret',
+            'april': 'april',
+            'mei': 'mei',
+            'juni': 'juni',
+            'juli': 'juli',
+            'agustus': 'agustus',
+            'september': 'september',
+            'oktober': 'oktober',
+            'november': 'november',
+            'desember': 'desember'
+        };
+        
+        // Find the month in the period string
+        for (const [month, colorClass] of Object.entries(monthColorMap)) {
+            if (periodeText.includes(month)) {
+                return colorClass;
+            }
+        }
+        
+        return 'default'; // fallback color
+    }
+    
     async function loadUnpaidBills(customerIdpl, customerName) {
         const noBillsMessage = document.getElementById('no-bills-message');
         const billsTableContainer = document.getElementById('bills-table-container');
@@ -385,9 +428,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 billsTableContainer.style.display = 'block';
                 unpaidBillsBody.innerHTML = '';
                 customerBills.forEach(bill => {
+                    const colorClass = getPeriodColorClass(bill['PERIODE TAGIHAN']);
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${bill['PERIODE TAGIHAN'] || '-'}</td>
+                        <td><span class="period-pill ${colorClass}">${bill['PERIODE TAGIHAN'] || '-'}</span></td>
                         <td class="bill-amount">${bill.TAGIHAN || '-'}</td>
                         <td><span class="status-pill status-belum-lunas">${bill.STATUS || 'BELUM LUNAS'}</span></td>
                     `;

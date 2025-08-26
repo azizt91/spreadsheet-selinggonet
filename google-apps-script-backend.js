@@ -38,6 +38,9 @@ function doGet(e) {
       case 'getDashboardStats':
         data = getDashboardStats(e.parameter.bulan, e.parameter.tahun);
         break;
+      case 'setupHeaders':
+        data = setupDataSheetHeaders();
+        break;
       default:
         data = { error: `Invalid GET action: ${action}` };
     }
@@ -170,11 +173,60 @@ function handleLogin(username, password) {
 }
 
 /**
+ * Ensures the DATA sheet has the correct column headers including IP STATIC / PPOE
+ * Call this function to set up or verify the spreadsheet structure
+ */
+function setupDataSheetHeaders() {
+  const sheet = ss.getSheetByName('DATA');
+  const expectedHeaders = [
+    'IDPL',           // Column 1
+    'NAMA',           // Column 2
+    'USER',           // Column 3
+    'PASSWORD',       // Column 4
+    'LEVEL',          // Column 5
+    'KOLOM6',         // Column 6 (placeholder)
+    'ALAMAT',         // Column 7
+    'JENIS KELAMIN',  // Column 8
+    'WHATSAPP',       // Column 9
+    'PAKET',          // Column 10
+    'TAGIHAN',        // Column 11
+    'STATUS',         // Column 12
+    'TANGGAL PASANG', // Column 13
+    'JENIS PERANGKAT',// Column 14
+    'IP STATIC / PPOE', // Column 15
+    'FOTO'            // Column 16 - FOTO field
+  ];
+  
+  // Check if headers need to be set up
+  const currentHeaders = sheet.getRange(1, 1, 1, expectedHeaders.length).getValues()[0];
+  
+  // Set headers if they don't match
+  let needsUpdate = false;
+  for (let i = 0; i < expectedHeaders.length; i++) {
+    if (!currentHeaders[i] || currentHeaders[i].toString().trim() !== expectedHeaders[i]) {
+      needsUpdate = true;
+      break;
+    }
+  }
+  
+  if (needsUpdate) {
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
+    console.log('Updated DATA sheet headers:', expectedHeaders);
+    return { message: 'Headers updated successfully', headers: expectedHeaders };
+  }
+  
+  return { message: 'Headers are already correct', headers: currentHeaders };
+}
+
+/**
  * Menambahkan pelanggan baru ke sheet 'DATA'.
  * @param {Object} data - Data pelanggan dari form.
  * @returns {Object} - Pesan sukses.
  */
 function addPelanggan(data) {
+  // Ensure headers are set up correctly first
+  setupDataSheetHeaders();
+  
   const sheet = ss.getSheetByName('DATA');
   const lastRow = sheet.getLastRow();
   let nextIdpl = 'CST001';
@@ -189,11 +241,39 @@ function addPelanggan(data) {
     nextUser = `user${lastUserNum + 1}`;
   }
 
+  // Debug: Log the IP Static data being sent
+  console.log('IP Static data received:', data.ipStatic);
+  
+  // Automatically assign photo URL based on gender
+  const fotoUrl = data.jenisKelamin === 'PEREMPUAN' 
+    ? 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png'
+    : 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
+  
+  console.log('Gender:', data.jenisKelamin, 'Photo URL assigned:', fotoUrl);
+  
+  // Ensure proper column order - Position 15 should be IP STATIC / PPOE, Position 16 should be FOTO
   const newRow = [
-    nextIdpl, data.nama, nextUser, '1234', 'USER', '2', data.alamat,
-    data.jenisKelamin, data.whatsapp, data.paket, data.tagihan, data.status,
-    new Date().toLocaleDateString('id-ID'), data.jenisPerangkat, data.ipStatic || '', ''
+    nextIdpl,                                    // Column 1: IDPL
+    data.nama,                                   // Column 2: NAMA  
+    nextUser,                                    // Column 3: USER
+    '1234',                                      // Column 4: PASSWORD
+    'USER',                                      // Column 5: LEVEL
+    '2',                                         // Column 6: (unknown column)
+    data.alamat,                                 // Column 7: ALAMAT
+    data.jenisKelamin,                          // Column 8: JENIS KELAMIN
+    data.whatsapp,                              // Column 9: WHATSAPP
+    data.paket,                                 // Column 10: PAKET
+    data.tagihan,                               // Column 11: TAGIHAN
+    data.status,                                // Column 12: STATUS
+    new Date().toLocaleDateString('id-ID'),     // Column 13: TANGGAL PASANG
+    data.jenisPerangkat,                        // Column 14: JENIS PERANGKAT
+    data.ipStatic || '',                        // Column 15: IP STATIC / PPOE
+    fotoUrl                                     // Column 16: FOTO (auto-assigned based on gender)
   ];
+  
+  // Debug: Log the complete row being added
+  console.log('Adding new row:', newRow);
+  
   sheet.appendRow(newRow);
   return { message: 'Pelanggan berhasil ditambahkan!' };
 }
@@ -210,25 +290,51 @@ function updatePelanggan(rowNumber, data) {
   const range = sheet.getRange(rowNumber, 1, 1, headers.length);
   const originalRow = range.getValues()[0];
   
+  // Debug: Log received data and headers
+  console.log('Headers:', headers);
+  console.log('Update data received:', data);
+  console.log('IP Static data:', data.ipStatic);
+  
+  // Automatically assign photo URL based on gender if gender is being updated
+  if (data.jenisKelamin) {
+    data.foto = data.jenisKelamin === 'PEREMPUAN' 
+      ? 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png'
+      : 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
+    console.log('Gender updated:', data.jenisKelamin, 'Photo URL assigned:', data.foto);
+  }
+  
   const newRowData = headers.map((header, index) => {
     // KOREKSI: Gunakan nama properti dari frontend (`nama`, `alamat`) bukan nama kolom (`NAMA`)
     // Ini membuat kodenya lebih konsisten.
     const key = header.toLowerCase().replace(/ /g, ''); // 'JENIS KELAMIN' -> 'jeniskelamin' (disamakan dgn frontend)
     const frontendKeyMapping = {
         'nama': 'NAMA',
-        'alamat': 'ALAMAT',
+        'alamat': 'ALAMAT', 
         'whatsapp': 'WHATSAPP',
         'jeniskelamin': 'JENIS KELAMIN',
         'paket': 'PAKET',
         'tagihan': 'TAGIHAN',
         'status': 'STATUS',
         'jenisperangkat': 'JENIS PERANGKAT',
-        'ipstatic': 'IP STATIC / PPOE'
+        'ipstatic/ppoe': 'IP STATIC / PPOE',  // Handle with and without spaces
+        'ipstatic': 'IP STATIC / PPOE',       // Alternative mapping
+        'foto': 'FOTO'                        // Photo field mapping
     };
+    
+    // Find the mapped header
     const mappedHeader = Object.keys(frontendKeyMapping).find(k => frontendKeyMapping[k] === header);
+    
+    // Debug: Log mapping for IP STATIC field
+    if (header.includes('IP STATIC') || header.includes('PPOE')) {
+      console.log('IP STATIC mapping found:', header, 'mapped to:', mappedHeader, 'value:', data[mappedHeader]);
+    }
+    
     return data[mappedHeader] !== undefined ? data[mappedHeader] : originalRow[index];
   });
 
+  // Debug: Log the final row data
+  console.log('Final row data:', newRowData);
+  
   range.setValues([newRowData]);
   return { message: 'Data berhasil diperbarui!' };
 }

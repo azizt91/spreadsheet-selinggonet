@@ -504,6 +504,60 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
         text-align: left;
     }
     
+    /* Photo styling in view modal */
+    .view-item img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+    }
+    
+    .view-item img:hover {
+        transform: scale(1.1);
+    }
+    
+    /* =================================================================== */
+    /* --- COLORED BILLING PERIOD PILLS --- */
+    /* =================================================================== */
+    .period-pill {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        min-width: 100px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .period-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Month-specific colors */
+    .period-pill.januari { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+    .period-pill.februari { background: linear-gradient(135deg, #e67e22, #d35400); }
+    .period-pill.maret { background: linear-gradient(135deg, #f39c12, #e67e22); }
+    .period-pill.april { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+    .period-pill.mei { background: linear-gradient(135deg, #1abc9c, #16a085); }
+    .period-pill.juni { background: linear-gradient(135deg, #3498db, #2980b9); }
+    .period-pill.juli { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+    .period-pill.agustus { background: linear-gradient(135deg, #34495e, #2c3e50); }
+    .period-pill.september { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+    .period-pill.oktober { background: linear-gradient(135deg, #e91e63, #ad1457); }
+    .period-pill.november { background: linear-gradient(135deg, #795548, #5d4037); }
+    .period-pill.desember { background: linear-gradient(135deg, #607d8b, #455a64); }
+    
+    /* Default color for unknown periods */
+    .period-pill.default { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+    
     .bills-table {
         font-size: 12px;
     }
@@ -851,6 +905,9 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     .filter-container select {
         font-size: 12px;
         padding: 6px 10px;
+        padding-right: 25px; /* Adjust padding for smaller dropdown */
+        background-position: right 8px center; /* Move icon closer */
+        background-size: 0.8em; /* Make icon smaller */
     }
 }
 
@@ -917,6 +974,15 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     .table-container {
         padding: 10px;
         font-size: 12px;
+    }
+
+    /* Fix dropdown icon overlap on very small screens */
+    .filter-container select {
+        font-size: 11px;
+        padding: 5px 8px;
+        padding-right: 22px; /* Even smaller padding for very small screens */
+        background-position: right 6px center; /* Move icon even closer */
+        background-size: 0.7em; /* Make icon even smaller */
     }
 
     .table-header {
