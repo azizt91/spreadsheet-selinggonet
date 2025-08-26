@@ -5,13 +5,16 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# INI ADALAH ATURAN TES BARU KITA
+# --- BLOK BARU UNTUK MEMPERBAIKI MASALAH DEPENDENCY ---
+[functions]
+  external_node_modules = ["googleapis"]
+# ----------------------------------------------------
+
+# Redirect API calls to Netlify Functions
 [[redirects]]
   from = "/test"
   to = "/.netlify/functions/test"
   status = 200
-
-# Redirect API calls to Netlify Functions
 [[redirects]]
   from = "/login"
   to = "/.netlify/functions/auth"
