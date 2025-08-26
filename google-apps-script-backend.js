@@ -1,12 +1,9 @@
-// google-apps-script-backend.js
+// =================================================================
+// BAGIAN 2: FUNGSI BARU UNTUK API WEB APP (SUDAH DIPERBAIKI DAN LENGKAP)
+// =================================================================
 
-// Ganti dengan ID Spreadsheet Anda jika diperlukan
 const SPREADSHEET_ID = '1t5wDtV4yATXitTjk9S2jutziUI8KAj23FOaEM2inGPM';
 const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-
-// =================================================================
-// HANDLER UTAMA UNTUK PERMINTAAN DARI APLIKASI WEB
-// =================================================================
 
 /**
  * Menangani semua permintaan GET (untuk mengambil data).
@@ -30,16 +27,13 @@ function doGet(e) {
         );
         break;
       case 'getLunas':
-        data = readSheetData('Lunas').reverse(); // Tampilkan yang terbaru di atas
+        data = readSheetData('Lunas');
         break;
       case 'getPengeluaran':
-        data = readSheetData('Pengeluaran').reverse(); // Tampilkan yang terbaru di atas
+        data = readSheetData('Pengeluaran');
         break;
       case 'getDashboardStats':
         data = getDashboardStats(e.parameter.bulan, e.parameter.tahun);
-        break;
-      case 'setupHeaders':
-        data = setupDataSheetHeaders();
         break;
       default:
         data = { error: `Invalid GET action: ${action}` };
@@ -99,10 +93,6 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// =================================================================
-// FUNGSI-FUNGSI LOGIKA (HELPER FUNCTIONS)
-// =================================================================
-
 /**
  * Membaca semua data dari sheet yang diberikan dan mengubahnya menjadi array of objects.
  * @param {string} sheetName - Nama sheet yang akan dibaca.
@@ -115,15 +105,15 @@ function readSheetData(sheetName) {
   const values = range.getValues();
   if (values.length < 2) return [];
 
-  const headers = values.shift().map(header => header.trim()); // Ambil header dan trim spasi
+  const headers = values.shift().map(header => header.trim());
   return values.map((row, index) => {
     let obj = {};
     headers.forEach((header, i) => {
-      if (header) { // Hanya proses jika header tidak kosong
+      if (header) {
         obj[header] = row[i];
       }
     });
-    obj.rowNumber = index + 2; // Nomor baris aktual di sheet
+    obj.rowNumber = index + 2;
     return obj;
   });
 }
@@ -159,7 +149,6 @@ function handleLogin(username, password) {
     throw new Error('Username atau password salah');
   }
   
-  // KOREKSI: Password di spreadsheet bisa jadi angka, ubah ke string untuk perbandingan aman
   if (String(user.PASSWORD) === String(password)) {
     return { 
       message: 'Login berhasil!', 
@@ -173,65 +162,18 @@ function handleLogin(username, password) {
 }
 
 /**
- * Ensures the DATA sheet has the correct column headers including IP STATIC / PPOE
- * Call this function to set up or verify the spreadsheet structure
- */
-function setupDataSheetHeaders() {
-  const sheet = ss.getSheetByName('DATA');
-  const expectedHeaders = [
-    'IDPL',           // Column 1
-    'NAMA',           // Column 2
-    'USER',           // Column 3
-    'PASSWORD',       // Column 4
-    'LEVEL',          // Column 5
-    'KOLOM6',         // Column 6 (placeholder)
-    'ALAMAT',         // Column 7
-    'JENIS KELAMIN',  // Column 8
-    'WHATSAPP',       // Column 9
-    'PAKET',          // Column 10
-    'TAGIHAN',        // Column 11
-    'STATUS',         // Column 12
-    'TANGGAL PASANG', // Column 13
-    'JENIS PERANGKAT',// Column 14
-    'IP STATIC / PPOE', // Column 15
-    'FOTO'            // Column 16 - FOTO field
-  ];
-  
-  // Check if headers need to be set up
-  const currentHeaders = sheet.getRange(1, 1, 1, expectedHeaders.length).getValues()[0];
-  
-  // Set headers if they don't match
-  let needsUpdate = false;
-  for (let i = 0; i < expectedHeaders.length; i++) {
-    if (!currentHeaders[i] || currentHeaders[i].toString().trim() !== expectedHeaders[i]) {
-      needsUpdate = true;
-      break;
-    }
-  }
-  
-  if (needsUpdate) {
-    sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
-    console.log('Updated DATA sheet headers:', expectedHeaders);
-    return { message: 'Headers updated successfully', headers: expectedHeaders };
-  }
-  
-  return { message: 'Headers are already correct', headers: currentHeaders };
-}
-
-/**
  * Menambahkan pelanggan baru ke sheet 'DATA'.
- * @param {Object} data - Data pelanggan dari form.
+ * @param {Object} data - Data pelanggan dari form frontend.
  * @returns {Object} - Pesan sukses.
  */
 function addPelanggan(data) {
-  // Ensure headers are set up correctly first
-  setupDataSheetHeaders();
-  
   const sheet = ss.getSheetByName('DATA');
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  
+  // Menentukan IDPL dan User baru
   const lastRow = sheet.getLastRow();
   let nextIdpl = 'CST001';
   let nextUser = 'user1';
-  
   if (lastRow > 1) {
     const lastIdplCell = sheet.getRange(lastRow, 1).getValue();
     const lastUserCell = sheet.getRange(lastRow, 3).getValue();
@@ -241,101 +183,79 @@ function addPelanggan(data) {
     nextUser = `user${lastUserNum + 1}`;
   }
 
-  // Debug: Log the IP Static data being sent
-  console.log('IP Static data received:', data.ipStatic);
-  
-  // Automatically assign photo URL based on gender
+  // Menentukan URL Foto Otomatis
   const fotoUrl = data.jenisKelamin === 'PEREMPUAN' 
     ? 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png'
     : 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
+
+  // Membuat objek data baru yang lengkap
+  const newRowObject = {
+    'IDPL': nextIdpl,
+    'NAMA': data.nama,
+    'USER': nextUser,
+    'PASSWORD': '1234',
+    'LEVEL': 'USER',
+    'ALAMAT': data.alamat,
+    'JENIS KELAMIN': data.jenisKelamin,
+    'WHATSAPP': data.whatsapp,
+    'PAKET': data.paket,
+    'TAGIHAN': data.tagihan,
+    'STATUS': data.status,
+    'TANGGAL PASANG': new Date().toLocaleDateString('id-ID'),
+    'JENIS PERANGKAT': data.jenisPerangkat,
+    'IP STATIC / PPOE': data.ipStatic || '',
+    'FOTO': fotoUrl
+  };
+
+  // Mengubah objek menjadi array sesuai urutan header di sheet
+  const newRowArray = headers.map(header => newRowObject[header.trim()] || '');
   
-  console.log('Gender:', data.jenisKelamin, 'Photo URL assigned:', fotoUrl);
-  
-  // Ensure proper column order - Position 15 should be IP STATIC / PPOE, Position 16 should be FOTO
-  const newRow = [
-    nextIdpl,                                    // Column 1: IDPL
-    data.nama,                                   // Column 2: NAMA  
-    nextUser,                                    // Column 3: USER
-    '1234',                                      // Column 4: PASSWORD
-    'USER',                                      // Column 5: LEVEL
-    '2',                                         // Column 6: (unknown column)
-    data.alamat,                                 // Column 7: ALAMAT
-    data.jenisKelamin,                          // Column 8: JENIS KELAMIN
-    data.whatsapp,                              // Column 9: WHATSAPP
-    data.paket,                                 // Column 10: PAKET
-    data.tagihan,                               // Column 11: TAGIHAN
-    data.status,                                // Column 12: STATUS
-    new Date().toLocaleDateString('id-ID'),     // Column 13: TANGGAL PASANG
-    data.jenisPerangkat,                        // Column 14: JENIS PERANGKAT
-    data.ipStatic || '',                        // Column 15: IP STATIC / PPOE
-    fotoUrl                                     // Column 16: FOTO (auto-assigned based on gender)
-  ];
-  
-  // Debug: Log the complete row being added
-  console.log('Adding new row:', newRow);
-  
-  sheet.appendRow(newRow);
+  sheet.appendRow(newRowArray);
   return { message: 'Pelanggan berhasil ditambahkan!' };
 }
 
 /**
  * Memperbarui data pelanggan yang ada.
  * @param {number} rowNumber - Nomor baris yang akan diupdate.
- * @param {Object} data - Data baru dari form.
+ * @param {Object} data - Data baru dari form frontend.
  * @returns {Object} - Pesan sukses.
  */
 function updatePelanggan(rowNumber, data) {
   const sheet = ss.getSheetByName('DATA');
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const range = sheet.getRange(rowNumber, 1, 1, headers.length);
-  const originalRow = range.getValues()[0];
-  
-  // Debug: Log received data and headers
-  console.log('Headers:', headers);
-  console.log('Update data received:', data);
-  console.log('IP Static data:', data.ipStatic);
-  
-  // Automatically assign photo URL based on gender if gender is being updated
-  if (data.jenisKelamin) {
-    data.foto = data.jenisKelamin === 'PEREMPUAN' 
-      ? 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png'
-      : 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
-    console.log('Gender updated:', data.jenisKelamin, 'Photo URL assigned:', data.foto);
-  }
-  
-  const newRowData = headers.map((header, index) => {
-    // KOREKSI: Gunakan nama properti dari frontend (`nama`, `alamat`) bukan nama kolom (`NAMA`)
-    // Ini membuat kodenya lebih konsisten.
-    const key = header.toLowerCase().replace(/ /g, ''); // 'JENIS KELAMIN' -> 'jeniskelamin' (disamakan dgn frontend)
-    const frontendKeyMapping = {
-        'nama': 'NAMA',
-        'alamat': 'ALAMAT', 
-        'whatsapp': 'WHATSAPP',
-        'jeniskelamin': 'JENIS KELAMIN',
-        'paket': 'PAKET',
-        'tagihan': 'TAGIHAN',
-        'status': 'STATUS',
-        'jenisperangkat': 'JENIS PERANGKAT',
-        'ipstatic/ppoe': 'IP STATIC / PPOE',  // Handle with and without spaces
-        'ipstatic': 'IP STATIC / PPOE',       // Alternative mapping
-        'foto': 'FOTO'                        // Photo field mapping
-    };
-    
-    // Find the mapped header
-    const mappedHeader = Object.keys(frontendKeyMapping).find(k => frontendKeyMapping[k] === header);
-    
-    // Debug: Log mapping for IP STATIC field
-    if (header.includes('IP STATIC') || header.includes('PPOE')) {
-      console.log('IP STATIC mapping found:', header, 'mapped to:', mappedHeader, 'value:', data[mappedHeader]);
-    }
-    
-    return data[mappedHeader] !== undefined ? data[mappedHeader] : originalRow[index];
-  });
+  const originalRowValues = range.getValues()[0];
 
-  // Debug: Log the final row data
-  console.log('Final row data:', newRowData);
+  // Menentukan URL Foto Otomatis
+  const fotoUrl = data.jenisKelamin === 'PEREMPUAN' 
+    ? 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png'
+    : 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
+
+  // Membuat objek dari data baris yang ada di sheet
+  let originalRowObject = {};
+  headers.forEach((header, i) => {
+    originalRowObject[header.trim()] = originalRowValues[i];
+  });
   
-  range.setValues([newRowData]);
+  // Menimpa data lama dengan data baru dari form
+  const updatedRowObject = {
+    ...originalRowObject,
+    'NAMA': data.nama,
+    'ALAMAT': data.alamat,
+    'JENIS KELAMIN': data.jenisKelamin,
+    'WHATSAPP': data.whatsapp,
+    'PAKET': data.paket,
+    'TAGIHAN': data.tagihan,
+    'STATUS': data.status,
+    'JENIS PERANGKAT': data.jenisPerangkat,
+    'IP STATIC / PPOE': data.ipStatic || '',
+    'FOTO': fotoUrl
+  };
+  
+  // Mengubah kembali menjadi array untuk disimpan ke sheet
+  const updatedRowArray = headers.map(header => updatedRowObject[header.trim()] || '');
+  
+  range.setValues([updatedRowArray]);
   return { message: 'Data berhasil diperbarui!' };
 }
 
@@ -397,8 +317,6 @@ function updatePengeluaran(rowNumber, data) {
   const tanggalInput = new Date(data.TANGGAL);
   const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   
-  // KOREKSI: Range update harus spesifik ke kolom yang diubah.
-  // Kolom B sampai F adalah [DESKRIPSI, JUMLAH, TANGGAL, BULAN, TAHUN]
   const updatedValues = [
     data.DESKRIPSI_PENGELUARAN,
     data.JUMLAH,
@@ -407,7 +325,7 @@ function updatePengeluaran(rowNumber, data) {
     tanggalInput.getFullYear()
   ];
   
-  sheet.getRange(rowNumber, 2, 1, 5).setValues([updatedValues]); // Update kolom B(2) sebanyak 5 kolom
+  sheet.getRange(rowNumber, 2, 1, 5).setValues([updatedValues]);
   return { message: 'Data pengeluaran berhasil diperbarui!' };
 }
 
@@ -418,7 +336,6 @@ function updatePengeluaran(rowNumber, data) {
  * @returns {Object} - Objek berisi data statistik.
  */
 function getDashboardStats(bulan, tahun) {
-  // Implementasi fungsi ini sudah benar di kode Anda, jadi saya salin saja.
   const pelangganData = readSheetData('DATA');
   const tagihanData = readSheetData('Tagihan');
   const lunasData = readSheetData('Lunas');
