@@ -1,18 +1,17 @@
 const { google } = require('googleapis');
 
-// GANTI DENGAN ID SPREADSHEET ANDA
 const spreadsheetId = '1t5wDtV4yATXitTjk9S2jutziUI8KAj23FOaEM2inGPM';
 
-// Helper untuk otentikasi dan koneksi ke API
 async function getSheetsApi() {
-    // PERBAIKAN DI SINI:
-    // Hanya gunakan environment variable untuk credentials di production.
-    // Hapus fallback ke require('credentials.json').
     if (!process.env.GOOGLE_CREDENTIALS) {
         throw new Error('GOOGLE_CREDENTIALS environment variable is not set.');
     }
-    
-    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+
+    // --- PERBAIKAN DI SINI ---
+    // 1. Decode string Base64 menjadi string JSON biasa
+    const decodedCredentials = Buffer.from(process.env.GOOGLE_CREDENTIALS, 'base64').toString('utf8');
+    // 2. Parse string JSON yang sudah di-decode
+    const credentials = JSON.parse(decodedCredentials);
     
     const auth = new google.auth.GoogleAuth({
         credentials,
@@ -22,7 +21,6 @@ async function getSheetsApi() {
     return google.sheets({ version: 'v4', auth: client });
 }
 
-// Helper untuk membaca data dari sheet manapun
 async function readSheetData(sheets, sheetName) {
     const response = await sheets.spreadsheets.values.get({ spreadsheetId, range: sheetName });
     const rows = response.data.values || [];
@@ -37,7 +35,6 @@ async function readSheetData(sheets, sheetName) {
     return { headers, data };
 }
 
-// CORS headers for all responses
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
