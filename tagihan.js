@@ -242,6 +242,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===============================================
+    // Loading Management
+    // ===============================================
+    function showLoading(text = 'Memproses data...') {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
+    // ===============================================
     // Payment Modal Functions
     // ===============================================
     function showPaymentModal(rowData) {
@@ -274,6 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const rowNumber = currentPaymentData.rowNumber;
         const rowData = currentPaymentData;
         
+        // Show loading overlay
+        showLoading('Memproses pembayaran...');
+        
         try {
             // Disable button to prevent double-click
             paymentConfirmBtn.disabled = true;
@@ -292,6 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!response.ok) throw new Error(result.message);
             
+            // Hide loading before closing modal and showing notification
+            hideLoading();
+            
             // Close modal and show success
             closePaymentModal();
             showSuccessNotification(result.message);
@@ -299,6 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('Error processing payment:', error);
+            // Hide loading before showing error
+            hideLoading();
             showErrorNotification(`Error: ${error.message}`);
         } finally {
             // Re-enable button
@@ -409,6 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fallback function for direct payment processing
     async function processPaymentDirect(rowNumber, rowData) {
+        // Show loading overlay
+        showLoading('Memproses pembayaran...');
+        
         try {
             const response = await fetch(API_BAYAR_URL, { 
                 method: 'POST',
@@ -422,10 +456,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             if (!response.ok) throw new Error(result.message);
             
+            // Hide loading before showing success dialog
+            hideLoading();
+            
             alert(result.message);
             fetchTagihan(); // Reload table
         } catch (error) {
             console.error('Error processing payment:', error);
+            // Hide loading before showing error
+            hideLoading();
             alert(`Error: ${error.message}`);
         }
     }

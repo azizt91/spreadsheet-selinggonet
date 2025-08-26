@@ -280,10 +280,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===============================================
+    // Loading Management
+    // ===============================================
+    function showLoading(text = 'Memproses data...') {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
+    function setButtonLoading(button, loading, originalText) {
+        if (loading) {
+            button.dataset.originalText = originalText || button.textContent;
+            button.innerHTML = '<span class="loading-spinner"></span>Menyimpan...';
+            button.classList.add('loading');
+            button.disabled = true;
+        } else {
+            button.innerHTML = button.dataset.originalText || originalText || 'Simpan';
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+    }
+
+    // ===============================================
     // CRUD Action Handlers
     // ===============================================
     async function handleFormSubmit(event) {
         event.preventDefault();
+        const submitButton = event.target.querySelector('button[type="submit"]');
         const rowNumber = document.getElementById('rowNumber').value;
         const isEditing = !!rowNumber;
 
@@ -303,6 +340,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Form data being sent:', formData);
         console.log('IP Static field value:', formData.ipStatic);
         
+        // Show loading state
+        setButtonLoading(submitButton, true);
+        showLoading(isEditing ? 'Mengupdate data pelanggan...' : 'Menyimpan data pelanggan...');
+        
         try {
             const response = await fetch(API_BASE_URL, {
                 method: 'POST',
@@ -316,11 +357,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             if (result.error) throw new Error(result.error);
             
+            // Hide loading before showing success dialog
+            hideLoading();
+            setButtonLoading(submitButton, false);
+            
             alert(result.message);
             closeModal(formModal);
             fetchData();
         } catch (error) {
             console.error('Error submitting form:', error);
+            // Hide loading before showing error
+            hideLoading();
+            setButtonLoading(submitButton, false);
             alert(`Error: ${error.message}`);
         }
     }
@@ -342,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteData(rowNumber) {
         if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
 
+        // Show loading
+        showLoading('Menghapus data pelanggan...');
+
         try {
             const response = await fetch(API_BASE_URL, {
                 method: 'POST',
@@ -354,10 +405,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             if (result.error) throw new Error(result.error);
             
+            // Hide loading before showing success dialog
+            hideLoading();
+            
             alert(result.message);
             fetchData();
         } catch (error) {
             console.error('Error deleting data:', error);
+            // Hide loading before showing error
+            hideLoading();
             alert(`Error: ${error.message}`);
         }
     }
