@@ -192,7 +192,7 @@ function addPelanggan(data) {
   const newRow = [
     nextIdpl, data.nama, nextUser, '1234', 'USER', '2', data.alamat,
     data.jenisKelamin, data.whatsapp, data.paket, data.tagihan, data.status,
-    new Date().toLocaleDateString('id-ID'), data.jenisPerangkat, '', ''
+    new Date().toLocaleDateString('id-ID'), data.jenisPerangkat, data.ipStatic || '', ''
   ];
   sheet.appendRow(newRow);
   return { message: 'Pelanggan berhasil ditambahkan!' };
@@ -222,7 +222,8 @@ function updatePelanggan(rowNumber, data) {
         'paket': 'PAKET',
         'tagihan': 'TAGIHAN',
         'status': 'STATUS',
-        'jenisperangkat': 'JENIS PERANGKAT'
+        'jenisperangkat': 'JENIS PERANGKAT',
+        'ipstatic': 'IP STATIC / PPOE'
     };
     const mappedHeader = Object.keys(frontendKeyMapping).find(k => frontendKeyMapping[k] === header);
     return data[mappedHeader] !== undefined ? data[mappedHeader] : originalRow[index];

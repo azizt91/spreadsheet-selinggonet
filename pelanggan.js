@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('paket').value = dataToEdit.PAKET || '';
         document.getElementById('status').value = dataToEdit.STATUS || 'AKTIF';
         document.getElementById('jenisPerangkat').value = dataToEdit['JENIS PERANGKAT'] || '';
+        document.getElementById('ipStatic').value = dataToEdit['IP STATIC / PPOE'] || '';
         
         handlePaketChange({ target: document.getElementById('paket') });
         openModal(formModal);
@@ -286,9 +287,10 @@ document.addEventListener('DOMContentLoaded', () => {
             whatsapp: document.getElementById('whatsapp').value,
             jenisKelamin: document.getElementById('jenisKelamin').value,
             paket: document.getElementById('paket').value,
-            tagihan: document.getElementById('tagihan').value,
+            tagihan: document.getElementById('tagihan').value.replace(/[^0-9]/g, ''), // Remove Rp and formatting
             status: document.getElementById('status').value,
             jenisPerangkat: document.getElementById('jenisPerangkat').value,
+            ipStatic: document.getElementById('ipStatic').value,
         };
         
         try {
