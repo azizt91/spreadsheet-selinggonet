@@ -75,24 +75,27 @@ document.addEventListener('DOMContentLoaded', function() {
             minimumFractionDigits: 0
         });
 
+        // Reorder cards: Financial cards first, then customer stats
         const statsCards = [
+            // Financial cards at the top
+            { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa', isFinancial: true },
+            { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347', isFinancial: true },
+            { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2', isFinancial: true },
+            // Customer stats
             { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers, color: '#6a5acd' },
             { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers, color: '#32cd32' },
             { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid, color: '#ffc107' },
-            { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid, color: '#1e90ff' },
-            { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa' },
-            // Menambahkan fallback '|| 0' untuk mencegah error jika data tidak ada
-            { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
-            { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' }
+            { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid, color: '#1e90ff' }
         ];
 
+        // Add inactive customers card after active customers if there are any
         if (stats.inactiveCustomers > 0) {
-            statsCards.splice(2, 0, { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers, color: '#dc3545' });
+            statsCards.splice(5, 0, { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers, color: '#dc3545' });
         }
 
         statsCards.forEach(card => {
             const cardElement = document.createElement('div');
-            cardElement.className = 'card';
+            cardElement.className = card.isFinancial ? 'card financial-card' : 'card';
             cardElement.innerHTML = `
                 <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
                     <i class="${card.icon}"></i>
