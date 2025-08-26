@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_URL = `${window.AppConfig.API_BASE_URL}?action=getPelanggan`;
+    const API_BASE_URL = window.AppConfig.API_BASE_URL;
     let allData = [];
     let filteredData = [];
     let currentPage = 1;
-    let rowsPerPage = 10; // Nilai default
+    let rowsPerPage = 10;
 
     const paketOptions = {
         '1,5 Mbps': 'Rp 50.000',
@@ -83,16 +83,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // Main Data Fetch & Display Logic
     // ===============================================
-    async function fetchData() {
+     async function fetchData() {
         try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Gagal mengambil data dari server');
-            allData = await response.json();
+            const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const responseData = await response.json();
+
+            // --- PERBAIKAN UTAMA: Penanganan Error ---
+            if (!Array.isArray(responseData)) {
+                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+                throw new TypeError('Format data yang diterima dari server salah.');
+            }
+            
+            allData = responseData;
             filteredData = [...allData];
             renderPage();
         } catch (error) {
             console.error('Error fetching data:', error);
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Gagal memuat data.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
         }
     }
 
@@ -267,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isEditing = !!rowNumber;
 
         const formData = {
-            // Data dari form
             nama: document.getElementById('nama').value,
             alamat: document.getElementById('alamat').value,
             whatsapp: document.getElementById('whatsapp').value,
@@ -278,10 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
             jenisPerangkat: document.getElementById('jenisPerangkat').value,
         };
         
-        const url = isEditing ? `${API_URL}/${rowNumber}` : API_URL;
-        const method = isEditing ? 'PUT' : 'POST';
-        
-        // Untuk mode edit (PUT), kita perlu mengirim semua kolom agar tidak terhapus
+        // Untuk mode edit, kita perlu mengirim semua kolom agar tidak terhapus di sheet
         if (isEditing) {
             const originalData = allData.find(item => item.rowNumber == rowNumber);
             formData.NAMA = formData.nama;
@@ -292,23 +296,22 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.TAGIHAN = formData.tagihan;
             formData.STATUS = formData.status;
             formData['JENIS PERANGKAT'] = formData.jenisPerangkat;
-            // Pertahankan data yang tidak ada di form
             formData['IP STATIC / PPOE'] = originalData ? originalData['IP STATIC / PPOE'] : '';
             formData.FOTO = originalData ? originalData.FOTO : '';
         }
 
         try {
-            const response = await fetch(window.AppConfig.API_BASE_URL, {
+            const response = await fetch(API_BASE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: isEditing ? 'updatePelanggan' : 'addPelanggan',
-                    rowNumber: isEditing ? rowNumber : undefined,
+                    rowNumber: isEditing ? rowNumber : null,
                     data: formData
                 })
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Gagal menyimpan data');
+            if (result.error) throw new Error(result.error);
             
             alert(result.message);
             closeModal(formModal);
@@ -339,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteData(rowNumber) {
         try {
-            const response = await fetch(window.AppConfig.API_BASE_URL, {
+            const response = await fetch(API_BASE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
@@ -348,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Gagal menghapus data');
+            if (result.error) throw new Error(result.error);
             
             alert(result.message);
             fetchData();

@@ -92,25 +92,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     async function fetchTagihan() {
         try {
-            const response = await fetch(API_TAGIHAN_URL);
-            if (!response.ok) throw new Error('Gagal mengambil data tagihan');
-            const rawData = await response.json();
+            const response = await fetch(API_TAGIHAN_URL); // API_TAGIHAN_URL sudah benar
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const responseData = await response.json();
+
+            // --- PERBAIKAN UTAMA: Penanganan Error ---
+            if (!Array.isArray(responseData)) {
+                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+                throw new TypeError('Format data yang diterima dari server salah.');
+            }
             
-            // Filter out empty rows - only include rows with valid IDPL and NAMA
-            allTagihanData = rawData.filter(item => {
-                return item.IDPL && 
-                       item.IDPL.trim() !== '' && 
-                       item.NAMA && 
-                       item.NAMA.trim() !== '' &&
-                       item.IDPL !== 'N/A' && 
-                       item.NAMA !== 'N/A';
+            allTagihanData = responseData.filter(item => {
+                return item.IDPL && item.IDPL.trim() !== '' && 
+                    item.NAMA && item.NAMA.trim() !== '' &&
+                    item.IDPL !== 'N/A' && item.NAMA !== 'N/A';
             });
             
-            filteredData = [...allTagihanData]; // Salin data ke array filter
+            filteredData = [...allTagihanData];
             renderPage();
         } catch (error) {
             console.error('Error fetching data:', error);
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
         }
     }
 
