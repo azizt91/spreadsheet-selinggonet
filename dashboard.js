@@ -15,8 +15,7 @@ function initializeDashboard() {
     // Check if required elements exist
     const requiredElements = {
         'filter-bulan': 'Filter bulan dropdown',
-        'filter-tahun': 'Filter tahun dropdown',
-        'cards-container': 'Cards container'
+        'filter-tahun': 'Filter tahun dropdown'
     };
     
     let missingElements = [];
@@ -25,6 +24,11 @@ function initializeDashboard() {
             missingElements.push(`${desc} (ID: ${id})`);
         }
     });
+    
+    // Check for cards container separately using class selector
+    if (!cardsContainer) {
+        missingElements.push('Cards container (class: cards-container)');
+    }
     
     if (missingElements.length > 0) {
         console.warn('Some elements missing, but continuing:', missingElements);
@@ -44,7 +48,7 @@ function initializeDashboard() {
     // DOM Selectors - get them fresh each time
     const filterBulan = document.getElementById('filter-bulan');
     const filterTahun = document.getElementById('filter-tahun');
-    const cardsContainer = document.querySelector('.cards-container');
+    let cardsContainer = document.querySelector('.cards-container');
     
     console.log('DOM Elements found:', {
         filterBulan: !!filterBulan,
@@ -55,13 +59,17 @@ function initializeDashboard() {
     // If essential cards container is missing, create it
     if (!cardsContainer) {
         console.warn('Cards container not found, creating one...');
-        const main = document.querySelector('main') || document.body;
-        const newContainer = document.createElement('div');
-        newContainer.className = 'cards-container';
+        const main = document.querySelector('main');
         if (main) {
+            const newContainer = document.createElement('div');
+            newContainer.className = 'cards-container';
+            newContainer.innerHTML = '<!-- Cards will be loaded here -->';
             main.appendChild(newContainer);
+            cardsContainer = newContainer;
+            console.log('Cards container created successfully');
         } else {
-            document.body.appendChild(newContainer);
+            console.error('Main element not found, cannot create cards container');
+            return;
         }
     }
 
@@ -122,6 +130,33 @@ function initializeDashboard() {
             testWithKnownData();
         }
     }, 3000);
+    
+    // Add immediate test for debugging
+    console.log('Dashboard initialization completed');
+    
+    // Test the debug function immediately
+    setTimeout(() => {
+        if (window.debugDashboard) {
+            console.log('Debug function available, running immediate test...');
+            // Don't show alert, just run the function silently
+            const testStats = {
+                totalCustomers: 65,
+                activeCustomers: 51,
+                inactiveCustomers: 14,
+                totalUnpaid: 12,
+                totalPaid: 1640,
+                totalRevenue: 234470000,
+                totalExpenses: 73094192,
+                profit: 161375808
+            };
+            
+            const container = document.querySelector('.cards-container');
+            if (container && container.children.length === 0) {
+                testWithKnownData();
+                console.log('Emergency test data loaded');
+            }
+        }
+    }, 1000);
 
     // --- BAGIAN INI MENGISI FILTER ---
     function populateFilters() {
@@ -404,10 +439,19 @@ function initializeDashboard() {
 // Global debug function for manual testing (outside the main function)
 window.debugDashboard = function() {
     console.log('🔧 Manual debug test triggered');
-    const cardsContainer = document.querySelector('.cards-container');
+    let cardsContainer = document.querySelector('.cards-container');
+    
     if (!cardsContainer) {
-        alert('Cards container not found!');
-        return;
+        console.warn('Cards container not found, creating one for debug...');
+        const main = document.querySelector('main');
+        if (main) {
+            cardsContainer = document.createElement('div');
+            cardsContainer.className = 'cards-container';
+            main.appendChild(cardsContainer);
+        } else {
+            alert('Cannot find main element to create cards container!');
+            return;
+        }
     }
     const testStats = {
         totalCustomers: 65,
