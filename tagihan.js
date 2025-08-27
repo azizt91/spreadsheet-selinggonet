@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Main Data Fetch & Display Logic
     // ===============================================
     async function fetchTagihan() {
-        showLoading('Please wait...');
+        showLoading('Memuat data tagihan, harap tunggu...');
         
         try {
             const response = await fetch(API_TAGIHAN_URL); // API_TAGIHAN_URL sudah benar
