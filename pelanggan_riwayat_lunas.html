@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pelanggan</title>
+    <title>Riwayat Lunas - Pelanggan</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#6a5acd">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
-    <meta name="description" content="Dashboard pelanggan sistem manajemen ISP">
+    <meta name="description" content="Riwayat pembayaran pelanggan ISP">
     
     <!-- PWA Icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
@@ -32,8 +32,8 @@
         </div>
         <nav>
             <ul>
-                <li><a href="pelanggan_dashboard.html" class="active"><i class="fas fa-user-circle"></i> Dashboard Saya</a></li>
-                <li><a href="pelanggan_riwayat_lunas.html"><i class="fas fa-history"></i> Riwayat Lunas</a></li>
+                <li><a href="pelanggan_dashboard.html"><i class="fas fa-user-circle"></i> Dashboard Saya</a></li>
+                <li><a href="pelanggan_riwayat_lunas.html" class="active"><i class="fas fa-history"></i> Riwayat Lunas</a></li>
                 <li><a href="pelanggan_profile.html"><i class="fas fa-user-edit"></i> Profile Saya</a></li>
             </ul>
         </nav>
@@ -42,21 +42,47 @@
         </div>
     </div>
 
-    <!-- Konten Utama -->
+    <!-- Konten Utama Halaman -->
     <div class="main-content">
         <header>
             <button class="hamburger-btn" id="hamburger-btn">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="welcome-section">
-                <h2><i class="fas fa-user-circle"></i> Welcome,<span id="nama-pelanggan"></span><span id="welcome-suffix" style="display: none;">!</span></h2>
-                <p class="welcome-subtitle">Berikut adalah informasi akun dan tagihan Anda</p>
+            <h2><i class="fas fa-history"></i> Riwayat Pembayaran Saya</h2>
+            <div class="header-actions">
+                <input type="text" id="search-input" placeholder="Cari riwayat...">
             </div>
         </header>
         <main>
-            <div class="cards-container">
-                <!-- Cards will be populated by JavaScript -->
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="rows-per-page-selector">
+                        <label for="rows-per-page">Baris per halaman:</label>
+                        <select id="rows-per-page">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                <table id="lunas-table">
+                    <thead>
+                        <tr>
+                            <th>PERIODE TAGIHAN</th>
+                            <th>JUMLAH</th>
+                            <th>TANGGAL BAYAR</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lunas-body"></tbody>
+                </table>
             </div>
+            <!-- FOOTER UNTUK PAGINATION -->
+            <footer class="table-footer">
+                <div id="pagination-info"></div>
+                <div id="pagination-controls"></div>
+            </footer>
         </main>
     </div>
 
@@ -64,7 +90,7 @@
     
     <script src="config.js"></script>
     <script src="auth.js"></script>
-    <script src="pelanggan_dashboard.js"></script>
+    <script src="pelanggan_riwayat_lunas.js"></script>
     <script src="pwa-installer.js"></script>
 </body>
 </html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Saya - Pelanggan</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a5acd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Profile pelanggan ISP">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="assets/selinggonet.png" alt="Selinggonet Logo" class="logo-image">
+            <span>Selinggonet</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="pelanggan_dashboard.html"><i class="fas fa-user-circle"></i> Dashboard Saya</a></li>
+                <li><a href="pelanggan_riwayat_lunas.html"><i class="fas fa-history"></i> Riwayat Lunas</a></li>
+                <li><a href="pelanggan_profile.html" class="active"><i class="fas fa-user-edit"></i> Profile Saya</a></li>
+            </ul>
+        </nav>
+        <div class="logout">
+            <a href="#" id="logout-btn"><i class="fas fa-power-off"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- Konten Utama Halaman -->
+    <div class="main-content">
+        <header>
+            <button class="hamburger-btn" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2><i class="fas fa-user-edit"></i> Profile Saya</h2>
+        </header>
+        <main>
+            <div class="profile-container">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h3 id="profile-title">Edit Profile Anda</h3>
+                        <p>Perbarui informasi profile Anda di bawah ini</p>
+                    </div>
+                    
+                    <form id="profile-form" class="profile-form">
+                        <input type="hidden" id="rowNumber">
+                        <input type="hidden" id="idpl">
+                        
+                        <div class="form-group">
+                            <label for="nama"><i class="fas fa-user"></i> Nama Lengkap</label>
+                            <input type="text" id="nama" required placeholder="Masukkan nama lengkap">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="user"><i class="fas fa-user-tag"></i> Username</label>
+                            <input type="text" id="user" required placeholder="Masukkan username">
+                            <small class="form-help">Username digunakan untuk login ke sistem</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password"><i class="fas fa-lock"></i> Password</label>
+                            <div class="password-input-container">
+                                <input type="password" id="password" required placeholder="Masukkan password baru">
+                                <button type="button" class="toggle-password" id="toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-help">Kosongkan jika tidak ingin mengubah password</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="whatsapp"><i class="fas fa-phone"></i> Nomor WhatsApp</label>
+                            <input type="text" id="whatsapp" required placeholder="Contoh: 081234567890">
+                            <small class="form-help">Nomor WhatsApp aktif untuk komunikasi</small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-btn">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Profile Info Card -->
+                <div class="profile-info-card">
+                    <h4><i class="fas fa-info-circle"></i> Informasi Akun</h4>
+                    <div class="info-item">
+                        <span class="info-label">ID Pelanggan:</span>
+                        <span class="info-value" id="info-idpl">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value status-pill" id="info-status">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Paket:</span>
+                        <span class="info-value" id="info-paket">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tanggal Bergabung:</span>
+                        <span class="info-value" id="info-tanggal">-</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="pelanggan_profile.js"></script>
+    <script src="pwa-installer.js"></script>
+</body>
+</html>
