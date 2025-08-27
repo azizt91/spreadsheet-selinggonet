@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Data Fetching Functions
     // ===============================================
     async function fetchCustomerData() {
-        showLoading('Memuat data pelanggan Anda...');
+        showLoading('Memuat data dasboard Anda...');
         
         try {
             // Fetch customer profile data
