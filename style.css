@@ -85,8 +85,25 @@ body.login-page {
 .sidebar nav ul li a i { margin-right: 15px; width: 20px; text-align: center; }
 .sidebar nav ul li a:hover, .sidebar nav ul li a.active { background-color: var(--primary-color); color: var(--white); }
 .sidebar .logout { margin-top: auto; }
-.sidebar .logout a { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: var(--text-light); border-radius: 8px; }
-.sidebar .logout a:hover { background-color: #ffebee; color: #d32f2f; }
+.sidebar .logout a { 
+    display: flex; 
+    align-items: center; 
+    padding: 12px 15px; 
+    text-decoration: none; 
+    color: #dc3545; 
+    border-radius: 8px; 
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+.sidebar .logout a:hover { 
+    background-color: #dc3545; 
+    color: white; 
+    border-color: #dc3545;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
 
 .main-content { 
     margin-left: 260px; 
@@ -894,11 +911,45 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
 
 /* Terapkan gaya ini untuk layar dengan lebar 992px ke bawah */
 @media (max-width: 992px) {
+    /* Login form mobile adjustments */
+    body.login-page {
+        padding: 20px;
+    }
+    
+    .login-box {
+        margin: 0 auto;
+        padding: 30px 25px;
+        max-width: 380px;
+    }
+    
     .sidebar {
         /* Sembunyikan sidebar di luar layar ke kiri */
         transform: translateX(-100%);
         transition: transform 0.3s ease-in-out;
         display: none;
+        /* Mobile logout positioning */
+        padding-bottom: 60px; /* Extra space at bottom for logout */
+    }
+    
+    .sidebar .logout {
+        margin-top: auto;
+        margin-bottom: 20px; /* Add bottom margin for mobile */
+        position: relative;
+        bottom: 0;
+    }
+    
+    .sidebar .logout a {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        margin-top: 15px; /* Add space above logout on mobile */
+        font-weight: 500;
+    }
+    
+    .sidebar .logout a:hover {
+        background-color: #dc3545;
+        color: white;
+        border-color: #dc3545;
     }
 
     .sidebar.show {
@@ -977,8 +1028,90 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     }
 }
 
+/* Optimasi untuk layar tablet dan mobile sedang */
+@media (max-width: 768px) {
+    /* Login form tablet adjustments */
+    body.login-page {
+        padding: 25px 20px;
+    }
+    
+    .login-box {
+        padding: 35px 30px;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+    
+    .login-box h2 {
+        font-size: 24px;
+    }
+    
+    .login-box .form-group input {
+        padding: 11px;
+        font-size: 15px;
+    }
+}
+
 /* Optimasi untuk layar sangat kecil (smartphone portrait) */
 @media (max-width: 576px) {
+    /* Enhanced login form mobile styling */
+    body.login-page {
+        padding: 15px;
+    }
+    
+    .login-box {
+        padding: 25px 20px;
+        margin: 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        /* Ensure minimum margins from screen edges */
+        min-width: 280px;
+        width: calc(100% - 30px); /* 15px margin on each side */
+        max-width: calc(100% - 30px);
+    }
+    
+    /* Enhanced mobile sidebar logout styling */
+    .sidebar {
+        padding-bottom: 80px; /* More space on small screens */
+    }
+    
+    .sidebar .logout {
+        margin-bottom: 30px; /* More bottom margin on small screens */
+    }
+    
+    .sidebar .logout a {
+        padding: 15px;
+        font-size: 15px;
+        margin-top: 20px;
+        background-color: rgba(220, 53, 69, 0.15);
+        border-radius: 10px;
+    }
+    
+    .login-box h2 {
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+    
+    .login-box p {
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+    
+    .login-box .form-group {
+        margin-bottom: 18px;
+    }
+    
+    .login-box .form-group input {
+        padding: 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 8px;
+    }
+    
+    .login-box .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+    
     .hamburger-btn {
         top: 15px;
         right: 15px;
@@ -1075,6 +1208,29 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
 
     #pagination-controls {
         justify-content: center;
+    }
+}
+
+/* Optimasi untuk layar ultra kecil */
+@media (max-width: 360px) {
+    body.login-page {
+        padding: 10px;
+    }
+    
+    .login-box {
+        padding: 20px 15px;
+        width: calc(100% - 20px); /* 10px margin on each side */
+        max-width: calc(100% - 20px);
+        min-width: 260px;
+    }
+    
+    .login-box h2 {
+        font-size: 20px;
+    }
+    
+    .login-box .form-group input {
+        padding: 10px;
+        font-size: 16px;
     }
 }
 

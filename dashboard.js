@@ -8,6 +8,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterTahun = document.getElementById('filter-tahun');
     const cardsContainer = document.querySelector('.cards-container');
 
+    // ===============================================
+    // Loading Management Functions
+    // ===============================================
+    function showLoading(text = 'Fetching data, please wait...') {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
     // Initial Setup
     populateFilters();
     initializeEventListeners();
@@ -52,6 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const bulan = filterBulan.value;
         const tahun = filterTahun.value;
         
+        showLoading('Loading dashboard data, please wait...');
+        
         try {
             // Mengirim parameter filter ke backend
             const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getDashboardStats&bulan=${bulan}&tahun=${tahun}`);
@@ -62,6 +87,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error:', error);
             cardsContainer.innerHTML = '<p>Gagal memuat data statistik. Pastikan server backend berjalan.</p>';
+        } finally {
+            hideLoading();
         }
     }
 

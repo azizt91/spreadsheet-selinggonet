@@ -22,6 +22,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const rowsPerPageSelector = document.getElementById('rows-per-page');
 
     // ===============================================
+    // Loading Management Functions
+    // ===============================================
+    function showLoading(text = 'Fetching data, please wait...') {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
+    // ===============================================
     // Initial Setup
     // ===============================================
     initializeEventListeners();
@@ -87,6 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Main Data Fetch & Display Logic
     // ===============================================
 async function fetchLunas() {
+    showLoading('Loading payment history data, please wait...');
+    
     try {
         const response = await fetch(API_URL); // API_URL sudah dikonfigurasi dengan benar
         if (!response.ok) {
@@ -112,6 +137,8 @@ async function fetchLunas() {
         console.error('Error fetching data:', error);
         // Menampilkan pesan error yang lebih jelas di dalam tabel
         tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+    } finally {
+        hideLoading();
     }
 }
 

@@ -38,6 +38,29 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('paymentConfirmBtn:', paymentConfirmBtn);
 
     // ===============================================
+    // Loading Management Functions
+    // ===============================================
+    function showLoading(text = 'Fetching data, please wait...') {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
+    // ===============================================
     // Initial Setup
     // ===============================================
     initializeEventListeners();
@@ -125,6 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Main Data Fetch & Display Logic
     // ===============================================
     async function fetchTagihan() {
+        showLoading('Loading billing data, please wait...');
+        
         try {
             const response = await fetch(API_TAGIHAN_URL); // API_TAGIHAN_URL sudah benar
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -147,6 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching data:', error);
             tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+        } finally {
+            hideLoading();
         }
     }
 

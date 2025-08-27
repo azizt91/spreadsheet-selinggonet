@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Main Data Fetch & Display Logic
     // ===============================================
      async function fetchData() {
+        showLoading('Loading customer data, please wait...');
+        
         try {
             const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -93,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching data:', error);
             tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+        } finally {
+            hideLoading();
         }
     }
 
