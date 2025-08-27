@@ -1263,3 +1263,225 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     }
 }
 
+/* =============================================== */
+/* CUSTOMER DASHBOARD STYLES */
+/* =============================================== */
+
+/* Welcome Section */
+.welcome-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.welcome-subtitle {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+/* Customer Cards */
+.customer-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.customer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.card-content {
+    flex: 1;
+}
+
+/* Bills List Styles */
+.bills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.bill-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+}
+
+.bill-item .period {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.bill-item .amount {
+    font-weight: 600;
+    color: #e74c3c;
+}
+
+.no-bills {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #28a745;
+    font-weight: 500;
+}
+
+.no-bills i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Subscription Info Styles */
+.subscription-info {
+    text-align: center;
+}
+
+.install-date {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.package-info {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Amount Display Styles */
+.amount-display {
+    text-align: center;
+}
+
+.main-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.bill-count {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Financial card specific styling */
+.customer-card.unpaid-amount-card .main-amount {
+    color: #e74c3c;
+}
+
+.customer-card.paid-amount-card .main-amount {
+    color: #28a745;
+}
+
+/* Error Message Styles */
+.error-message {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    grid-column: 1 / -1;
+}
+
+.error-message i {
+    font-size: 3rem;
+    color: #e74c3c;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.error-message p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* Responsive Design for Customer Dashboard */
+@media (max-width: 768px) {
+    .welcome-section h2 {
+        font-size: 1.25rem;
+    }
+    
+    .welcome-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .customer-card {
+        padding: 1.25rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .bill-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .main-amount {
+        font-size: 1.25rem;
+    }
+    
+    .install-date {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .customer-card {
+        padding: 1rem;
+    }
+    
+    .card-header {
+        gap: 0.75rem;
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+    }
+    
+    .main-amount {
+        font-size: 1.1rem;
+    }
+    
+    .install-date {
+        font-size: 1rem;
+    }
+    
+    .bill-item {
+        padding: 0.5rem;
+    }
+}
+

@@ -1,30 +1,68 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pelanggan</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a5acd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Dashboard pelanggan sistem manajemen ISP">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
-    <div class="sidebar">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="assets/selinggonet.png" alt="Selinggonet Logo" class="logo-image">
+            <span>Selinggonet</span>
+        </div>
         <nav>
             <ul>
-                <li><a href="#" class="active"><i class="fas fa-user-circle"></i> Profil Saya</a></li>
-                <li><a href="#"><i class="fas fa-file-invoice"></i> Tagihan Saya</a></li>
+                <li><a href="pelanggan_dashboard.html" class="active"><i class="fas fa-user-circle"></i> Dashboard Saya</a></li>
             </ul>
         </nav>
-        <div class="logout"><a href="#" id="logout-btn"><i class="fas fa-power-off"></i> Logout</a></div>
+        <div class="logout">
+            <a href="#" id="logout-btn"><i class="fas fa-power-off"></i> Logout</a>
+        </div>
     </div>
 
+    <!-- Konten Utama -->
     <div class="main-content">
         <header>
-            <h2>Selamat Datang, <span id="nama-pelanggan"></span>!</h2>
+            <button class="hamburger-btn" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="welcome-section">
+                <h2><i class="fas fa-user-circle"></i> Selamat Datang, <span id="nama-pelanggan">Loading...</span>!</h2>
+                <p class="welcome-subtitle">Berikut adalah informasi akun dan tagihan Anda</p>
+            </div>
         </header>
         <main>
-            <div id="info-pelanggan"></div>
-            <div id="tagihan-pelanggan"></div>
+            <div class="cards-container">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
         </main>
     </div>
 
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
     <script src="config.js"></script>
-    <script src="auth.js"></script> <script src="pelanggan_dashboard.js"></script> </body>
+    <script src="auth.js"></script>
+    <script src="pelanggan_dashboard.js"></script>
+    <script src="pwa-installer.js"></script>
+</body>
 </html>

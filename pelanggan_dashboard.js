@@ -1,57 +1,254 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Ambil data pelanggan yang login dari sessionStorage
-    const loggedInIdpl = sessionStorage.getItem('userIdpl');
+// pelanggan_dashboard.js - Customer Dashboard with 4 Cards and Loading Indicators
 
-    if (!loggedInIdpl) {
-        alert('Sesi tidak valid, silakan login kembali.');
+document.addEventListener('DOMContentLoaded', function() {
+    // Check session and get user data
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    const userLevel = sessionStorage.getItem('userLevel');
+    const userIdpl = sessionStorage.getItem('userIdpl');
+
+    // Redirect if not logged in or not a customer
+    if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
+        alert('Akses tidak valid. Silakan login sebagai pelanggan.');
         window.location.href = 'index.html';
         return;
     }
 
-    async function fetchMyData() {
-        const url = `${window.AppConfig.API_BASE_URL}?action=getMyData&idpl=${loggedInIdpl}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
+    // DOM Elements
+    const namaPelangganElement = document.getElementById('nama-pelanggan');
+    const cardsContainer = document.querySelector('.cards-container');
 
-            if (data.error) {
-                throw new Error(data.error);
+    // ===============================================
+    // Loading Management Functions
+    // ===============================================
+    function showLoading(text = 'Memuat data, harap tunggu...') {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
+    // ===============================================
+    // Data Fetching Functions
+    // ===============================================
+    async function fetchCustomerData() {
+        showLoading('Memuat data pelanggan Anda...');
+        
+        try {
+            // Fetch customer profile data
+            const pelangganResponse = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
+            if (!pelangganResponse.ok) throw new Error('Gagal mengambil data pelanggan');
+            const pelangganData = await pelangganResponse.json();
+            
+            // Find current customer data
+            const customerProfile = pelangganData.find(customer => customer.IDPL === userIdpl);
+            if (!customerProfile) {
+                throw new Error('Data pelanggan tidak ditemukan');
             }
 
-            // Tampilkan data di halaman
-            displayData(data);
+            // Fetch unpaid bills
+            const tagihanResponse = await fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`);
+            if (!tagihanResponse.ok) throw new Error('Gagal mengambil data tagihan');
+            const tagihanData = await tagihanResponse.json();
+            
+            // Filter bills for current customer
+            const customerUnpaidBills = tagihanData.filter(bill => bill.IDPL === userIdpl);
+
+            // Fetch paid bills
+            const lunasResponse = await fetch(`${window.AppConfig.API_BASE_URL}?action=getLunas`);
+            if (!lunasResponse.ok) throw new Error('Gagal mengambil data lunas');
+            const lunasData = await lunasResponse.json();
+            
+            // Filter paid bills for current customer
+            const customerPaidBills = lunasData.filter(bill => bill.IDPL === userIdpl);
+
+            // Display data
+            displayCustomerDashboard(customerProfile, customerUnpaidBills, customerPaidBills);
 
         } catch (error) {
-            console.error('Gagal mengambil data:', error);
-            // Tampilkan pesan error di halaman
+            console.error('Error:', error);
+            cardsContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Gagal memuat data: ${error.message}</p>
+                    <button onclick="location.reload()" class="btn btn-primary">Coba Lagi</button>
+                </div>
+            `;
+        } finally {
+            hideLoading();
         }
     }
 
-    function displayData(data) {
-        // Tampilkan nama di header
-        document.getElementById('nama-pelanggan').textContent = data.profil.NAMA;
+    // ===============================================
+    // Display Functions
+    // ===============================================
+    function displayCustomerDashboard(profile, unpaidBills, paidBills) {
+        // Update welcome message
+        namaPelangganElement.textContent = profile.NAMA || 'Pelanggan';
 
-        // Tampilkan info profil
-        const infoContainer = document.getElementById('info-pelanggan');
-        infoContainer.innerHTML = `
-            <h3>Profil Anda</h3>
-            <p><strong>ID Pelanggan:</strong> ${data.profil.IDPL}</p>
-            <p><strong>Paket:</strong> ${data.profil.PAKET}</p>
-            <p><strong>Status:</strong> ${data.profil.STATUS}</p>
-        `;
+        // Clear cards container
+        cardsContainer.innerHTML = '';
 
-        // Tampilkan tagihan yang belum lunas
-        const tagihanContainer = document.getElementById('tagihan-pelanggan');
-        let tagihanHtml = '<h3>Tagihan Belum Lunas</h3>';
-        if (data.tagihan.length > 0) {
-            data.tagihan.forEach(t => {
-                tagihanHtml += `<p>${t['PERIODE TAGIHAN']}: <strong>${t.TAGIHAN}</strong></p>`;
-            });
+        // Calculate totals
+        const totalUnpaidAmount = unpaidBills.reduce((sum, bill) => {
+            const amount = parseFloat(bill.TAGIHAN || 0);
+            return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
+
+        const totalPaidAmount = paidBills.reduce((sum, bill) => {
+            const amount = parseFloat(bill.TAGIHAN || 0);
+            return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
+
+        // Format currency
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+
+        // Format installation date
+        const installDate = profile['TANGGAL PASANG'] ? 
+            formatDate(profile['TANGGAL PASANG']) : 'Tidak tersedia';
+
+        // Create unpaid bills list for first card
+        let unpaidBillsList = '';
+        if (unpaidBills.length > 0) {
+            unpaidBillsList = unpaidBills.map(bill => 
+                `<div class="bill-item">
+                    <span class="period">${bill['PERIODE TAGIHAN'] || 'N/A'}</span>
+                    <span class="amount">${formatter.format(parseFloat(bill.TAGIHAN || 0))}</span>
+                </div>`
+            ).join('');
         } else {
-            tagihanHtml += '<p>Tidak ada tagihan saat ini.</p>';
+            unpaidBillsList = '<div class="no-bills"><i class="fas fa-check-circle"></i> Tidak ada tagihan belum lunas</div>';
         }
-        tagihanContainer.innerHTML = tagihanHtml;
+
+        // Define cards data
+        const cards = [
+            {
+                icon: 'fas fa-exclamation-triangle',
+                title: 'Tagihan Belum Lunas',
+                content: `
+                    <div class="bills-list">${unpaidBillsList}</div>
+                `,
+                color: '#ffc107',
+                class: 'unpaid-bills-card'
+            },
+            {
+                icon: 'fas fa-calendar-check',
+                title: 'Berlangganan Sejak',
+                content: `
+                    <div class="subscription-info">
+                        <div class="install-date">${installDate}</div>
+                        <div class="package-info">
+                            <small>Paket: ${profile.PAKET || 'N/A'}</small>
+                        </div>
+                    </div>
+                `,
+                color: '#20b2aa',
+                class: 'subscription-card'
+            },
+            {
+                icon: 'fas fa-money-bill-wave',
+                title: 'Total Tagihan Belum Dibayar',
+                content: `
+                    <div class="amount-display">
+                        <div class="main-amount">${formatter.format(totalUnpaidAmount)}</div>
+                        <div class="bill-count">${unpaidBills.length} tagihan</div>
+                    </div>
+                `,
+                color: '#ff6347',
+                class: 'unpaid-amount-card'
+            },
+            {
+                icon: 'fas fa-check-circle',
+                title: 'Total Tagihan Lunas',
+                content: `
+                    <div class="amount-display">
+                        <div class="main-amount">${formatter.format(totalPaidAmount)}</div>
+                        <div class="bill-count">${paidBills.length} pembayaran</div>
+                    </div>
+                `,
+                color: '#32cd32',
+                class: 'paid-amount-card'
+            }
+        ];
+
+        // Create and append cards
+        cards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.className = `card customer-card ${card.class}`;
+            cardElement.innerHTML = `
+                <div class="card-header">
+                    <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
+                        <i class="${card.icon}"></i>
+                    </div>
+                    <h3 class="card-title">${card.title}</h3>
+                </div>
+                <div class="card-content">
+                    ${card.content}
+                </div>
+            `;
+            cardsContainer.appendChild(cardElement);
+        });
     }
 
-    fetchMyData();
+    // ===============================================
+    // Utility Functions
+    // ===============================================
+    function formatDate(dateString) {
+        if (!dateString) return 'Tidak tersedia';
+        
+        try {
+            // Handle various date formats
+            let date;
+            if (dateString instanceof Date) {
+                date = dateString;
+            } else if (typeof dateString === 'string') {
+                // Try to parse the date string
+                date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    // If invalid, try to parse as dd/mm/yyyy or dd-mm-yyyy
+                    const parts = dateString.split(/[\/-]/);
+                    if (parts.length === 3) {
+                        // Assume dd/mm/yyyy or dd-mm-yyyy format
+                        date = new Date(parts[2], parts[1] - 1, parts[0]);
+                    }
+                }
+            } else {
+                return 'Format tanggal tidak valid';
+            }
+
+            if (isNaN(date.getTime())) {
+                return 'Tanggal tidak valid';
+            }
+
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return 'Format tanggal bermasalah';
+        }
+    }
+
+    // ===============================================
+    // Initialize Dashboard
+    // ===============================================
+    fetchCustomerData();
 });
