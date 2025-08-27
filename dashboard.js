@@ -1,6 +1,38 @@
-// dashboard.js (Versi Final dengan Filter Fungsional dan Perbaikan RpNaN)
+// dashboard.js (Versi Final dengan Filter Fungsional dan Perbaikan RpNaN + Enhanced Error Handling)
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard script loaded');
+    
+    // Check if required elements exist
+    const requiredElements = {
+        'filter-bulan': 'Filter bulan dropdown',
+        'filter-tahun': 'Filter tahun dropdown',
+        'cards-container': 'Cards container'
+    };
+    
+    let missingElements = [];
+    Object.entries(requiredElements).forEach(([id, desc]) => {
+        if (!document.getElementById(id)) {
+            missingElements.push(`${desc} (ID: ${id})`);
+        }
+    });
+    
+    if (missingElements.length > 0) {
+        console.error('Missing required DOM elements:', missingElements);
+        alert('Error: Beberapa elemen UI tidak ditemukan. Silakan refresh halaman.');
+        return;
+    }
+    
+    // Check if config is available
+    if (!window.AppConfig) {
+        console.error('AppConfig not found. Make sure config.js is loaded.');
+        setTimeout(() => {
+            if (!window.AppConfig) {
+                alert('Error: Konfigurasi aplikasi tidak ditemukan. Pastikan config.js dimuat dengan benar.');
+            }
+        }, 1000);
+    }
+    
     // Logika session check & logout dihandle oleh auth.js
     
     // DOM Selectors
@@ -75,54 +107,208 @@ document.addEventListener('DOMContentLoaded', function() {
         const bulan = filterBulan.value;
         const tahun = filterTahun.value;
         
+        console.log('Fetching dashboard stats...', { bulan, tahun });
+        console.log('API URL:', window.AppConfig.API_BASE_URL);
+        
         showLoading('Memuat data dasbor, harap tunggu...');
         
         try {
-            // Mengirim parameter filter ke backend
-            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getDashboardStats&bulan=${bulan}&tahun=${tahun}`);
-            if (!response.ok) throw new Error('Gagal mengambil data statistik');
+            // Check if AppConfig is available
+            if (!window.AppConfig || !window.AppConfig.API_BASE_URL) {
+                throw new Error('Konfigurasi API tidak ditemukan. Pastikan config.js dimuat dengan benar.');
+            }
             
-            const stats = await response.json();
+            // Mengirim parameter filter ke backend
+            const apiUrl = `${window.AppConfig.API_BASE_URL}?action=getDashboardStats&bulan=${bulan}&tahun=${tahun}`;
+            console.log('Making request to:', apiUrl);
+            
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response error:', errorText);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+            
+            let stats;
+            try {
+                stats = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Response text:', responseText);
+                throw new Error('Response tidak dalam format JSON yang valid');
+            }
+            
+            console.log('Parsed stats:', stats);
+            
+            // Check if response contains error
+            if (stats.error) {
+                throw new Error(`Server error: ${stats.error}`);
+            }
+            
             displayStats(stats);
         } catch (error) {
-            console.error('Error:', error);
-            cardsContainer.innerHTML = '<p>Gagal memuat data statistik. Pastikan server backend berjalan.</p>';
+            console.error('Dashboard fetch error:', error);
+            
+            // Display detailed error message
+            cardsContainer.innerHTML = `
+                <div class="error-message" style="
+                    grid-column: 1 / -1;
+                    padding: 20px;
+                    background-color: #f8d7da;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 8px;
+                    color: #721c24;
+                    text-align: center;
+                ">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Gagal Memuat Data Dashboard</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><small>Periksa koneksi internet dan pastikan Google Apps Script dapat diakses.</small></p>
+                    <button onclick="location.reload()" style="
+                        margin-top: 10px;
+                        padding: 8px 16px;
+                        background-color: #721c24;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">Coba Lagi</button>
+                </div>
+            `;
+            
+            // Try to load with default/mock data as fallback
+            console.log('Attempting to load with fallback data...');
+            displayStats(getDefaultStats());
         } finally {
             hideLoading();
         }
     }
 
+    // Function to provide default/fallback stats
+    function getDefaultStats() {
+        return {
+            totalCustomers: 0,
+            activeCustomers: 0,
+            inactiveCustomers: 0,
+            totalUnpaid: 0,
+            totalPaid: 0,
+            totalRevenue: 0,
+            totalExpenses: 0,
+            profit: 0
+        };
+    }
+
+    // Safe number formatting function
+    function formatCurrency(value) {
+        try {
+            const numValue = parseFloat(value) || 0;
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(numValue);
+        } catch (error) {
+            console.error('Currency formatting error:', error);
+            return `Rp ${(parseFloat(value) || 0).toLocaleString('id-ID')}`;
+        }
+    }
+
+    // Safe value display function
+    function formatValue(value, isFinancial = false) {
+        if (isFinancial) {
+            return formatCurrency(value);
+        }
+        return (value !== undefined && value !== null) ? value.toString() : '0';
+    }
+
     // --- BAGIAN INI MEMPERBAIKI RpNaN ---
     function displayStats(stats) {
+        console.log('Displaying stats:', stats);
+        
+        if (!stats || typeof stats !== 'object') {
+            console.error('Invalid stats object:', stats);
+            stats = getDefaultStats();
+        }
+        
         cardsContainer.innerHTML = ''; // Mengosongkan kartu
-
-        const formatter = new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        });
 
         // Reorder cards: Financial cards first, then customer stats
         const statsCards = [
             // Financial cards at the top
-            { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa', isFinancial: true },
-            { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347', isFinancial: true },
-            { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2', isFinancial: true },
+            { 
+                icon: 'fas fa-wallet', 
+                label: 'Total Pendapatan', 
+                value: formatValue(stats.totalRevenue, true), 
+                color: '#20b2aa', 
+                isFinancial: true 
+            },
+            { 
+                icon: 'fas fa-sign-out-alt', 
+                label: 'Total Pengeluaran', 
+                value: formatValue(stats.totalExpenses, true), 
+                color: '#ff6347', 
+                isFinancial: true 
+            },
+            { 
+                icon: 'fas fa-chart-line', 
+                label: 'Profit', 
+                value: formatValue(stats.profit, true), 
+                color: '#8a2be2', 
+                isFinancial: true 
+            },
             // Customer stats
-            { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers, color: '#6a5acd' },
-            { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers, color: '#32cd32' },
-            { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid, color: '#ffc107' },
-            { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid, color: '#1e90ff' }
+            { 
+                icon: 'fas fa-users', 
+                label: 'Total Pelanggan', 
+                value: formatValue(stats.totalCustomers), 
+                color: '#6a5acd' 
+            },
+            { 
+                icon: 'fas fa-user-check', 
+                label: 'Pelanggan Aktif', 
+                value: formatValue(stats.activeCustomers), 
+                color: '#32cd32' 
+            },
+            { 
+                icon: 'fas fa-exclamation-circle', 
+                label: 'Belum Lunas', 
+                value: formatValue(stats.totalUnpaid), 
+                color: '#ffc107' 
+            },
+            { 
+                icon: 'fas fa-check-circle', 
+                label: 'Tagihan Lunas', 
+                value: formatValue(stats.totalPaid), 
+                color: '#1e90ff' 
+            }
         ];
 
         // Add inactive customers card after active customers if there are any
         if (stats.inactiveCustomers > 0) {
-            statsCards.splice(5, 0, { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers, color: '#dc3545' });
+            statsCards.splice(5, 0, { 
+                icon: 'fas fa-user-slash', 
+                label: 'Pelanggan Nonaktif', 
+                value: formatValue(stats.inactiveCustomers), 
+                color: '#dc3545' 
+            });
         }
 
-        statsCards.forEach(card => {
+        statsCards.forEach((card, index) => {
             const cardElement = document.createElement('div');
             cardElement.className = card.isFinancial ? 'card financial-card' : 'card';
+            cardElement.style.animationDelay = `${index * 0.1}s`;
             cardElement.innerHTML = `
                 <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
                     <i class="${card.icon}"></i>
@@ -132,5 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             cardsContainer.appendChild(cardElement);
         });
+        
+        console.log('Dashboard cards rendered successfully');
     }
 });
