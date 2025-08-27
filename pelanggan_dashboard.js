@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // DOM Elements
     const namaPelangganElement = document.getElementById('nama-pelanggan');
+    const welcomeSuffixElement = document.getElementById('welcome-suffix');
     const cardsContainer = document.querySelector('.cards-container');
 
     // ===============================================
@@ -79,6 +80,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Error:', error);
+            // Show error in welcome message
+            namaPelangganElement.textContent = 'Pelanggan';
+            welcomeSuffixElement.style.display = 'inline';
             cardsContainer.innerHTML = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -97,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayCustomerDashboard(profile, unpaidBills, paidBills) {
         // Update welcome message
         namaPelangganElement.textContent = profile.NAMA || 'Pelanggan';
+        welcomeSuffixElement.style.display = 'inline'; // Show the exclamation mark
 
         // Clear cards container
         cardsContainer.innerHTML = '';
@@ -166,8 +171,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Total Tagihan Belum Dibayar',
                 content: `
                     <div class="amount-display">
-                        <div class="main-amount">${formatter.format(totalUnpaidAmount)}</div>
-                        <div class="bill-count">${unpaidBills.length} tagihan</div>
+                        <div class="main-count">${unpaidBills.length}</div>
+                        <div class="bill-count">tagihan</div>
                     </div>
                 `,
                 color: '#ff6347',
@@ -178,8 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Total Tagihan Lunas',
                 content: `
                     <div class="amount-display">
-                        <div class="main-amount">${formatter.format(totalPaidAmount)}</div>
-                        <div class="bill-count">${paidBills.length} pembayaran</div>
+                        <div class="main-count">${paidBills.length}</div>
+                        <div class="bill-count">pembayaran</div>
                     </div>
                 `,
                 color: '#32cd32',
