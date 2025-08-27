@@ -97,6 +97,11 @@ body.login-page {
     transition: all 0.3s ease;
     font-weight: 500;
 }
+.sidebar .logout a i { 
+    margin-right: 10px; 
+    width: 20px; 
+    text-align: center; 
+}
 .sidebar .logout a:hover { 
     background-color: #dc3545; 
     color: white; 
