@@ -195,6 +195,7 @@ function addPelanggan(data) {
     'USER': nextUser,
     'PASSWORD': '1234',
     'LEVEL': 'USER',
+    'KODE': 2,
     'ALAMAT': data.alamat,
     'JENIS KELAMIN': data.jenisKelamin,
     'WHATSAPP': data.whatsapp,

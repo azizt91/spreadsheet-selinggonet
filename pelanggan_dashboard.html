@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Dashboard Pelanggan</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-user-circle"></i> Profil Saya</a></li>
+                <li><a href="#"><i class="fas fa-file-invoice"></i> Tagihan Saya</a></li>
+            </ul>
+        </nav>
+        <div class="logout"><a href="#" id="logout-btn"><i class="fas fa-power-off"></i> Logout</a></div>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h2>Selamat Datang, <span id="nama-pelanggan"></span>!</h2>
+        </header>
+        <main>
+            <div id="info-pelanggan"></div>
+            <div id="tagihan-pelanggan"></div>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script> <script src="pelanggan_dashboard.js"></script> </body>
+</html>

@@ -1,15 +1,23 @@
 // login.js
 document.addEventListener('DOMContentLoaded', () => {
-    // Jika user sudah login, langsung arahkan ke dashboard
-    if (sessionStorage.getItem('loggedInUser')) {
-        window.location.href = 'dashboard.html';
-        return;
+    // --- PERUBAHAN 1: Logika pengalihan otomatis yang lebih cerdas ---
+    // Jika user sudah login, arahkan ke dasbor yang sesuai dengan levelnya.
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    const userLevel = sessionStorage.getItem('userLevel');
+
+    if (loggedInUser && userLevel) {
+        if (userLevel === 'ADMIN') {
+            window.location.href = 'dashboard.html';
+        } else if (userLevel === 'USER') {
+            window.location.href = 'pelanggan_dashboard.html'; // Arahkan ke dasbor pelanggan
+        }
+        return; // Hentikan eksekusi skrip lebih lanjut
     }
 
     const loginForm = document.getElementById('login-form');
     const errorMessage = document.getElementById('error-message');
     
-    // Loading Management Functions
+    // Loading Management Functions (Tidak ada perubahan di sini)
     function showLoading(text = 'Memproses...') {
         const loadingOverlay = document.createElement('div');
         loadingOverlay.className = 'loading-overlay';
@@ -72,8 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
             setButtonLoading(submitButton, false);
             
             if (response.ok) {
+                // --- PERUBAHAN 2: Simpan semua data sesi dan arahkan berdasarkan level ---
                 sessionStorage.setItem('loggedInUser', result.user);
-                window.location.href = 'dashboard.html';
+                sessionStorage.setItem('userLevel', result.level); // Simpan level pengguna
+                sessionStorage.setItem('userIdpl', result.idpl);   // Simpan ID Pelanggan
+
+                // Arahkan berdasarkan level pengguna
+                if (result.level === 'ADMIN') {
+                    window.location.href = 'dashboard.html';
+                } else if (result.level === 'USER') {
+                    // Arahkan ke halaman dasbor pelanggan baru
+                    window.location.href = 'pelanggan_dashboard.html'; 
+                } else {
+                    errorMessage.textContent = 'Level pengguna tidak dikenali.';
+                }
             } else {
                 errorMessage.textContent = result.message;
             }
