@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Main Data Fetch & Display Logic
     // ===============================================
      async function fetchData() {
-        showLoading('Loading customer data, please wait...');
+        showLoading('Please wait...');
         
         try {
             const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);

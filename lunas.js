@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Main Data Fetch & Display Logic
     // ===============================================
 async function fetchLunas() {
-    showLoading('Loading payment history data, please wait...');
+    showLoading('Please wait...');
     
     try {
         const response = await fetch(API_URL); // API_URL sudah dikonfigurasi dengan benar

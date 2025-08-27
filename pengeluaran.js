@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // DATA FETCH & DISPLAY LOGIC (DIPERBAIKI)
     // ===============================================
     async function fetchData() {
+        showLoading('Please wait...');
+        
         try {
             const response = await fetch(API_URL);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -69,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching data:', error);
             tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+        } finally {
+            hideLoading();
         }
     }
 

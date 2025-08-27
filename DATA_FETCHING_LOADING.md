@@ -10,6 +10,7 @@ Added loading indicators for data fetching operations across all main pages sinc
 2. **Pelanggan** (`pelanggan.js`) 
 3. **Tagihan** (`tagihan.js`)
 4. **Lunas** (`lunas.js`)
+5. **Pengeluaran** (`pengeluaran.js`)
 
 ### Loading Messages
 Each page displays contextually appropriate loading messages:
@@ -18,6 +19,7 @@ Each page displays contextually appropriate loading messages:
 - **Pelanggan**: "Loading customer data, please wait..."
 - **Tagihan**: "Loading billing data, please wait..."
 - **Lunas**: "Loading payment history data, please wait..."
+- **Pengeluaran**: "Loading expense data, please wait..."
 
 ### Technical Implementation
 
@@ -67,6 +69,11 @@ function hideLoading() {
 - Added to `fetchLunas()` function
 - Shows loading when payment history data is being loaded
 
+**Pengeluaran (pengeluaran.js)**
+- Added to `fetchData()` function
+- Shows loading when expense data is being loaded
+- Save/delete operations already had loading indicators (retained)
+
 ### User Experience Flow
 
 1. **Page Load**: User navigates to any data page
@@ -112,6 +119,7 @@ Uses existing loading CSS classes from `style.css`:
 - [ ] Customer table shows loading when page loads
 - [ ] Billing table shows loading when page loads  
 - [ ] Payment history shows loading when page loads
+- [ ] Expense table shows loading when page loads
 - [ ] Loading disappears when data appears
 - [ ] Loading disappears on error conditions
 - [ ] Filter changes trigger loading on dashboard
