@@ -100,19 +100,23 @@ function initializeDashboard() {
     populateFilters();
     initializeEventListeners();
     
-    // Add a direct test with known working data
+    // Add a direct test with known working data (current month focus)
     const testWithKnownData = () => {
-        console.log('Testing with known working data...');
+        console.log('Testing with current month focused data...');
+        const currentDate = new Date();
+        const monthName = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][currentDate.getMonth()];
+        
         const testStats = {
             totalCustomers: 65,
             activeCustomers: 51,
             inactiveCustomers: 14,
             totalUnpaid: 12,
-            totalPaid: 1640,
-            totalRevenue: 234470000,
-            totalExpenses: 73094192,
-            profit: 161375808
+            totalPaid: 42, // Reduced to monthly data
+            totalRevenue: 8500000, // Monthly revenue instead of total
+            totalExpenses: 2100000, // Monthly expenses
+            profit: 6400000 // Monthly profit
         };
+        console.log(`Displaying stats for ${monthName} ${currentDate.getFullYear()}:`, testStats);
         displayStats(testStats);
     };
     
@@ -144,10 +148,10 @@ function initializeDashboard() {
                 activeCustomers: 51,
                 inactiveCustomers: 14,
                 totalUnpaid: 12,
-                totalPaid: 1640,
-                totalRevenue: 234470000,
-                totalExpenses: 73094192,
-                profit: 161375808
+                totalPaid: 42,
+                totalRevenue: 8500000,
+                totalExpenses: 2100000,
+                profit: 6400000
             };
             
             const container = document.querySelector('.cards-container');
@@ -167,30 +171,35 @@ function initializeDashboard() {
         
         const namaBulan = ["Semua Bulan", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const sekarang = new Date();
-        const bulanIni = sekarang.getMonth() + 1;
+        const bulanIni = sekarang.getMonth() + 1; // 1-12
         const tahunIni = sekarang.getFullYear();
 
-        // Isi dropdown bulan
+        // Isi dropdown bulan - default ke bulan ini
         namaBulan.forEach((bulan, index) => {
             const option = document.createElement('option');
             option.value = index === 0 ? 'semua' : index;
             option.textContent = bulan;
+            // Set bulan ini sebagai selected, bukan 'Semua Bulan'
             if (index === bulanIni) {
                 option.selected = true;
             }
             filterBulan.appendChild(option);
         });
 
-        // Isi dropdown tahun
+        // Isi dropdown tahun - default ke tahun ini
         for (let i = 0; i < 4; i++) {
             const tahun = tahunIni - i;
             const option = document.createElement('option');
             option.value = tahun;
             option.textContent = tahun;
+            // Set tahun ini sebagai selected
+            if (tahun === tahunIni) {
+                option.selected = true;
+            }
             filterTahun.appendChild(option);
         }
         
-        console.log('Filters populated successfully');
+        console.log(`Filters populated successfully - Default: ${namaBulan[bulanIni]} ${tahunIni}`);
     }
 
     // --- BAGIAN INI MEMBUAT FILTER BERFUNGSI ---
@@ -206,8 +215,13 @@ function initializeDashboard() {
 
     // Mengambil data statistik dari backend
     async function fetchDashboardStats() {
-        const bulan = filterBulan ? filterBulan.value : 'semua';
-        const tahun = filterTahun ? filterTahun.value : new Date().getFullYear();
+        // Default to current month instead of 'semua'
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1; // 1-12
+        const currentYear = currentDate.getFullYear();
+        
+        const bulan = filterBulan ? filterBulan.value : currentMonth;
+        const tahun = filterTahun ? filterTahun.value : currentYear;
         
         console.log('Fetching dashboard stats...', { bulan, tahun });
         console.log('API URL:', window.AppConfig ? window.AppConfig.API_BASE_URL : 'AppConfig not loaded');
@@ -458,10 +472,10 @@ window.debugDashboard = function() {
         activeCustomers: 51,
         inactiveCustomers: 14,
         totalUnpaid: 12,
-        totalPaid: 1640,
-        totalRevenue: 234470000,
-        totalExpenses: 73094192,
-        profit: 161375808
+        totalPaid: 42,
+        totalRevenue: 8500000, // Monthly revenue
+        totalExpenses: 2100000, // Monthly expenses
+        profit: 6400000 // Monthly profit
     };
     
     // Use a simplified display function
