@@ -3,6 +3,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard script loaded');
     
+    // Wait a bit for all elements to be ready
+    setTimeout(() => {
+        initializeDashboard();
+    }, 100);
+});
+
+function initializeDashboard() {
+    console.log('Initializing dashboard...');
+    
     // Check if required elements exist
     const requiredElements = {
         'filter-bulan': 'Filter bulan dropdown',
@@ -18,9 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     if (missingElements.length > 0) {
-        console.error('Missing required DOM elements:', missingElements);
-        alert('Error: Beberapa elemen UI tidak ditemukan. Silakan refresh halaman.');
-        return;
+        console.warn('Some elements missing, but continuing:', missingElements);
+        // Don't stop execution, just warn and continue
     }
     
     // Check if config is available
@@ -28,26 +36,33 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('AppConfig not found. Make sure config.js is loaded.');
         setTimeout(() => {
             if (!window.AppConfig) {
-                alert('Error: Konfigurasi aplikasi tidak ditemukan. Pastikan config.js dimuat dengan benar.');
+                console.error('AppConfig still not available after delay');
             }
         }, 1000);
     }
     
-    // Logika session check & logout dihandle oleh auth.js
-    
-    // DOM Selectors
+    // DOM Selectors - get them fresh each time
     const filterBulan = document.getElementById('filter-bulan');
     const filterTahun = document.getElementById('filter-tahun');
     const cardsContainer = document.querySelector('.cards-container');
     
-    // Verify DOM elements exist
-    if (!filterBulan || !filterTahun || !cardsContainer) {
-        console.error('Required DOM elements not found:', {
-            filterBulan: !!filterBulan,
-            filterTahun: !!filterTahun,
-            cardsContainer: !!cardsContainer
-        });
-        return;
+    console.log('DOM Elements found:', {
+        filterBulan: !!filterBulan,
+        filterTahun: !!filterTahun,
+        cardsContainer: !!cardsContainer
+    });
+    
+    // If essential cards container is missing, create it
+    if (!cardsContainer) {
+        console.warn('Cards container not found, creating one...');
+        const main = document.querySelector('main') || document.body;
+        const newContainer = document.createElement('div');
+        newContainer.className = 'cards-container';
+        if (main) {
+            main.appendChild(newContainer);
+        } else {
+            document.body.appendChild(newContainer);
+        }
     }
 
     // ===============================================
@@ -101,7 +116,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Also add a manual test button for debugging
     setTimeout(() => {
-        if (cardsContainer && cardsContainer.children.length === 0) {
+        const timeoutCardsContainer = document.querySelector('.cards-container');
+        if (timeoutCardsContainer && timeoutCardsContainer.children.length === 0) {
             console.log('No cards displayed after 3 seconds, forcing test data...');
             testWithKnownData();
         }
@@ -215,8 +231,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Dashboard fetch error:', error);
             
-            // Display detailed error message
-            cardsContainer.innerHTML = `
+            // Get fresh reference to display error
+            const errorCardsContainer = document.querySelector('.cards-container');
+            if (errorCardsContainer) {
+                // Display detailed error message
+                errorCardsContainer.innerHTML = `
                 <div class="error-message" style="
                     grid-column: 1 / -1;
                     padding: 20px;
@@ -240,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ">Coba Lagi</button>
                 </div>
             `;
+            }
             
             throw error; // Re-throw for promise chain
         } finally {
@@ -288,12 +308,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayStats(stats) {
         console.log('Displaying stats:', stats);
         
+        // Get fresh reference to cards container
+        const currentCardsContainer = document.querySelector('.cards-container');
+        if (!currentCardsContainer) {
+            console.error('Cards container not found in displayStats');
+            return;
+        }
+        
         if (!stats || typeof stats !== 'object') {
             console.error('Invalid stats object:', stats);
             stats = getDefaultStats();
         }
         
-        cardsContainer.innerHTML = ''; // Mengosongkan kartu
+        currentCardsContainer.innerHTML = ''; // Mengosongkan kartu
 
         // Reorder cards: Financial cards first, then customer stats
         const statsCards = [
@@ -367,26 +394,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h3>${card.label}</h3>
                 <div class="card-value">${card.value}</div>
             `;
-            cardsContainer.appendChild(cardElement);
+            currentCardsContainer.appendChild(cardElement);
         });
         
         console.log('Dashboard cards rendered successfully');
     }
-    
-    // Global debug function for manual testing
-    window.debugDashboard = function() {
-        console.log('🔧 Manual debug test triggered');
-        const testStats = {
-            totalCustomers: 65,
-            activeCustomers: 51,
-            inactiveCustomers: 14,
-            totalUnpaid: 12,
-            totalPaid: 1640,
-            totalRevenue: 234470000,
-            totalExpenses: 73094192,
-            profit: 161375808
-        };
-        displayStats(testStats);
-        alert('Debug: Test data loaded! Check if cards are now visible.');
+}
+
+// Global debug function for manual testing (outside the main function)
+window.debugDashboard = function() {
+    console.log('🔧 Manual debug test triggered');
+    const cardsContainer = document.querySelector('.cards-container');
+    if (!cardsContainer) {
+        alert('Cards container not found!');
+        return;
+    }
+    const testStats = {
+        totalCustomers: 65,
+        activeCustomers: 51,
+        inactiveCustomers: 14,
+        totalUnpaid: 12,
+        totalPaid: 1640,
+        totalRevenue: 234470000,
+        totalExpenses: 73094192,
+        profit: 161375808
     };
-});
+    
+    // Use a simplified display function
+    cardsContainer.innerHTML = '';
+    const formatter = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    });
+    
+    const statsCards = [
+        { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(testStats.totalRevenue), color: '#20b2aa' },
+        { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(testStats.totalExpenses), color: '#ff6347' },
+        { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(testStats.profit), color: '#8a2be2' },
+        { icon: 'fas fa-users', label: 'Total Pelanggan', value: testStats.totalCustomers, color: '#6a5acd' },
+        { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: testStats.activeCustomers, color: '#32cd32' },
+        { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: testStats.totalUnpaid, color: '#ffc107' },
+        { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: testStats.totalPaid, color: '#1e90ff' }
+    ];
+    
+    statsCards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card';
+        cardElement.innerHTML = `
+            <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
+                <i class="${card.icon}"></i>
+            </div>
+            <h3>${card.label}</h3>
+            <div class="card-value">${card.value}</div>
+        `;
+        cardsContainer.appendChild(cardElement);
+    });
+    
+    alert('Debug: Test data loaded! Check if cards are now visible.');
+};
