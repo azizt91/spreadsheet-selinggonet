@@ -100,23 +100,21 @@ function initializeDashboard() {
     populateFilters();
     initializeEventListeners();
     
-    // Add a direct test with known working data (current month focus)
+    // Add a direct test with known working data (all-time data)
     const testWithKnownData = () => {
-        console.log('Testing with current month focused data...');
-        const currentDate = new Date();
-        const monthName = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][currentDate.getMonth()];
+        console.log('Testing with all-time data (default semua bulan)...');
         
         const testStats = {
             totalCustomers: 65,
             activeCustomers: 51,
             inactiveCustomers: 14,
             totalUnpaid: 12,
-            totalPaid: 42, // Reduced to monthly data
-            totalRevenue: 8500000, // Monthly revenue instead of total
-            totalExpenses: 2100000, // Monthly expenses
-            profit: 6400000 // Monthly profit
+            totalPaid: 1640, // All-time data
+            totalRevenue: 234470000, // All-time revenue
+            totalExpenses: 73094192, // All-time expenses
+            profit: 161375808 // All-time profit
         };
-        console.log(`Displaying stats for ${monthName} ${currentDate.getFullYear()}:`, testStats);
+        console.log('Displaying all-time stats (Semua Bulan):', testStats);
         displayStats(testStats);
     };
     
@@ -137,30 +135,7 @@ function initializeDashboard() {
     
     // Add immediate test for debugging
     console.log('Dashboard initialization completed');
-    
-    // Test the debug function immediately
-    setTimeout(() => {
-        if (window.debugDashboard) {
-            console.log('Debug function available, running immediate test...');
-            // Don't show alert, just run the function silently
-            const testStats = {
-                totalCustomers: 65,
-                activeCustomers: 51,
-                inactiveCustomers: 14,
-                totalUnpaid: 12,
-                totalPaid: 42,
-                totalRevenue: 8500000,
-                totalExpenses: 2100000,
-                profit: 6400000
-            };
-            
-            const container = document.querySelector('.cards-container');
-            if (container && container.children.length === 0) {
-                testWithKnownData();
-                console.log('Emergency test data loaded');
-            }
-        }
-    }, 1000);
+}
 
     // --- BAGIAN INI MENGISI FILTER ---
     function populateFilters() {
@@ -174,13 +149,17 @@ function initializeDashboard() {
         const bulanIni = sekarang.getMonth() + 1; // 1-12
         const tahunIni = sekarang.getFullYear();
 
-        // Isi dropdown bulan - default ke bulan ini
+        // Clear existing options first
+        filterBulan.innerHTML = '';
+        filterTahun.innerHTML = '';
+
+        // Isi dropdown bulan - default ke "Semua Bulan" for initial load
         namaBulan.forEach((bulan, index) => {
             const option = document.createElement('option');
             option.value = index === 0 ? 'semua' : index;
             option.textContent = bulan;
-            // Set bulan ini sebagai selected, bukan 'Semua Bulan'
-            if (index === bulanIni) {
+            // Default to "Semua Bulan" initially
+            if (index === 0) {
                 option.selected = true;
             }
             filterBulan.appendChild(option);
@@ -199,7 +178,7 @@ function initializeDashboard() {
             filterTahun.appendChild(option);
         }
         
-        console.log(`Filters populated successfully - Default: ${namaBulan[bulanIni]} ${tahunIni}`);
+        console.log(`Filters populated successfully - Default: Semua Bulan ${tahunIni}`);
     }
 
     // --- BAGIAN INI MEMBUAT FILTER BERFUNGSI ---
@@ -215,13 +194,12 @@ function initializeDashboard() {
 
     // Mengambil data statistik dari backend
     async function fetchDashboardStats() {
-        // Default to current month instead of 'semua'
+        // Default to 'semua' for all data, but respect user selection
         const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1; // 1-12
         const currentYear = currentDate.getFullYear();
         
-        const bulan = filterBulan ? filterBulan.value : currentMonth;
-        const tahun = filterTahun ? filterTahun.value : currentYear;
+        const bulan = filterBulan && filterBulan.value ? filterBulan.value : 'semua';
+        const tahun = filterTahun && filterTahun.value ? filterTahun.value : currentYear;
         
         console.log('Fetching dashboard stats...', { bulan, tahun });
         console.log('API URL:', window.AppConfig ? window.AppConfig.API_BASE_URL : 'AppConfig not loaded');
@@ -314,7 +292,7 @@ function initializeDashboard() {
         } finally {
             hideLoading();
         }
-    }
+    } // Add missing closing brace for fetchDashboardStats function
 
     // Function to provide default/fallback stats
     function getDefaultStats() {
@@ -448,66 +426,3 @@ function initializeDashboard() {
         
         console.log('Dashboard cards rendered successfully');
     }
-}
-
-// Global debug function for manual testing (outside the main function)
-window.debugDashboard = function() {
-    console.log('🔧 Manual debug test triggered');
-    let cardsContainer = document.querySelector('.cards-container');
-    
-    if (!cardsContainer) {
-        console.warn('Cards container not found, creating one for debug...');
-        const main = document.querySelector('main');
-        if (main) {
-            cardsContainer = document.createElement('div');
-            cardsContainer.className = 'cards-container';
-            main.appendChild(cardsContainer);
-        } else {
-            alert('Cannot find main element to create cards container!');
-            return;
-        }
-    }
-    const testStats = {
-        totalCustomers: 65,
-        activeCustomers: 51,
-        inactiveCustomers: 14,
-        totalUnpaid: 12,
-        totalPaid: 42,
-        totalRevenue: 8500000, // Monthly revenue
-        totalExpenses: 2100000, // Monthly expenses
-        profit: 6400000 // Monthly profit
-    };
-    
-    // Use a simplified display function
-    cardsContainer.innerHTML = '';
-    const formatter = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-    });
-    
-    const statsCards = [
-        { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(testStats.totalRevenue), color: '#20b2aa' },
-        { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(testStats.totalExpenses), color: '#ff6347' },
-        { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(testStats.profit), color: '#8a2be2' },
-        { icon: 'fas fa-users', label: 'Total Pelanggan', value: testStats.totalCustomers, color: '#6a5acd' },
-        { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: testStats.activeCustomers, color: '#32cd32' },
-        { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: testStats.totalUnpaid, color: '#ffc107' },
-        { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: testStats.totalPaid, color: '#1e90ff' }
-    ];
-    
-    statsCards.forEach(card => {
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card';
-        cardElement.innerHTML = `
-            <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
-                <i class="${card.icon}"></i>
-            </div>
-            <h3>${card.label}</h3>
-            <div class="card-value">${card.value}</div>
-        `;
-        cardsContainer.appendChild(cardElement);
-    });
-    
-    alert('Debug: Test data loaded! Check if cards are now visible.');
-};
