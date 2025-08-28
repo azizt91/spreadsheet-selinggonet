@@ -163,13 +163,21 @@ async function fetchLunas() {
             const status = item.STATUS || 'N/A';
             const periode = item['PERIODE TAGIHAN'] || '';
             const colorClass = getPeriodColorClass(periode);
+
+            const tanggalBayarFormatted = item['TANGGAL BAYAR']
+                ? new Date(item['TANGGAL BAYAR']).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })
+                : '-';
             
             const row = `
                 <tr>
                     <td>${item.IDPL || ''}</td>
                     <td>${item.NAMA || ''}</td>
                     <td><span class="period-pill ${colorClass}">${periode}</span></td>
-                    <td>${item['TANGGAL BAYAR'] || ''}</td>
+                    <td>${tanggalBayarFormatted}</td>
                     <td><span class="status-pill status-lunas">${status}</span></td>
                 </tr>`;
             tableBody.innerHTML += row;
