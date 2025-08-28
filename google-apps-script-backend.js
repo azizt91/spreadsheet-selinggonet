@@ -271,9 +271,21 @@ function processPayment(rowNumber, rowData) {
   const tagihanSheet = ss.getSheetByName('Tagihan');
   
   const lunasHeaders = lunasSheet.getRange(1, 1, 1, lunasSheet.getLastColumn()).getValues()[0];
+  // const newLunasRow = lunasHeaders.map(header => {
+  //   if (header === 'STATUS') return 'LUNAS';
+  //   if (header === 'TANGGAL BAYAR') return new Date().toLocaleDateString('id-ID');
+  //   return rowData[header] || '';
+  // });
   const newLunasRow = lunasHeaders.map(header => {
     if (header === 'STATUS') return 'LUNAS';
     if (header === 'TANGGAL BAYAR') return new Date().toLocaleDateString('id-ID');
+    
+    // --- INI ADALAH BAGIAN YANG SAYA TAMBAHKAN ---
+    // Memaksa "PERIODE TAGIHAN" menjadi teks dengan menambahkan kutip tunggal
+    if (header === 'PERIODE TAGIHAN') {
+      return "'" + (rowData[header] || '');
+    }
+    
     return rowData[header] || '';
   });
   
