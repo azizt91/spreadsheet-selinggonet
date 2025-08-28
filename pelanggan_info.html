@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info Pembayaran - Selinggonet</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a5acd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Informasi pembayaran tagihan internet Selinggonet">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="assets/selinggonet.png" alt="Selinggonet Logo" class="logo-image">
+            <span>Selinggonet</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="pelanggan_dashboard.html"><i class="fas fa-user-circle"></i> Dashboard Saya</a></li>
+                <li><a href="pelanggan_riwayat_lunas.html"><i class="fas fa-history"></i> Riwayat Lunas</a></li>
+                <li><a href="pelanggan_profile.html"><i class="fas fa-user-edit"></i> Profile Saya</a></li>
+                <li><a href="pelanggan_info.html" class="active"><i class="fas fa-info-circle"></i> Info Pembayaran</a></li>
+            </ul>
+        </nav>
+        <div class="logout">
+            <a href="#" id="logout-btn"><i class="fas fa-power-off"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="main-content">
+        <header>
+            <button class="hamburger-btn" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title">
+                <h2><i class="fas fa-info-circle"></i> Informasi Pembayaran</h2>
+                <p class="page-subtitle">Pilih metode pembayaran yang mudah untuk Anda</p>
+            </div>
+        </header>
+
+        <main>
+            <div class="payment-info-container">
+                <!-- Transfer Bank Section -->
+                <div class="payment-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-university"></i> Transfer Bank</h3>
+                        <p>Lakukan pembayaran melalui transfer ke rekening berikut:</p>
+                    </div>
+                    
+                    <div class="bank-cards">
+                        <!-- SeaBank -->
+                        <div class="bank-card">
+                            <div class="bank-header">
+                                <div class="bank-logo seabank">
+                                    <i class="fas fa-anchor"></i>
+                                </div>
+                                <div class="bank-name">SeaBank</div>
+                            </div>
+                            <div class="account-details">
+                                <div class="account-number">
+                                    <label>Nomor Rekening:</label>
+                                    <div class="number-container">
+                                        <span class="account-text" id="seabank-number">901307925714</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('seabank-number', this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-name">
+                                    <label>Atas Nama:</label>
+                                    <span>TAUFIQ AZIZ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BCA -->
+                        <div class="bank-card">
+                            <div class="bank-header">
+                                <div class="bank-logo bca">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <div class="bank-name">BCA</div>
+                            </div>
+                            <div class="account-details">
+                                <div class="account-number">
+                                    <label>Nomor Rekening:</label>
+                                    <div class="number-container">
+                                        <span class="account-text" id="bca-number">3621053653</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('bca-number', this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-name">
+                                    <label>Atas Nama:</label>
+                                    <span>TAUFIQ AZIZ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BSI -->
+                        <div class="bank-card">
+                            <div class="bank-header">
+                                <div class="bank-logo bsi">
+                                    <i class="fas fa-mosque"></i>
+                                </div>
+                                <div class="bank-name">BSI</div>
+                            </div>
+                            <div class="account-details">
+                                <div class="account-number">
+                                    <label>Nomor Rekening:</label>
+                                    <div class="number-container">
+                                        <span class="account-text" id="bsi-number">7211806138</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('bsi-number', this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-name">
+                                    <label>Atas Nama:</label>
+                                    <span>TAUFIQ AZIZ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dana -->
+                        <div class="bank-card">
+                            <div class="bank-header">
+                                <div class="bank-logo dana">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="bank-name">DANA</div>
+                            </div>
+                            <div class="account-details">
+                                <div class="account-number">
+                                    <label>Nomor DANA:</label>
+                                    <div class="number-container">
+                                        <span class="account-text" id="dana-number">089609497390</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('dana-number', this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-name">
+                                    <label>Atas Nama:</label>
+                                    <span>TAUFIQ AZIZ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transfer Instructions -->
+                    <div class="payment-instructions">
+                        <h4><i class="fas fa-info-circle"></i> Petunjuk Transfer:</h4>
+                        <ol>
+                            <li>Lakukan transfer sesuai dengan nominal tagihan Anda</li>
+                            <li>Simpan bukti transfer dengan baik</li>
+                            <li>Klik tombol "Konfirmasi Pembayaran" di bawah untuk memberitahu kami</li>
+                            <li>Transfer akan diverifikasi dalam 1x24 jam</li>
+                        </ol>
+                    </div>
+
+                    <!-- Confirmation Button -->
+                    <div class="confirmation-section">
+                        <button class="btn btn-primary btn-full" id="confirm-transfer-btn">
+                            <i class="fas fa-whatsapp"></i> Konfirmasi Pembayaran Transfer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Offline Payment Section -->
+                <div class="payment-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-home"></i> Pembayaran Langsung</h3>
+                        <p>Bayar langsung di rumah kami dengan uang tunai:</p>
+                    </div>
+                    
+                    <div class="offline-payment-card">
+                        <div class="address-info">
+                            <div class="contact-person">
+                                <h4><i class="fas fa-user-friends"></i> Kontak Person:</h4>
+                                <div class="person">
+                                    <i class="fas fa-male"></i>
+                                    <span>Bpk. Karsadi</span>
+                                </div>
+                                <div class="person">
+                                    <i class="fas fa-female"></i>
+                                    <span>Ibu Sopiyah</span>
+                                </div>
+                            </div>
+                            
+                            <div class="office-hours">
+                                <h4><i class="fas fa-clock"></i> Jam Operasional:</h4>
+                                <div class="hours">
+                                    <div class="day-group">
+                                        <span class="days">Senin - Jumat:</span>
+                                        <span class="time">08:00 - 17:00</span>
+                                    </div>
+                                    <div class="day-group">
+                                        <span class="days">Sabtu:</span>
+                                        <span class="time">08:00 - 14:00</span>
+                                    </div>
+                                    <div class="day-group">
+                                        <span class="days">Minggu:</span>
+                                        <span class="time">Tutup</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="location-info">
+                                <h4><i class="fas fa-map-marker-alt"></i> Lokasi:</h4>
+                                <p>Silakan hubungi kami untuk mendapatkan alamat lengkap atau koordinat lokasi.</p>
+                                <button class="btn btn-outline" id="contact-location-btn">
+                                    <i class="fas fa-whatsapp"></i> Minta Alamat Lengkap
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Notes -->
+                <div class="payment-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Catatan Penting</h3>
+                    </div>
+                    
+                    <div class="notes-card">
+                        <ul class="important-notes">
+                            <li><i class="fas fa-check-circle"></i> Pastikan nominal transfer sesuai dengan tagihan yang harus dibayar</li>
+                            <li><i class="fas fa-check-circle"></i> Simpan bukti transfer sebagai tanda pembayaran</li>
+                            <li><i class="fas fa-check-circle"></i> Konfirmasi pembayaran melalui WhatsApp untuk verifikasi lebih cepat</li>
+                            <li><i class="fas fa-check-circle"></i> Pembayaran akan diproses dalam 1x24 jam setelah konfirmasi</li>
+                            <li><i class="fas fa-check-circle"></i> Untuk pembayaran tunai, siapkan uang pas atau kembalian kecil</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="theme-manager.js"></script>
+    <script src="auth.js"></script>
+    <script src="pelanggan_info.js"></script>
+    <script src="pwa-installer.js"></script>
+</body>
+</html>

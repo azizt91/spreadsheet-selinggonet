@@ -4,6 +4,7 @@
 
 /* --- VARIABEL WARNA & TEMA UTAMA --- */
 :root {
+    /* Light Theme Variables */
     --primary-color: #6a5acd; /* SlateBlue */
     --primary-hover: #5a4baf;
     --success-color: #28a745;
@@ -17,6 +18,89 @@
     --text-light: #6c757d;
     --border-color: #e9ecef;
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --table-bg: #ffffff;
+    --table-header-bg: #f8f9fa;
+    --modal-bg: #ffffff;
+    --toast-bg: #2c3e50;
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+    
+    /* Theme transition */
+    --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+    --primary-color: #8a7cf8; /* Lighter purple for dark mode */
+    --primary-hover: #9d8df9;
+    --success-color: #4ade80;
+    --danger-color: #f87171;
+    --warning-color: #fbbf24;
+    --secondary-color: #9ca3af;
+    --background-color: #0f172a; /* Very dark blue */
+    --sidebar-bg: #1e293b; /* Dark slate */
+    --white: #f1f5f9; /* Off-white for dark mode */
+    --text-color: #f1f5f9;
+    --text-light: #94a3b8;
+    --border-color: #334155;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --card-bg: #1e293b;
+    --input-bg: #334155;
+    --table-bg: #1e293b;
+    --table-header-bg: #334155;
+    --modal-bg: #1e293b;
+    --toast-bg: #475569;
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+}
+
+/* Theme Toggle Styles */
+.theme-toggle {
+    position: relative;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: var(--theme-transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+    justify-content: center;
+    box-shadow: var(--shadow);
+}
+
+.theme-toggle:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px rgba(106, 90, 205, 0.15);
+}
+
+.theme-toggle i {
+    font-size: 1rem;
+    transition: var(--theme-transition);
+    color: var(--text-light);
+}
+
+.theme-toggle .theme-icon {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.theme-toggle-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: var(--theme-transition);
+}
+
+/* Theme transition for all elements */
+* {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --- PENGATURAN DASAR --- */
@@ -32,6 +116,7 @@ body {
     color: var(--text-color);
     display: flex; /* Untuk layout sidebar */
     font-size: 14px;
+    transition: var(--theme-transition);
 }
 
 
@@ -51,15 +136,15 @@ body.login-page {
 
 .login-box { 
     padding: 40px; 
-    background: rgba(255, 255, 255, 0.95); 
+    background: var(--card-bg); 
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
     border-radius: 20px; 
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 16px rgba(0, 0, 0, 0.05); 
+    box-shadow: var(--shadow); 
     width: 100%; 
     max-width: 400px; 
     text-align: center;
-    transition: all 0.3s ease;
+    transition: var(--theme-transition);
 }
 
 .login-box:hover {
@@ -100,6 +185,8 @@ body.login-page {
     flex-direction: column;
     box-shadow: var(--shadow);
     z-index: 100;
+    border-right: 1px solid var(--border-color);
+    transition: var(--theme-transition);
 }
 .sidebar .logo { font-size: 24px; font-weight: 600; color: var(--primary-color); margin-bottom: 40px; display: flex; align-items: center; }
 .sidebar .logo .logo-image { width: 32px; height: 32px; margin-right: 10px; object-fit: contain; }
@@ -146,6 +233,47 @@ body.login-page {
     margin-bottom: 30px; 
     flex-wrap: wrap;
     gap: 1rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    transition: var(--theme-transition);
+}
+
+.filter-container select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.1);
 }
 .main-content header h2 { 
     font-size: 28px; 
@@ -202,13 +330,14 @@ body.login-page {
     }
 }
 .card {
-    background-color: var(--white);
+    background-color: var(--card-bg);
     padding: 25px;
     border-radius: 12px;
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: var(--theme-transition), transform 0.2s ease;
 }
 
 /* Remove special styling for financial cards - keep them uniform */
@@ -225,11 +354,13 @@ body.login-page {
 /* --- HALAMAN TABEL (Pelanggan, Tagihan, Lunas) --- */
 /* =================================================================== */
 .table-container {
-    background: var(--white);
+    background: var(--table-bg);
     padding: 20px;
     border-radius: 12px;
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
     overflow-x: auto;
+    transition: var(--theme-transition);
 }
 
 /* Header untuk kontrol tabel */
@@ -265,14 +396,14 @@ th, td {
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
 }
-thead { background-color: #f9fafb; }
+thead { background-color: var(--table-header-bg); }
 th {
     font-weight: 600;
     font-size: 11px; /* UKURAN FONT HEADER DIPERKECIL */
     text-transform: uppercase;
     color: var(--text-light);
 }
-tbody tr:hover { background-color: #f9fafb; }
+tbody tr:hover { background-color: var(--table-header-bg); }
 .table-footer { 
     display: flex; 
     justify-content: space-between; 
@@ -316,9 +447,9 @@ td .btn.action-btn { padding: 6px 10px; font-size: 12px; margin: 2px 1px; }
 td:last-child { text-align: center; }
 
 /* Modal (Pop-up) */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow: auto; justify-content: center; align-items: center; }
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--overlay-bg); overflow: auto; justify-content: center; align-items: center; transition: var(--theme-transition); }
 .modal.show { display: flex; }
-.modal-content { background-color: #fff; margin: auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slide-down 0.3s ease; }
+.modal-content { background-color: var(--modal-bg); margin: auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; position: relative; box-shadow: var(--shadow); border: 1px solid var(--border-color); animation: slide-down 0.3s ease; transition: var(--theme-transition); }
 @keyframes slide-down { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .close-btn { color: #aaa; position: absolute; top: 15px; right: 25px; font-size: 28px; font-weight: bold; cursor: pointer; }
 
@@ -326,7 +457,8 @@ td:last-child { text-align: center; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 .form-group { display: flex; flex-direction: column; }
 .form-group label { margin-bottom: 5px; font-weight: 500; }
-.form-group input, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; width: 100%; box-sizing: border-box; }
+.form-group input, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; width: 100%; box-sizing: border-box; background-color: var(--input-bg); color: var(--text-color); transition: var(--theme-transition); }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.1); }
 input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
 
 /* Tampilan Detail di Modal */
@@ -1752,6 +1884,589 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     
     .info-value {
         align-self: flex-end;
+    }
+}
+
+
+/* ================================================================= */
+/* --- HALAMAN INFO PEMBAYARAN (PAYMENT INFO PAGE) --- */
+/* ================================================================= */
+.payment-info-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.payment-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
+}
+
+.payment-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.section-header h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.section-header h3 i {
+    color: #6a5acd;
+    font-size: 1.2rem;
+}
+
+.section-header p {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Bank Cards Grid */
+.bank-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.bank-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: var(--theme-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.bank-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6a5acd, #764ba2);
+}
+
+.bank-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(106, 90, 205, 0.15);
+    border-color: #6a5acd;
+}
+
+.bank-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.bank-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    font-weight: bold;
+}
+
+.bank-logo.seabank {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+}
+
+.bank-logo.bca {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+}
+
+.bank-logo.bsi {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.bank-logo.dana {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+}
+
+.bank-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.account-number,
+.account-name {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.account-number label,
+.account-name label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.number-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--input-bg);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
+}
+
+.account-text {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    flex: 1;
+    letter-spacing: 1px;
+    transition: var(--theme-transition);
+}
+
+.copy-btn {
+    background: #6a5acd;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    min-width: 40px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-btn:hover {
+    background: #5a4baf;
+    transform: scale(1.05);
+}
+
+.copy-btn.copied {
+    background: #28a745;
+    animation: pulse 0.6s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.account-name span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    background: var(--input-bg);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: var(--theme-transition);
+}
+
+/* Payment Instructions */
+.payment-instructions {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid #6a5acd;
+}
+
+.payment-instructions h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.payment-instructions h4 i {
+    color: #6a5acd;
+}
+
+.payment-instructions ol {
+    margin-left: 1.5rem;
+    line-height: 1.8;
+    color: #495057;
+}
+
+.payment-instructions ol li {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+/* Confirmation Section */
+.confirmation-section {
+    text-align: center;
+}
+
+.confirmation-section .btn {
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    min-width: 280px;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.confirmation-section .btn:hover {
+    background: linear-gradient(135deg, #128c7e, #25d366);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+}
+
+.confirmation-section .btn i {
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+
+/* Offline Payment Card */
+.offline-payment-card {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+    border: 2px solid #ffe082;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+}
+
+.address-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.contact-person h4,
+.office-hours h4,
+.location-info h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.contact-person h4 i,
+.office-hours h4 i,
+.location-info h4 i {
+    color: #f57c00;
+}
+
+.person {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.person i {
+    color: #6a5acd;
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+.person span {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.hours .day-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.day-group .days {
+    font-weight: 500;
+    color: #495057;
+}
+
+.day-group .time {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.location-info p {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.location-info .btn {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: white;
+    border: 2px solid #25d366;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.location-info .btn:hover {
+    background: transparent;
+    color: #25d366;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+}
+
+/* Important Notes */
+.notes-card {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+    border: 2px solid #ffeaa7;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid #f39c12;
+}
+
+.important-notes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.important-notes li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    line-height: 1.6;
+}
+
+.important-notes li:last-child {
+    margin-bottom: 0;
+}
+
+.important-notes li i {
+    color: #28a745;
+    font-size: 1.1rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #2c3e50;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    max-width: 400px;
+    word-wrap: break-word;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.toast-success {
+    background: #28a745;
+}
+
+.toast.toast-error {
+    background: #dc3545;
+}
+
+.toast.toast-info {
+    background: #17a2b8;
+}
+
+.toast.toast-warning {
+    background: #ffc107;
+    color: #2c3e50;
+}
+
+/* Page Title for Payment Info */
+.page-title {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.page-title h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.page-title h2 i {
+    color: #6a5acd;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Responsive Design for Payment Info */
+@media (max-width: 768px) {
+    .payment-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .bank-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .bank-card {
+        padding: 1.25rem;
+    }
+    
+    .bank-header {
+        gap: 0.75rem;
+    }
+    
+    .bank-logo {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .bank-name {
+        font-size: 1.1rem;
+    }
+    
+    .number-container {
+        padding: 0.65rem;
+    }
+    
+    .account-text {
+        font-size: 1rem;
+    }
+    
+    .confirmation-section .btn {
+        min-width: 100%;
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .address-info {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .page-title h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .payment-info-container {
+        padding: 0;
+    }
+    
+    .payment-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+    }
+    
+    .section-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.25rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .bank-card {
+        padding: 1rem;
+    }
+    
+    .payment-instructions {
+        padding: 1rem;
+    }
+    
+    .offline-payment-card {
+        padding: 1.25rem;
+    }
+    
+    .notes-card {
+        padding: 1rem;
+    }
+    
+    .important-notes li {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        transform: translateY(-100%);
+    }
+    
+    .toast.show {
+        transform: translateY(0);
     }
 }
 
