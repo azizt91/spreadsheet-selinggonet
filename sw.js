@@ -1,5 +1,5 @@
 // Service Worker untuk PWA Selinggonet
-const CACHE_NAME = 'selinggonet-v1.3.0';
+const CACHE_NAME = 'selinggonet-v1.4.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -26,7 +26,6 @@ const urlsToCache = [
   '/pelanggan_riwayat_lunas.js',
   '/pelanggan_info.js',
   '/assets/selinggonet.png',
-  '/assets/gambar_login.svg',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'
