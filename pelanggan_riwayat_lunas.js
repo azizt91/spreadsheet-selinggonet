@@ -186,12 +186,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const periode = item['PERIODE TAGIHAN'] || '';
             const colorClass = getPeriodColorClass(periode);
             const amount = formatCurrency(item.TAGIHAN || 0);
+
+            const tanggalBayarFormatted = item['TANGGAL BAYAR']
+                ? new Date(item['TANGGAL BAYAR']).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })
+                : '-';
             
             const row = `
                 <tr>
                     <td><span class="period-pill ${colorClass}">${periode}</span></td>
                     <td><strong style="color: #28a745;">${amount}</strong></td>
-                    <td>${item['TANGGAL BAYAR'] || ''}</td>
+                    <td>${tanggalBayarFormatted}</td>
                     <td><span class="status-pill status-lunas">${status}</span></td>
                 </tr>`;
             tableBody.innerHTML += row;
