@@ -533,7 +533,8 @@ _____________________________
 *Ini adalah pesan otomatis. Jika telah membayar tagihan, abaikan pesan ini.`;
         
         // Clean phone number (remove non-numeric characters except +)
-        let cleanedNumber = whatsappNumber.replace(/[^0-9+]/g, '');
+        // let cleanedNumber = whatsappNumber.replace(/[^0-9+]/g, '');
+        let cleanedNumber = String(whatsappNumber).replace(/[^0-9+]/g, '');
         
         // Add country code if not present
         if (!cleanedNumber.startsWith('+') && !cleanedNumber.startsWith('62')) {
