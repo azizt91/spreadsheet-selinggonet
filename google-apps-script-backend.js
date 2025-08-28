@@ -278,7 +278,7 @@ function processPayment(rowNumber, rowData) {
   // });
   const newLunasRow = lunasHeaders.map(header => {
     if (header === 'STATUS') return 'LUNAS';
-    if (header === 'TANGGAL BAYAR') return new Date().toLocaleDateString('id-ID');
+    if (header === 'TANGGAL BAYAR') return new Date();
     
     // --- INI ADALAH BAGIAN YANG SAYA TAMBAHKAN ---
     // Memaksa "PERIODE TAGIHAN" menjadi teks dengan menambahkan kutip tunggal
