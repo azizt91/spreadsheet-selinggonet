@@ -72,6 +72,26 @@ body.login-page {
 .login-box .form-group { text-align: left; margin-bottom: 20px; }
 .login-box .error-text { color: var(--danger-color); margin-top: 15px; min-height: 20px; font-size: 14px; }
 
+/* Login Image Styles */
+.login-image {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-img {
+    width: 120px;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.login-img:hover {
+    transform: scale(1.05);
+}
+
 /* Gradient Animation for Login Background */
 @keyframes gradientShift {
     0% {
@@ -1078,6 +1098,11 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
         padding: 11px;
         font-size: 15px;
     }
+    
+    /* Login image tablet responsive */
+    .login-img {
+        width: 100px;
+    }
 }
 
 /* Optimasi untuk layar sangat kecil (smartphone portrait) */
@@ -1139,6 +1164,15 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
         padding: 12px 20px;
         font-size: 16px;
         border-radius: 8px;
+    }
+    
+    /* Login image mobile responsive */
+    .login-img {
+        width: 80px;
+    }
+    
+    .login-image {
+        margin-bottom: 20px;
     }
     
     .hamburger-btn {
@@ -1260,6 +1294,15 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     .login-box .form-group input {
         padding: 10px;
         font-size: 16px;
+    }
+    
+    /* Login image ultra small screen responsive */
+    .login-img {
+        width: 70px;
+    }
+    
+    .login-image {
+        margin-bottom: 15px;
     }
 }
 
