@@ -1,5 +1,5 @@
 // Service Worker untuk PWA Selinggonet
-const CACHE_NAME = 'selinggonet-v1.4.0';
+const CACHE_NAME = 'selinggonet-v1.5.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -16,6 +16,7 @@ const urlsToCache = [
   '/login.js',
   '/auth.js',
   '/logo-navigation.js',
+  '/datetime-display.js',
   '/dashboard.js',
   '/pelanggan.js',
   '/tagihan.js',

@@ -147,12 +147,42 @@ body.login-page {
     flex-wrap: wrap;
     gap: 1rem;
 }
+.main-content header .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 .main-content header h2 { 
     font-size: 28px; 
     font-weight: 600; 
     display: flex;
     align-items: center;
     gap: 15px;
+    margin: 0;
+}
+
+/* DateTime Display Styles */
+.datetime-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-light);
+    background: rgba(106, 90, 205, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(106, 90, 205, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.datetime-display i {
+    color: var(--primary-color);
+    font-size: 13px;
+}
+
+.datetime-display span {
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 .main-content header .user-info { display: flex; align-items: center; }
 .main-content header .user-info span { margin-right: 15px; }
@@ -1154,10 +1184,23 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
 
     .main-content header {
         padding-right: 60px; /* Adjust untuk hamburger button yang lebih kecil */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .main-content header .header-left {
+        width: 100%;
     }
 
     .main-content header h2 {
         font-size: 18px;
+    }
+    
+    /* Mobile datetime display */
+    .datetime-display {
+        font-size: 12px;
+        padding: 4px 8px;
     }
 
     .header-actions {
