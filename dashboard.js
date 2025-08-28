@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const bulan = filterBulan.value;
         const tahun = filterTahun.value;
         
-        showLoading('Memuat data dasbor...');
+        showLoading('Memuat data dashboard, harap tunggu...');
         
         try {
             // Mengirim parameter filter ke backend
