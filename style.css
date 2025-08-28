@@ -72,6 +72,28 @@ body.login-page {
 .login-box .form-group { text-align: left; margin-bottom: 20px; }
 .login-box .error-text { color: var(--danger-color); margin-top: 15px; min-height: 20px; font-size: 14px; }
 
+/* Login Illustration Styles */
+.login-illustration {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.illustration-image {
+    width: 120px;
+    height: 120px;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(106, 90, 205, 0.2));
+    transition: all 0.3s ease;
+}
+
+.illustration-image:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(106, 90, 205, 0.3));
+}
+
 /* Gradient Animation for Login Background */
 @keyframes gradientShift {
     0% {
@@ -229,6 +251,16 @@ body.login-page {
     .card .card-value {
         font-size: 22px;
         line-height: 1.2;
+    }
+    
+    /* Tablet illustration styles */
+    .illustration-image {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .login-illustration {
+        margin-bottom: 22px;
     }
 }
 .card {
@@ -1171,6 +1203,16 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
         border-radius: 8px;
     }
     
+    /* Mobile illustration styles */
+    .illustration-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .login-illustration {
+        margin-bottom: 20px;
+    }
+    
     .hamburger-btn {
         top: 15px;
         right: 15px;
@@ -1303,6 +1345,16 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     .login-box .form-group input {
         padding: 10px;
         font-size: 16px;
+    }
+    
+    /* Ultra-small screen illustration styles */
+    .illustration-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .login-illustration {
+        margin-bottom: 15px;
     }
 }
 

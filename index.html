@@ -24,16 +24,19 @@
 </head>
 <body class="login-page">
     <div class="login-box">
+        <div class="login-illustration">
+            <img src="assets/login_illustration.svg" alt="Login Illustration" class="illustration-image">
+        </div>
         <h2>Selamat Datang</h2>
         <p>Silakan masuk untuk melanjutkan</p>
         <form id="login-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" required>
+                <input type="text" id="username" placeholder="Masukkan username Anda" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" placeholder="Masukkan password Anda" required>
             </div>
             <button type="submit" class="btn btn-primary btn-full">Login</button>
         </form>
