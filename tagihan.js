@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationControls = document.getElementById('pagination-controls');
     const paginationInfo = document.getElementById('pagination-info');
     const rowsPerPageSelector = document.getElementById('rows-per-page');
+    const createInvoicesBtn = document.getElementById('create-invoices-btn');
     
     // Payment Modal Elements
     const paymentModal = document.getElementById('payment-modal');
