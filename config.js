@@ -1,7 +1,7 @@
 // config.js - API Configuration
 const config = {
     // GANTI URL DI BAWAH INI DENGAN WEB APP URL DARI GOOGLE APPS SCRIPT ANDA
-    API_BASE_URL: 'https://script.google.com/macros/s/AKfycby9qqIdQ79M4LzajhIsEBhY7DxeZ-fqZt7e3iM51v9wvCQx_CVAWwFEaZ9lgFpzNaMi2w/exec', // <-- GANTI DENGAN URL WEB APP ANDA
+    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbxMyog47PnD6WLDnEI-6uVs1sAkO9ZXat8cYSBb3PyMAFKvKyMsyjD2tW6E9NCDeZeqcg/exec', // <-- GANTI DENGAN URL WEB APP ANDA
     
     
     // Fungsi untuk mendapatkan URL API
