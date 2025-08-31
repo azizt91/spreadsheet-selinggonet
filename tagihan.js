@@ -125,6 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Event listener untuk tombol LUNAS dan WhatsApp
         tableBody.addEventListener('click', handleButtonClick);
+
+        // Listener untuk tombol "Buat Tagihan" <-- PENAMBAHAN DI SINI
+        if (createInvoicesBtn) {
+            createInvoicesBtn.addEventListener('click', handleCreateInvoices);
+        }
         
         // Payment modal event listeners
         if (paymentCancelBtn) {
@@ -144,6 +149,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+    // ===============================================
+    // FUNGSI BARU: Handle Pembuatan Tagihan
+    // ===============================================
+    async function handleCreateInvoices() {
+        const currentMonthName = new Date().toLocaleString('id-ID', { month: 'long' });
+        if (!confirm(`Apakah Anda yakin ingin membuat tagihan untuk bulan ${currentMonthName}? Proses ini akan dijalankan untuk semua pelanggan aktif yang belum memiliki tagihan bulan ini.`)) {
+            return;
+        }
+    
+        showLoading('Membuat tagihan bulanan, ini mungkin memerlukan beberapa saat...');
+    
+        try {
+            const response = await fetch(API_ACTION_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'createInvoices'
+                })
+            });
+            const result = await response.json();
+    
+            hideLoading();
+    
+            if (result.error) {
+                throw new Error(result.error);
+            }
+    
+            alert(result.message);
+            fetchTagihan(); // Muat ulang data untuk menampilkan tagihan baru
+        } catch (error) {
+            hideLoading();
+            console.error('Error creating invoices:', error);
+            alert(`Gagal membuat tagihan: ${error.message}`);
+        }
+    }
+    
     // ===============================================
     // Main Data Fetch & Display Logic
     // ===============================================
