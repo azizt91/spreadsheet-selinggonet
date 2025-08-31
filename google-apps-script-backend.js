@@ -35,6 +35,10 @@ function doGet(e) {
       case 'getDashboardStats':
         data = getDashboardStats(e.parameter.bulan, e.parameter.tahun);
         break;
+      // --- PENAMBAHAN BARU UNTUK DASBOR PELANGGAN ---
+      case 'getMyData':
+        data = getSpecificCustomerData(e.parameter.idpl);
+        break;
       default:
         data = { error: `Invalid GET action: ${action}` };
     }
@@ -195,7 +199,6 @@ function addPelanggan(data) {
     'USER': nextUser,
     'PASSWORD': '1234',
     'LEVEL': 'USER',
-    'KODE': 2,
     'ALAMAT': data.alamat,
     'JENIS KELAMIN': data.jenisKelamin,
     'WHATSAPP': data.whatsapp,
@@ -271,11 +274,6 @@ function processPayment(rowNumber, rowData) {
   const tagihanSheet = ss.getSheetByName('Tagihan');
   
   const lunasHeaders = lunasSheet.getRange(1, 1, 1, lunasSheet.getLastColumn()).getValues()[0];
-  // const newLunasRow = lunasHeaders.map(header => {
-  //   if (header === 'STATUS') return 'LUNAS';
-  //   if (header === 'TANGGAL BAYAR') return new Date().toLocaleDateString('id-ID');
-  //   return rowData[header] || '';
-  // });
   const newLunasRow = lunasHeaders.map(header => {
     if (header === 'STATUS') return 'LUNAS';
     if (header === 'TANGGAL BAYAR') return new Date();
@@ -366,10 +364,13 @@ function getDashboardStats(bulan, tahun) {
 
   const lunasFiltered = filterByPeriode(lunasData);
   const pengeluaranFiltered = filterByPeriode(pengeluaranData);
-  const unpaidInvoices = tagihanData.filter(row => row.STATUS && row.STATUS.toUpperCase() === 'BELUM LUNAS');
+  const tagihanFiltered = filterByPeriode(tagihanData);
+  const unpaidInvoices = tagihanFiltered.filter(row => row.STATUS && row.STATUS.toUpperCase() === 'BELUM LUNAS');
   
   const totalCustomers = pelangganData.length;
   const activeCustomers = pelangganData.filter(p => p.STATUS === 'AKTIF').length;
+
+  const inactiveCustomers = pelangganData.filter(p => p.STATUS && p.STATUS.toUpperCase() === 'NONAKTIF').length;
   
   const totalRevenue = lunasFiltered.reduce((sum, row) => {
     const nominal = parseFloat(String(row.TAGIHAN || '0').replace(/\D/g, ''));
@@ -384,11 +385,33 @@ function getDashboardStats(bulan, tahun) {
   return {
     totalCustomers,
     activeCustomers,
-    inactiveCustomers: totalCustomers - activeCustomers,
+    inactiveCustomers: inactiveCustomers,
     totalUnpaid: unpaidInvoices.length,
     totalPaid: lunasFiltered.length,
     totalRevenue,
     totalExpenses,
     profit: totalRevenue - totalExpenses
+  };
+}
+
+// --- FUNGSI BARU UNTUK DASBOR PELANGGAN ---
+/**
+ * Mengambil data tagihan, lunas, dan profil untuk satu pelanggan spesifik.
+ * @param {string} idpl - ID Pelanggan yang login.
+ * @returns {Object} - Berisi data profil, tagihan, dan riwayat lunas.
+ */
+function getSpecificCustomerData(idpl) {
+  if (!idpl) {
+    throw new Error('ID Pelanggan diperlukan.');
+  }
+
+  const profil = readSheetData('DATA').find(p => p.IDPL === idpl);
+  const tagihan = readSheetData('Tagihan').filter(t => t.IDPL === idpl);
+  const lunas = readSheetData('Lunas').filter(l => l.IDPL === idpl);
+
+  return {
+    profil: profil,
+    tagihan: tagihan,
+    riwayatLunas: lunas
   };
 }
