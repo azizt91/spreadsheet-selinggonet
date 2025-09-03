@@ -377,14 +377,21 @@ function addPengeluaran(data) {
   const nextId = Math.random().toString(36).substring(2, 10).toUpperCase();
   const tanggalInput = new Date(data.TANGGAL);
   const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+  // Ambil nama bulan dan tahun dari tanggal
+  const bulan = namaBulan[tanggalInput.getMonth()];
+  const tahun = tanggalInput.getFullYear();
+  // Buat format 'Bulan Tahun' untuk PERIODE TAGIHAN
+  const periodeTagihan = `'${bulan} ${tahun}`;
   
   const newRow = [
     nextId, 
     data.DESKRIPSI_PENGELUARAN, 
     data.JUMLAH,
     tanggalInput.toLocaleDateString('id-ID'),
-    namaBulan[tanggalInput.getMonth()],
-    tanggalInput.getFullYear()
+    bulan,
+    tahun,
+    periodeTagihan // <-- TAMBAHKAN PERIODE TAGIHAN DI SINI
   ];
   
   sheet.appendRow(newRow);
@@ -401,16 +408,23 @@ function updatePengeluaran(rowNumber, data) {
   const sheet = ss.getSheetByName('Pengeluaran');
   const tanggalInput = new Date(data.TANGGAL);
   const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+  // Ambil nama bulan dan tahun dari tanggal
+  const bulan = namaBulan[tanggalInput.getMonth()];
+  const tahun = tanggalInput.getFullYear();
+  // Buat format 'Bulan Tahun' untuk PERIODE TAGIHAN
+  const periodeTagihan = `'${bulan} ${tahun}`;
   
   const updatedValues = [
     data.DESKRIPSI_PENGELUARAN,
     data.JUMLAH,
     tanggalInput.toLocaleDateString('id-ID'),
-    namaBulan[tanggalInput.getMonth()],
-    tanggalInput.getFullYear()
+    bulan,
+    tahun,
+    periodeTagihan // <-- TAMBAHKAN PERIODE TAGIHAN DI SINI
   ];
   
-  sheet.getRange(rowNumber, 2, 1, 5).setValues([updatedValues]);
+  sheet.getRange(rowNumber, 2, 1, 6).setValues([updatedValues]);
   return { message: 'Data pengeluaran berhasil diperbarui!' };
 }
 
