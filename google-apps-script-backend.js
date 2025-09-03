@@ -86,6 +86,11 @@ function doPost(e) {
       case 'bayar':
         result = processPayment(request.rowNumber, request.rowData);
         break;
+      // --- PENAMBAHAN ADA DI SINI ---
+      case 'createInvoices':
+        result = createMonthlyInvoices();
+        break;
+      // --------------------------------
       default:
         result = { error: `Invalid POST action: ${action}` };
     }
@@ -95,6 +100,75 @@ function doPost(e) {
   
   return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// --- FUNGSI BARU UNTUK MEMBUAT TAGIHAN ---
+/**
+ * Membuat tagihan bulanan untuk semua pelanggan aktif yang belum ditagih.
+ * @returns {Object} - Pesan sukses atau informasi.
+ */
+function createMonthlyInvoices() {
+  // 1. Dapatkan bulan dan tahun saat ini
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  const currentMonthName = namaBulan[now.getMonth()];
+
+  // 2. Baca semua data yang diperlukan dari sheet
+  const pelangganData = readSheetData('DATA');
+  const tagihanData = readSheetData('Tagihan');
+  const lunasData = readSheetData('Lunas');
+  const tagihanSheet = ss.getSheetByName('Tagihan');
+  const tagihanHeaders = tagihanSheet.getRange(1, 1, 1, tagihanSheet.getLastColumn()).getValues()[0];
+
+  // 3. Buat daftar IDPL yang sudah ditagih atau lunas bulan ini untuk pengecekan cepat
+  const existingTagihanIds = new Set(
+    tagihanData
+      .filter(row => row['BULAN'] === currentMonthName && row['TAHUN'] == currentYear)
+      .map(row => row.IDPL)
+  );
+  const existingLunasIds = new Set(
+    lunasData
+      .filter(row => row['BULAN'] === currentMonthName && row['TAHUN'] == currentYear)
+      .map(row => row.IDPL)
+  );
+
+  // 4. Filter pelanggan yang berstatus 'AKTIF' dan belum ada di daftar tagihan/lunas bulan ini
+  const customersToBill = pelangganData.filter(customer =>
+    customer.STATUS === 'AKTIF' &&
+    !existingTagihanIds.has(customer.IDPL) &&
+    !existingLunasIds.has(customer.IDPL)
+  );
+
+  // 5. Jika tidak ada pelanggan yang perlu ditagih, kirim pesan dan hentikan proses
+  if (customersToBill.length === 0) {
+    return { message: 'Tidak ada tagihan baru yang perlu dibuat. Semua pelanggan aktif sudah memiliki tagihan untuk periode ini.' };
+  }
+
+  // 6. Siapkan baris-baris data baru untuk dimasukkan ke sheet 'Tagihan'
+  const newRows = customersToBill.map(customer => {
+    const newRowObject = {
+      'ID': `TGH-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      'IDPL': customer.IDPL,
+      'NAMA': customer.NAMA,
+      'WHATSAPP': customer.WHATSAPP,
+      'TAGIHAN': customer.TAGIHAN,
+      'BULAN': currentMonthName,
+      'TAHUN': currentYear,
+      'PERIODE TAGIHAN': `'${currentMonthName} ${currentYear}`, // Tambahkan kutip agar dianggap teks
+      'STATUS': 'BELUM LUNAS',
+      'TANGGAL BAYAR': '',
+      'TANGGAL PASANG': customer['TANGGAL PASANG'] || ''
+    };
+    // Ubah objek menjadi array sesuai urutan header di sheet
+    return tagihanHeaders.map(header => newRowObject[header.trim()] || '');
+  });
+
+  // 7. Tambahkan semua baris baru ke sheet dalam satu operasi untuk efisiensi
+  tagihanSheet.getRange(tagihanSheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
+
+  // 8. Kirim pesan sukses
+  return { message: `Berhasil membuat ${newRows.length} tagihan baru untuk periode ${currentMonthName} ${currentYear}.` };
 }
 
 /**
@@ -366,11 +440,13 @@ function getDashboardStats(bulan, tahun) {
   const pengeluaranFiltered = filterByPeriode(pengeluaranData);
   const tagihanFiltered = filterByPeriode(tagihanData);
   const unpaidInvoices = tagihanFiltered.filter(row => row.STATUS && row.STATUS.toUpperCase() === 'BELUM LUNAS');
-  
-  const totalCustomers = pelangganData.length;
-  const activeCustomers = pelangganData.filter(p => p.STATUS === 'AKTIF').length;
 
-  const inactiveCustomers = pelangganData.filter(p => p.STATUS && p.STATUS.toUpperCase() === 'NONAKTIF').length;
+
+  // --- PERUBAHAN UTAMA ADA DI SINI ---
+  const totalCustomers = pelangganData.filter(p => p.LEVEL === 'USER').length;
+  const activeCustomers = pelangganData.filter(p => p.STATUS === 'AKTIF' && p.LEVEL === 'USER').length;
+  const inactiveCustomers = pelangganData.filter(p => p.STATUS && p.STATUS.toUpperCase() === 'NONAKTIF' && p.LEVEL === 'USER').length;
+  // ------------------------------------
   
   const totalRevenue = lunasFiltered.reduce((sum, row) => {
     const nominal = parseFloat(String(row.TAGIHAN || '0').replace(/\D/g, ''));
@@ -385,7 +461,7 @@ function getDashboardStats(bulan, tahun) {
   return {
     totalCustomers,
     activeCustomers,
-    inactiveCustomers: inactiveCustomers,
+    inactiveCustomers,
     totalUnpaid: unpaidInvoices.length,
     totalPaid: lunasFiltered.length,
     totalRevenue,
