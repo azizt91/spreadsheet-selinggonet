@@ -109,38 +109,92 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     // Main Data Fetch & Display Logic
     // ===============================================
-async function fetchLunas() {
-    showLoading('Memuat data riwayat lunas, harap tunggu...');
+// async function fetchLunas() {
+//     showLoading('Memuat data riwayat lunas, harap tunggu...');
     
-    try {
-        const response = await fetch(API_URL); // API_URL sudah dikonfigurasi dengan benar
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const responseData = await response.json();
+//     try {
+//         const response = await fetch(API_URL); // API_URL sudah dikonfigurasi dengan benar
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+//         const responseData = await response.json();
 
-        // 1. Pengecekan keamanan untuk memastikan data adalah array
-        if (!Array.isArray(responseData)) {
-            if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-            throw new TypeError('Format data yang diterima dari server salah.');
-        }
+//         // 1. Pengecekan keamanan untuk memastikan data adalah array
+//         if (!Array.isArray(responseData)) {
+//             if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+//             throw new TypeError('Format data yang diterima dari server salah.');
+//         }
         
-        // --- PERBAIKAN UTAMA DI SINI ---
-        // Ganti .reverse() dengan .sort() untuk pengurutan yang andal
-        // Ini akan mengurutkan data berdasarkan rowNumber dari yang terbesar ke terkecil.
-        allLunasData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
+//         // --- PERBAIKAN UTAMA DI SINI ---
+//         // Ganti .reverse() dengan .sort() untuk pengurutan yang andal
+//         // Ini akan mengurutkan data berdasarkan rowNumber dari yang terbesar ke terkecil.
+//         allLunasData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
         
-        filteredData = [...allLunasData];
-        renderPage();
+//         filteredData = [...allLunasData];
+//         renderPage();
 
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        // Menampilkan pesan error yang lebih jelas di dalam tabel
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
-    } finally {
-        hideLoading();
+//     } catch (error) {
+//         console.error('Error fetching data:', error);
+//         // Menampilkan pesan error yang lebih jelas di dalam tabel
+//         tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+//     } finally {
+//         hideLoading();
+//     }
+// }
+
+    //-----------------------fetch data-----------------------------------------------
+
+
+    async function fetchLunas() {
+        showLoading('Memuat data riwayat lunas, harap tunggu...');
+        
+        try {
+            // --- PERUBAHAN DIMULAI DI SINI ---
+            // 1. Baca parameter dari URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const filterBulan = urlParams.get('bulan');
+            const filterTahun = urlParams.get('tahun');
+            const isFilteringFromDashboard = filterBulan && filterTahun && filterBulan !== 'semua';
+            
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const responseData = await response.json();
+    
+            if (!Array.isArray(responseData)) {
+                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+                throw new TypeError('Format data yang diterima dari server salah.');
+            }
+            
+            let rawData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
+            
+            // 2. Terapkan filter jika ada parameter dari dashboard
+            if (isFilteringFromDashboard) {
+                const namaBulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                const filterBulanNama = namaBulan[parseInt(filterBulan, 10)];
+                const targetPeriode = `${filterBulanNama} ${filterTahun}`;
+    
+                allLunasData = rawData.filter(row => (row['PERIODE TAGIHAN'] || '').trim() === targetPeriode);
+    
+                // Menonaktifkan search bar
+                searchInput.placeholder = `Data untuk ${targetPeriode}`;
+                searchInput.disabled = true;
+            } else {
+                allLunasData = rawData;
+            }
+            // --- PERUBAHAN SELESAI ---
+    
+            filteredData = [...allLunasData];
+            renderPage();
+    
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+        } finally {
+            hideLoading();
+        }
     }
-}
 
 
     function renderPage() {
