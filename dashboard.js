@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
         { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' },
         { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers || 0, color: '#6a5acd' },
-        { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32' },
-        { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545' },
+        { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32', isClickable: true, link: 'pelanggan.html', filter: 'AKTIF' },
+        { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545', isClickable: true, link: 'pelanggan.html', filter: 'NONAKTIF' },
         { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid || 0, color: '#ffc107', isClickable: true, link: 'tagihan.html' },
         { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid || 0, color: '#1e90ff', isClickable: true, link: 'lunas.html' }
     ];
