@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // --- AKHIR DARI PERBAIKAN ---
     
                 // Menonaktifkan search bar agar pengguna fokus pada data yang difilter
-                searchInput.placeholder = `Menampilkan data untuk ${targetPeriode}`;
+                searchInput.placeholder = `${targetPeriode}`;
                 searchInput.disabled = true;
             } else {
                 allLunasData = rawData;
