@@ -75,74 +75,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // Main Data Fetch & Display Logic
     // ===============================================
-    //  async function fetchData() {
-    //     showLoading('Memuat data pelanggan, harap tunggu...');
-        
-    //     try {
-    //         const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);
-    //         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    //         const responseData = await response.json();
-
-    //         if (!Array.isArray(responseData)) {
-    //             if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-    //             throw new TypeError('Format data yang diterima dari server salah.');
-    //         }
-            
-    //         // Mengurutkan data terbaru (rowNumber terbesar) di paling atas
-    //         allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
-    //         filteredData = [...allData];
-    //         renderPage();
-    //     } catch (error) {
-    //         console.error('Error fetching data:', error);
-    //         tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
-    //     } finally {
-    //         hideLoading();
-    //     }
-    // }
-
-    //-----------------fetch Pelanggan---------------------------
-
-    async function fetchData() {
+     async function fetchData() {
         showLoading('Memuat data pelanggan, harap tunggu...');
         
         try {
-            // 1. Baca parameter 'status' dari URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const filterStatus = urlParams.get('status'); // Akan berisi 'AKTIF' atau 'NONAKTIF'
-    
             const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const responseData = await response.json();
-    
+
             if (!Array.isArray(responseData)) {
                 if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
                 throw new TypeError('Format data yang diterima dari server salah.');
             }
             
             // Mengurutkan data terbaru (rowNumber terbesar) di paling atas
-            let rawData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
-            
-            // 2. Terapkan filter jika ada parameter status dari dashboard
-            if (filterStatus) {
-                allData = rawData.filter(item => (item.STATUS || '').toUpperCase() === filterStatus.toUpperCase());
-                
-                // Nonaktifkan search bar dan beri judul yang sesuai
-                searchInput.placeholder = `Menampilkan Pelanggan ${filterStatus}`;
-                searchInput.disabled = true;
-            } else {
-                // Jika tidak ada filter, tampilkan semua data
-                allData = rawData;
-            }
-    
+            allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
             filteredData = [...allData];
             renderPage();
         } catch (error) {
             console.error('Error fetching data:', error);
-            tableBody.innerHTML = `<td colspan="7" style="text-align:center;">Gagal memuat data. ${error.message}</td>`;
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
         } finally {
             hideLoading();
         }
     }
+
+    //-----------------fetch Pelanggan---------------------------}
 
     function renderPage() {
         renderTable();
