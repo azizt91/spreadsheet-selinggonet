@@ -190,35 +190,91 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // Main Data Fetch & Display Logic
     // ===============================================
-    async function fetchTagihan() {
-        showLoading('Memuat data tagihan, harap tunggu...');
+    // async function fetchTagihan() {
+    //     showLoading('Memuat data tagihan, harap tunggu...');
         
-        try {
-            const response = await fetch(API_TAGIHAN_URL); // API_TAGIHAN_URL sudah benar
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const responseData = await response.json();
+    //     try {
+    //         const response = await fetch(API_TAGIHAN_URL); // API_TAGIHAN_URL sudah benar
+    //         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    //         const responseData = await response.json();
 
-            // --- PERBAIKAN UTAMA: Penanganan Error ---
-            if (!Array.isArray(responseData)) {
-                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-                throw new TypeError('Format data yang diterima dari server salah.');
-            }
+    //         // --- PERBAIKAN UTAMA: Penanganan Error ---
+    //         if (!Array.isArray(responseData)) {
+    //             if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+    //             throw new TypeError('Format data yang diterima dari server salah.');
+    //         }
             
-            allTagihanData = responseData.filter(item => {
-                return item.IDPL && item.IDPL.trim() !== '' && 
-                    item.NAMA && item.NAMA.trim() !== '' &&
-                    item.IDPL !== 'N/A' && item.NAMA !== 'N/A';
-            });
+    //         allTagihanData = responseData.filter(item => {
+    //             return item.IDPL && item.IDPL.trim() !== '' && 
+    //                 item.NAMA && item.NAMA.trim() !== '' &&
+    //                 item.IDPL !== 'N/A' && item.NAMA !== 'N/A';
+    //         });
             
-            filteredData = [...allTagihanData];
-            renderPage();
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
-        } finally {
-            hideLoading();
+    //         filteredData = [...allTagihanData];
+    //         renderPage();
+    //     } catch (error) {
+    //         console.error('Error fetching data:', error);
+    //         tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+    //     } finally {
+    //         hideLoading();
+    //     }
+    // }
+
+    //----------------------fetch tagihan---------------------------
+
+    // tagihan.js
+
+async function fetchTagihan() {
+    showLoading('Memuat data tagihan, harap tunggu...');
+    
+    try {
+        // --- PERUBAHAN DIMULAI DI SINI ---
+        // 1. Baca parameter dari URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const filterBulan = urlParams.get('bulan'); // akan berisi 'semua' atau angka '1'-'12'
+        const filterTahun = urlParams.get('tahun');
+        const isFilteringFromDashboard = filterBulan && filterTahun && filterBulan !== 'semua';
+
+        const response = await fetch(API_TAGIHAN_URL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const responseData = await response.json();
+
+        if (!Array.isArray(responseData)) {
+            if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
+            throw new TypeError('Format data yang diterima dari server salah.');
         }
+        
+        let rawData = responseData.filter(item => {
+            return item.IDPL && item.IDPL.trim() !== '' && 
+                item.NAMA && item.NAMA.trim() !== '' &&
+                item.IDPL !== 'N/A' && item.NAMA !== 'N/A';
+        });
+
+        // 2. Terapkan filter jika ada parameter dari dashboard
+        if (isFilteringFromDashboard) {
+            const namaBulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const filterBulanNama = namaBulan[parseInt(filterBulan, 10)];
+            const targetPeriode = `${filterBulanNama} ${filterTahun}`;
+            
+            allTagihanData = rawData.filter(row => (row['PERIODE TAGIHAN'] || '').trim() === targetPeriode);
+            
+            // Menonaktifkan search bar karena tampilan sudah spesifik
+            searchInput.placeholder = `Data untuk ${targetPeriode}`;
+            searchInput.disabled = true;
+        } else {
+            allTagihanData = rawData;
+        }
+        // --- PERUBAHAN SELESAI ---
+        
+        filteredData = [...allTagihanData];
+        renderPage();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Gagal memuat data. ${error.message}</td></tr>`;
+    } finally {
+        hideLoading();
     }
+}
 
     function renderPage() {
         renderTable();
