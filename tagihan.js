@@ -259,7 +259,7 @@ async function fetchTagihan() {
             allTagihanData = rawData.filter(row => (row['PERIODE TAGIHAN'] || '').trim() === targetPeriode);
             
             // Menonaktifkan search bar karena tampilan sudah spesifik
-            searchInput.placeholder = `Data untuk ${targetPeriode}`;
+            searchInput.placeholder = `${targetPeriode}`;
             searchInput.disabled = true;
         } else {
             allTagihanData = rawData;
