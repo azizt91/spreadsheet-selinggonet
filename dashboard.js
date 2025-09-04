@@ -97,38 +97,88 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Fungsi untuk menampilkan statistik di kartu-kartu ---
-    function displayStats(stats) {
-        cardsContainer.innerHTML = ''; // Mengosongkan kartu sebelum diisi
+    // function displayStats(stats) {
+    //     cardsContainer.innerHTML = ''; // Mengosongkan kartu sebelum diisi
 
-        const formatter = new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        });
+    //     const formatter = new Intl.NumberFormat('id-ID', {
+    //         style: 'currency',
+    //         currency: 'IDR',
+    //         minimumFractionDigits: 0
+    //     });
 
-        // Urutkan kartu: Keuangan dulu, baru statistik pelanggan
-        const statsCards = [
-            { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa' },
-            { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
-            { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' },
-            { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers || 0, color: '#6a5acd' },
-            { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32' },
-            { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545' },
-            { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid || 0, color: '#ffc107' },
-            { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid || 0, color: '#1e90ff' }
-        ];
+    //     // Urutkan kartu: Keuangan dulu, baru statistik pelanggan
+    //     const statsCards = [
+    //         { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa' },
+    //         { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
+    //         { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' },
+    //         { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers || 0, color: '#6a5acd' },
+    //         { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32' },
+    //         { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545' },
+    //         { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid || 0, color: '#ffc107' },
+    //         { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid || 0, color: '#1e90ff' }
+    //     ];
 
-        statsCards.forEach(card => {
-            const cardElement = document.createElement('div');
-            cardElement.className = 'card';
-            cardElement.innerHTML = `
-                <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
-                    <i class="${card.icon}"></i>
-                </div>
-                <h3>${card.label}</h3>
-                <div class="card-value">${card.value}</div>
-            `;
-            cardsContainer.appendChild(cardElement);
-        });
-    }
+    //     statsCards.forEach(card => {
+    //         const cardElement = document.createElement('div');
+    //         cardElement.className = 'card';
+    //         cardElement.innerHTML = `
+    //             <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
+    //                 <i class="${card.icon}"></i>
+    //             </div>
+    //             <h3>${card.label}</h3>
+    //             <div class="card-value">${card.value}</div>
+    //         `;
+    //         cardsContainer.appendChild(cardElement);
+    //     });
+    // }
+  function displayStats(stats) {
+    cardsContainer.innerHTML = ''; // Mengosongkan kartu sebelum diisi
+
+    const formatter = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    });
+
+    const statsCards = [
+        { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa' },
+        { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
+        { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' },
+        { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers || 0, color: '#6a5acd' },
+        { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32' },
+        { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545' },
+        { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid || 0, color: '#ffc107', isClickable: true, link: 'tagihan.html' },
+        { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid || 0, color: '#1e90ff', isClickable: true, link: 'lunas.html' }
+    ];
+
+    statsCards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card';
+        
+        let cardHTML = `
+            <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
+                <i class="${card.icon}"></i>
+            </div>
+            <h3>${card.label}</h3>
+            <div class="card-value">${card.value}</div>
+        `;
+
+        if (card.isClickable) {
+            cardElement.classList.add('clickable-card');
+            cardHTML += `<i class="fas fa-arrow-right card-arrow"></i>`;
+            
+            // --- INI BAGIAN UTAMA PERUBAHANNYA ---
+            cardElement.addEventListener('click', () => {
+                const bulan = filterBulan.value;
+                const tahun = filterTahun.value;
+                // Membuat URL dengan parameter filter
+                const destinationUrl = `${card.link}?bulan=${bulan}&tahun=${tahun}`;
+                window.location.href = destinationUrl;
+            });
+        }
+
+        cardElement.innerHTML = cardHTML;
+        cardsContainer.appendChild(cardElement);
+    });
+}
 });                   
