@@ -184,6 +184,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 allLunasData = rawData;
             }
             // --- PERUBAHAN SELESAI ---
+
+            allLunasData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
     
             filteredData = [...allLunasData];
             renderPage();
