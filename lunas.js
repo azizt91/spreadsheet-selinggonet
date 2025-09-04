@@ -144,13 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //-----------------------fetch data-----------------------------------------------
 
-
     async function fetchLunas() {
         showLoading('Memuat data riwayat lunas, harap tunggu...');
         
         try {
-            // --- PERUBAHAN DIMULAI DI SINI ---
-            // 1. Baca parameter dari URL
+            // 1. Baca parameter dari URL (tidak ada perubahan di sini)
             const urlParams = new URLSearchParams(window.location.search);
             const filterBulan = urlParams.get('bulan');
             const filterTahun = urlParams.get('tahun');
@@ -167,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new TypeError('Format data yang diterima dari server salah.');
             }
             
+            // Mengurutkan data terbaru di paling atas
             let rawData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
             
             // 2. Terapkan filter jika ada parameter dari dashboard
@@ -175,15 +174,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 const filterBulanNama = namaBulan[parseInt(filterBulan, 10)];
                 const targetPeriode = `${filterBulanNama} ${filterTahun}`;
     
-                allLunasData = rawData.filter(row => (row['PERIODE TAGIHAN'] || '').trim() === targetPeriode);
+                // --- INI ADALAH PERBAIKAN UTAMANYA ---
+                allLunasData = rawData.filter(row => {
+                    // Membersihkan nilai 'PERIODE TAGIHAN' dari tanda kutip tunggal di awal sebelum membandingkan
+                    const periodeData = (row['PERIODE TAGIHAN'] || '').trim().replace(/^'/, '');
+                    return periodeData === targetPeriode;
+                });
+                // --- AKHIR DARI PERBAIKAN ---
     
-                // Menonaktifkan search bar
-                searchInput.placeholder = `Data untuk ${targetPeriode}`;
+                // Menonaktifkan search bar agar pengguna fokus pada data yang difilter
+                searchInput.placeholder = `Menampilkan data untuk ${targetPeriode}`;
                 searchInput.disabled = true;
             } else {
                 allLunasData = rawData;
             }
-            // --- PERUBAHAN SELESAI ---
     
             filteredData = [...allLunasData];
             renderPage();
