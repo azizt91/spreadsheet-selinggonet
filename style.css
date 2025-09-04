@@ -2430,3 +2430,22 @@ input[readonly] { background-color: var(--light-color); cursor: not-allowed; }
     }
 }
 
+.clickable-card {
+    cursor: pointer;
+    position: relative;
+}
+.card-arrow {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    color: var(--text-light);
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+.clickable-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(5px);
+    color: var(--primary-color);
+}
+
