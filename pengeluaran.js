@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DATA FETCH & DISPLAY LOGIC (DIPERBAIKI)
     // ===============================================
     async function fetchData() {
-        showLoading('Memuat data pengeluaran, harap tunggu...');
+        showLoading('Memuat data, harap tunggu...');
         
         try {
             const response = await fetch(API_URL);
