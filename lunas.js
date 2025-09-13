@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //-----------------------fetch data-----------------------------------------------
 
     async function fetchLunas() {
-        showLoading('Memuat data riwayat lunas, harap tunggu...');
+        showLoading('Memuat data, harap tunggu...');
         
         try {
             // 1. Baca parameter dari URL (tidak ada perubahan di sini)
