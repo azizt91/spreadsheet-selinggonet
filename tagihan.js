@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // tagihan.js
 
 async function fetchTagihan() {
-    showLoading('Memuat data tagihan, harap tunggu...');
+    showLoading('Memuat data, harap tunggu...');
     
     try {
         // --- PERUBAHAN DIMULAI DI SINI ---
