@@ -6,30 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // DOM Selectors
     const filterBulan = document.getElementById('filter-bulan');
     const filterTahun = document.getElementById('filter-tahun');
-    const cardsContainer = document.querySelector('.cards-container');
-
-    // ===============================================
-    // Loading Management Functions
-    // ===============================================
-    function showLoading(text = 'Memuat data, harap tunggu...') {
-        const loadingOverlay = document.createElement('div');
-        loadingOverlay.className = 'loading-overlay';
-        loadingOverlay.id = 'loading-overlay';
-        loadingOverlay.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">${text}</div>
-            </div>
-        `;
-        document.body.appendChild(loadingOverlay);
-    }
-
-    function hideLoading() {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            loadingOverlay.remove();
-        }
-    }
+    const cardsContainer = document.getElementById('cards-container');
 
     // ===============================================
     // Initial Setup
@@ -77,7 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const bulan = filterBulan.value;
         const tahun = filterTahun.value;
         
-        showLoading('Memuat data, harap tunggu...');
+        // Show skeleton loading
+        showLoading();
         
         try {
             // Mengirim parameter filter ke backend
@@ -87,12 +65,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const stats = await response.json();
             if (stats.error) throw new Error(stats.error);
 
+            hideLoading();
             displayStats(stats);
         } catch (error) {
             console.error('Error:', error);
-            cardsContainer.innerHTML = `<p style="text-align: center; color: red;">Gagal memuat data statistik: ${error.message}</p>`;
-        } finally {
             hideLoading();
+            cardsContainer.innerHTML = `<p class="text-center text-red-500 col-span-2">Gagal memuat data: ${error.message}</p>`;
         }
     }
 
@@ -131,54 +109,97 @@ document.addEventListener('DOMContentLoaded', function() {
     //         cardsContainer.appendChild(cardElement);
     //     });
     // }
-  function displayStats(stats) {
-    cardsContainer.innerHTML = ''; // Mengosongkan kartu sebelum diisi
+    function displayStats(stats) {
+        cardsContainer.innerHTML = ''; // Clear previous cards
 
-    const formatter = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-    });
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
 
-    const statsCards = [
-        { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa' },
-        { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
-        { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' },
-        { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers || 0, color: '#6a5acd' },
-        { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32' },
-        { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545' },
-        { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid || 0, color: '#ffc107', isClickable: true, link: 'tagihan.html' },
-        { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid || 0, color: '#1e90ff', isClickable: true, link: 'lunas.html' }
-    ];
+        const statsCards = [
+            { label: 'Profit', value: formatter.format(stats.profit || 0), bg: 'bg-[#eae8f3]' },
+            { label: 'Total Revenue', value: formatter.format(stats.totalRevenue || 0), bg: 'bg-[#eae8f3]' },
+            { label: 'Total Expenses', value: formatter.format(stats.totalExpenses || 0), bg: 'bg-[#eae8f3]' },
+            { label: 'Active Customers', value: stats.activeCustomers || 0, bg: 'border border-[#d6d1e6]' },
+            { label: 'Inactive Customers', value: stats.inactiveCustomers || 0, bg: 'border border-[#d6d1e6]' },
+            { label: 'Unpaid Invoices', value: stats.totalUnpaid || 0, bg: 'border border-[#d6d1e6]', link: 'tagihan.html' },
+            { label: 'Paid Invoices', value: stats.totalPaid || 0, bg: 'border border-[#d6d1e6]', link: 'lunas.html' }
+        ];
 
-    statsCards.forEach(card => {
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card';
-        
-        let cardHTML = `
-            <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
-                <i class="${card.icon}"></i>
-            </div>
-            <h3>${card.label}</h3>
-            <div class="card-value">${card.value}</div>
-        `;
-
-        if (card.isClickable) {
-            cardElement.classList.add('clickable-card');
-            cardHTML += `<i class="fas fa-arrow-right card-arrow"></i>`;
+        statsCards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.className = `flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 ${card.bg}`;
             
-            // --- INI BAGIAN UTAMA PERUBAHANNYA ---
-            cardElement.addEventListener('click', () => {
-                const bulan = filterBulan.value;
-                const tahun = filterTahun.value;
-                // Membuat URL dengan parameter filter
-                const destinationUrl = `${card.link}?bulan=${bulan}&tahun=${tahun}`;
-                window.location.href = destinationUrl;
-            });
-        }
+            cardElement.innerHTML = `
+                <p class="text-[#110e1b] text-base font-medium leading-normal">${card.label}</p>
+                <p class="text-[#110e1b] tracking-light text-2xl font-bold leading-tight">${card.value}</p>
+            `;
 
-        cardElement.innerHTML = cardHTML;
-        cardsContainer.appendChild(cardElement);
-    });
-}
-});                   
+            if (card.link) {
+                cardElement.classList.add('cursor-pointer', 'hover:bg-gray-200');
+                cardElement.addEventListener('click', () => {
+                    const bulan = filterBulan.value;
+                    const tahun = filterTahun.value;
+                    const destinationUrl = `${card.link}?bulan=${bulan}&tahun=${tahun}`;
+                    window.location.href = destinationUrl;
+                });
+            }
+
+            cardsContainer.appendChild(cardElement);
+        });
+    }
+
+    // ===============================================
+    // Skeleton Loading Functions
+    // ===============================================
+    function showLoading() {
+        // Clear existing content and show skeleton cards
+        cardsContainer.innerHTML = '';
+        
+        // Create 7 skeleton cards (matching the number of actual stats cards)
+        for (let i = 0; i < 7; i++) {
+            const skeletonCard = document.createElement('div');
+            skeletonCard.className = 'skeleton-card flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-[#eae8f3]';
+            skeletonCard.innerHTML = `
+                <div class="skeleton-line h-4 bg-gray-300 rounded w-3/4"></div>
+                <div class="skeleton-line h-8 bg-gray-300 rounded w-1/2 mt-2"></div>
+            `;
+            cardsContainer.appendChild(skeletonCard);
+        }
+        
+        // Add skeleton animation styles if not exists
+        if (!document.getElementById('skeleton-styles')) {
+            const style = document.createElement('style');
+            style.id = 'skeleton-styles';
+            style.textContent = `
+                @keyframes skeleton-loading {
+                    0% {
+                        background-position: -200px 0;
+                    }
+                    100% {
+                        background-position: calc(200px + 100%) 0;
+                    }
+                }
+                
+                .skeleton-line {
+                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                    background-size: 200px 100%;
+                    animation: skeleton-loading 1.5s infinite;
+                }
+                
+                .skeleton-card {
+                    pointer-events: none;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    function hideLoading() {
+        // Remove skeleton cards when done
+        const skeletonCards = document.querySelectorAll('.skeleton-card');
+        skeletonCards.forEach(card => card.remove());
+    }
+});

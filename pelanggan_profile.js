@@ -1,215 +1,146 @@
-// pelanggan_profile.js - Customer Profile Management
-
+// pelanggan_profile.js (Versi Perbaikan Total)
 document.addEventListener('DOMContentLoaded', function() {
-    // Check session and get user data
+    // Check session
     const loggedInUser = sessionStorage.getItem('loggedInUser');
     const userLevel = sessionStorage.getItem('userLevel');
     const userIdpl = sessionStorage.getItem('userIdpl');
 
-    // Redirect if not logged in or not a customer
     if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
         alert('Akses tidak valid. Silakan login sebagai pelanggan.');
         window.location.href = 'index.html';
         return;
     }
 
-    // ===============================================
-    // DOM Element Selectors
-    // ===============================================
-    const profileForm = document.getElementById('profile-form');
-    const togglePasswordBtn = document.getElementById('toggle-password');
+    // Global variable to hold user data
+    let currentUserData = null;
+
+    // DOM Elements
+    const profileView = document.getElementById('profile-view');
+    const editView = document.getElementById('edit-view');
+
+    // View Mode Elements
+    const viewAvatar = document.getElementById('view-avatar');
+    const viewNama = document.getElementById('view-nama');
+    const viewUser = document.getElementById('view-user');
+    const viewWhatsapp = document.getElementById('view-whatsapp');
+    const editBtn = document.getElementById('edit-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Edit Mode Elements
+    const backBtn = document.getElementById('back-btn');
+    const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
-    
-    // Form fields
-    const rowNumberField = document.getElementById('rowNumber');
-    const idplField = document.getElementById('idpl');
-    const namaField = document.getElementById('nama');
-    const userField = document.getElementById('user');
-    const passwordField = document.getElementById('password');
-    const whatsappField = document.getElementById('whatsapp');
-    
-    // Info display elements
-    const infoIdpl = document.getElementById('info-idpl');
-    const infoStatus = document.getElementById('info-status');
-    const infoPaket = document.getElementById('info-paket');
-    const infoTanggal = document.getElementById('info-tanggal');
+    const editNama = document.getElementById('edit-nama');
+    const editUser = document.getElementById('edit-user');
+    const editPassword = document.getElementById('edit-password');
+    const editWhatsapp = document.getElementById('edit-whatsapp');
 
-    // ===============================================
-    // Loading Management Functions
-    // ===============================================
-    function showLoading(text = 'Memuat profile Anda...') {
-        const loadingOverlay = document.createElement('div');
-        loadingOverlay.className = 'loading-overlay';
-        loadingOverlay.id = 'loading-overlay';
-        loadingOverlay.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">${text}</div>
-            </div>
-        `;
-        document.body.appendChild(loadingOverlay);
-    }
-
-    function hideLoading() {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            loadingOverlay.remove();
-        }
-    }
-
-    function setButtonLoading(button, loading, originalText) {
-        if (loading) {
-            button.dataset.originalText = originalText || button.innerHTML;
-            button.innerHTML = '<span class="loading-spinner-sm"></span>Menyimpan...';
-            button.classList.add('loading');
-            button.disabled = true;
+    // Toggle between view and edit mode
+    function toggleMode(showEdit) {
+        if (showEdit) {
+            profileView.classList.add('hidden');
+            editView.classList.remove('hidden');
         } else {
-            button.innerHTML = button.dataset.originalText || originalText || '<i class="fas fa-save"></i> Simpan Perubahan';
-            button.classList.remove('loading');
-            button.disabled = false;
+            profileView.classList.remove('hidden');
+            editView.classList.add('hidden');
         }
     }
 
-    // ===============================================
-    // Event Listeners Setup
-    // ===============================================
-    function initializeEventListeners() {
-        profileForm.addEventListener('submit', handleProfileUpdate);
-        
-        togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
-        
-        cancelBtn.addEventListener('click', () => {
-            if (confirm('Apakah Anda yakin ingin membatalkan perubahan?')) {
-                loadCustomerProfile(); // Reload original data
-            }
-        });
-    }
-
-    // ===============================================
-    // Password Toggle Functionality
-    // ===============================================
-    function togglePasswordVisibility() {
-        const passwordInput = passwordField;
-        const icon = togglePasswordBtn.querySelector('i');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
-
-    // ===============================================
-    // Data Loading Functions
-    // ===============================================
-    async function loadCustomerProfile() {
-        showLoading('Memuat data profile Anda...');
-        
+    // Fetch and display profile data
+    async function loadAndDisplayProfile() {
         try {
             const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const responseData = await response.json();
-
-            if (!Array.isArray(responseData)) {
-                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-                throw new TypeError('Format data yang diterima dari server salah.');
-            }
+            if (!response.ok) throw new Error('Gagal mengambil data dari server.');
             
-            // Find current customer data
-            const customerProfile = responseData.find(customer => customer.IDPL === userIdpl);
-            if (!customerProfile) {
-                throw new Error('Data profile tidak ditemukan');
-            }
+            const allUsers = await response.json();
+            if (!Array.isArray(allUsers)) throw new Error('Format data tidak valid.');
 
-            // Populate form fields
-            populateProfileForm(customerProfile);
-            populateProfileInfo(customerProfile);
+            currentUserData = allUsers.find(user => user.IDPL === userIdpl);
+            if (!currentUserData) throw new Error('Profil pelanggan tidak ditemukan.');
+
+            // Populate view mode
+            populateViewMode(currentUserData);
+            // Populate edit form
+            populateEditMode(currentUserData);
 
         } catch (error) {
             console.error('Error loading profile:', error);
-            alert(`Gagal memuat data profile: ${error.message}`);
-        } finally {
-            hideLoading();
+            alert(error.message);
+            viewNama.textContent = 'Gagal Memuat';
+            viewUser.textContent = 'Silakan coba lagi';
         }
     }
 
-    // ===============================================
-    // Form Population Functions
-    // ===============================================
-    function populateProfileForm(profile) {
-        rowNumberField.value = profile.rowNumber || '';
-        idplField.value = profile.IDPL || '';
-        namaField.value = profile.NAMA || '';
-        userField.value = profile.USER || '';
-        passwordField.value = ''; // Always start empty for security
-        whatsappField.value = profile.WHATSAPP || '';
-    }
-
-    function populateProfileInfo(profile) {
-        infoIdpl.textContent = profile.IDPL || '-';
+    // Populate view mode with data
+    function populateViewMode(data) {
+        // Replace skeleton with actual content
+        viewNama.className = "text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] text-center";
+        viewNama.textContent = data.NAMA || 'Nama tidak tersedia';
         
-        // Status with styling
-        const status = profile.STATUS || 'N/A';
-        infoStatus.textContent = status;
-        infoStatus.className = `info-value status-pill ${status.toUpperCase() === 'AKTIF' ? 'status-aktif' : 'status-nonaktif'}`;
+        viewUser.className = "text-[#625095] text-base font-normal leading-normal text-center";
+        viewUser.textContent = data.USER || 'Username tidak tersedia';
         
-        infoPaket.textContent = profile.PAKET || '-';
+        viewWhatsapp.className = "text-[#625095] text-base font-normal leading-normal text-center";
+        viewWhatsapp.textContent = data.WHATSAPP || 'No. WhatsApp tidak tersedia';
         
-        // Format date
-        const tanggalPasang = profile['TANGGAL PASANG'];
-        if (tanggalPasang) {
-            try {
-                const date = new Date(tanggalPasang);
-                infoTanggal.textContent = date.toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
-            } catch (error) {
-                infoTanggal.textContent = tanggalPasang;
-            }
+        // Replace avatar skeleton
+        viewAvatar.className = "bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32";
+        const photoUrl = data.FOTO;
+        if (photoUrl && photoUrl.startsWith('http')) {
+            viewAvatar.style.backgroundImage = `url("${photoUrl}")`;
         } else {
-            infoTanggal.textContent = '-';
+            const initials = (data.NAMA || 'P').charAt(0).toUpperCase();
+            viewAvatar.style.backgroundImage = `url("https://via.placeholder.com/128/683fe4/ffffff?text=${initials}")`;
         }
+        
+        // Replace button skeletons with actual buttons
+        const editBtn = document.getElementById('edit-btn');
+        editBtn.className = "flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#eae8f3] text-[#110e1b] text-sm font-bold leading-normal tracking-[0.015em] w-full max-w-[480px]";
+        editBtn.innerHTML = '<span class="truncate">Edit Profile</span>';
+        
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.className = "flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#683fe4] text-[#f9f8fc] text-sm font-bold leading-normal tracking-[0.015em]";
+        logoutBtn.innerHTML = '<span class="truncate">Logout</span>';
     }
 
-    // ===============================================
-    // Profile Update Functions
-    // ===============================================
-    async function handleProfileUpdate(event) {
-        event.preventDefault();
-        
-        const submitButton = event.target.querySelector('button[type="submit"]');
-        
-        // Validate required fields
-        if (!namaField.value.trim() || !userField.value.trim() || !whatsappField.value.trim()) {
-            alert('Mohon lengkapi semua field yang diperlukan.');
+    // Populate edit form with data
+    function populateEditMode(data) {
+        editNama.value = data.NAMA || '';
+        editUser.value = data.USER || '';
+        editPassword.value = ''; // Keep password empty for security
+        editWhatsapp.value = data.WHATSAPP || '';
+    }
+
+    // Save changes
+    async function saveChanges() {
+        if (!currentUserData || !currentUserData.rowNumber) {
+            alert('Error: Data pengguna tidak lengkap untuk disimpan.');
             return;
         }
 
-        // Confirm update
-        if (!confirm('Apakah Anda yakin ingin menyimpan perubahan profile?')) {
+        const newNama = editNama.value.trim();
+        const newUser = editUser.value.trim();
+        const newPassword = editPassword.value.trim();
+        const newWhatsapp = editWhatsapp.value.trim();
+
+        if (!newNama || !newUser || !newWhatsapp) {
+            alert('Nama, Username, dan Nomor WhatsApp tidak boleh kosong.');
             return;
         }
 
-        setButtonLoading(submitButton, true);
-        
+        saveBtn.textContent = 'MENYIMPAN...';
+        saveBtn.disabled = true;
+
         try {
             const updateData = {
-                nama: namaField.value.trim(),
-                user: userField.value.trim(),
-                whatsapp: whatsappField.value.trim()
+                nama: newNama,
+                user: newUser,
+                whatsapp: newWhatsapp
             };
-            
-            // Only include password if it's not empty
-            if (passwordField.value.trim()) {
-                updateData.password = passwordField.value.trim();
+
+            // Only include password in payload if it was changed
+            if (newPassword) {
+                updateData.password = newPassword;
             }
 
             const response = await fetch(window.AppConfig.API_BASE_URL, {
@@ -217,66 +148,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: 'updatePelanggan',
-                    rowNumber: parseInt(rowNumberField.value),
+                    rowNumber: currentUserData.rowNumber,
                     data: updateData
                 })
             });
 
             const result = await response.json();
+            if (result.error) throw new Error(result.error);
             
-            if (response.ok && !result.error) {
-                // Update session storage if username changed
-                if (updateData.user !== loggedInUser) {
-                    sessionStorage.setItem('loggedInUser', updateData.user);
-                }
-                
-                alert('Profile berhasil diperbarui!');
-                
-                // Clear password field for security
-                passwordField.value = '';
-                
-                // Reload profile data to reflect changes
-                await loadCustomerProfile();
-                
-            } else {
-                throw new Error(result.error || 'Gagal memperbarui profile');
+            // Update sessionStorage if username was changed
+            if (newUser !== loggedInUser) {
+                sessionStorage.setItem('loggedInUser', newUser);
             }
-            
+
+            alert('Profil berhasil diperbarui!');
+            await loadAndDisplayProfile(); // Reload data
+            toggleMode(false); // Switch back to view mode
+
         } catch (error) {
-            console.error('Error updating profile:', error);
-            alert(`Gagal memperbarui profile: ${error.message}`);
+            console.error('Error saving profile:', error);
+            alert(`Gagal menyimpan: ${error.message}`);
         } finally {
-            setButtonLoading(submitButton, false);
+            saveBtn.textContent = 'SIMPAN';
+            saveBtn.disabled = false;
         }
     }
 
-    // ===============================================
-    // Utility Functions
-    // ===============================================
-    function formatPhoneNumber(phone) {
-        // Remove non-digits
-        let cleaned = phone.replace(/\D/g, '');
-        
-        // Add country code if missing
-        if (cleaned.startsWith('8')) {
-            cleaned = '62' + cleaned;
-        } else if (cleaned.startsWith('08')) {
-            cleaned = '62' + cleaned.substring(1);
+    // Event Listeners
+    editBtn.addEventListener('click', () => toggleMode(true));
+    backBtn.addEventListener('click', () => toggleMode(false));
+    cancelBtn.addEventListener('click', () => {
+        if (confirm('Apakah Anda yakin ingin membatalkan perubahan?')) {
+            // Reset form to original values
+            if (currentUserData) {
+                populateEditMode(currentUserData);
+            }
+            toggleMode(false);
         }
-        
-        return cleaned;
-    }
-
-    // Format WhatsApp number on input
-    whatsappField.addEventListener('blur', function() {
-        if (this.value.trim()) {
-            this.value = formatPhoneNumber(this.value);
+    });
+    saveBtn.addEventListener('click', saveChanges);
+    logoutBtn.addEventListener('click', () => {
+        if (confirm('Apakah Anda yakin ingin logout?')) {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
         }
     });
 
-    // ===============================================
-    // Initialize Profile Page
-    // ===============================================
-    initializeEventListeners();
-    loadCustomerProfile();
+    // Initial load
+    loadAndDisplayProfile();
 });

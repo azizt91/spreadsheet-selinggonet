@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Pelanggan</title>
+    <title>Pelanggan - Selinggonet</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#6a5acd">
+    <meta name="theme-color" content="#501ee6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
-    <meta name="description" content="Manajemen data pelanggan ISP">
+    <meta name="description" content="Manajemen pelanggan ISP">
     
     <!-- PWA Icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
@@ -19,150 +19,571 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Fonts and Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 </head>
 <body>
-    <!-- Sidebar (Sama seperti halaman lain) -->
-    <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <img src="assets/logo_512x512.png" alt="Selinggonet Logo" class="logo-image">
-            <span>Selinggonet</span></div>
-        <nav>
-            <ul>
-                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="pelanggan.html" class="active"><i class="fas fa-users"></i> Pelanggan</a></li>
-                <li><a href="tagihan.html"><i class="fas fa-file-invoice"></i> Tagihan</a></li>
-                <li><a href="lunas.html"><i class="fas fa-check-circle"></i> Lunas</a></li>
-                <li><a href="pengeluaran.html"><i class="fas fa-money-bill-wave"></i> Pengeluaran</a></li>
-            </ul>
-        </nav>
-        <div class="logout"><a href="#" id="logout-btn"><i class="fas fa-power-off"></i> Logout</a></div>
-    </div>
-
-    <!-- Konten Utama Halaman -->
-    <div class="main-content">
-        <header>
-            <button class="hamburger-btn" id="hamburger-btn">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h2><i class="fas fa-users"></i> Data Pelanggan</h2>
-            <div class="header-actions">
-                <input type="text" id="search-input" placeholder="Cari pelanggan...">
-                <button id="show-add-modal-btn" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Pelanggan</button>
-            </div>
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden"
+      style='font-family: Manrope, "Noto Sans", sans-serif;'
+    >
+      <!-- Main Content with bottom padding for fixed navigation -->
+      <div class="flex-1 pb-20">
+        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
+          <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Customers</h2>
         </header>
-        <main>
-            <div class="table-container">
-                <div class="table-header">
-                    <div class="rows-per-page-selector">
-                        <label for="rows-per-page">Baris per halaman:</label>
-                        <select id="rows-per-page">
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-                </div>
-                <table id="data-table">
-                    <thead>
-                        <tr>
-                            <th>IDPL</th>
-                            <th>NAMA</th>
-                            <th>WHATSAPP</th>
-                            <th>PAKET</th>
-                            <th>STATUS</th>
-                            <th>TANGGAL PASANG</th>
-                            <th>AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="data-body"></tbody>
-                </table>
+        
+        <!-- Search Bar -->
+        <div class="px-4 py-3">
+          <label class="flex flex-col min-w-40 h-12 w-full">
+            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+              <div class="text-[#625095] flex border-none bg-[#eae8f3] items-center justify-center pl-4 rounded-l-lg border-r-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
+              </div>
+              <input
+                id="search-input"
+                placeholder="Search customers..."
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-full placeholder:text-[#625095] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+              />
             </div>
-            <!-- Pagination Controls akan ditambahkan di sini oleh JS -->
-            <!-- pelanggan.html (Modifikasi bagian footer) -->
+          </label>
+        </div>
+        
+        <!-- Status Filters -->
+        <div class="flex gap-3 p-3 flex-wrap pr-4">
+          <button id="filter-all" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4">
+            <p class="text-[#110e1b] text-sm font-medium leading-normal">All</p>
+          </button>
+          <button id="filter-active" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4">
+            <p class="text-[#110e1b] text-sm font-medium leading-normal">Active</p>
+          </button>
+          <button id="filter-inactive" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4">
+            <p class="text-[#110e1b] text-sm font-medium leading-normal">Inactive</p>
+          </button>
+        </div>
 
-            <footer class="table-footer">
-                <!-- Info halaman dan tombol navigasi -->
-                <div id="pagination-info"></div>
-                <div id="pagination-controls"></div>
-            </footer>
-        </main>
-    </div>
-
-    <!-- Modal untuk Form Tambah/Edit -->
-    <div id="form-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="modal-title">Tambah Pelanggan</h2>
-            <form id="data-form">
-                <input type="hidden" id="rowNumber">
-                <div class="form-grid">
-                    <!-- Kolom IDPL, USER, PASSWORD tidak ada di form karena dibuat otomatis oleh server -->
-                    <div class="form-group"><label for="nama">Nama Lengkap</label><input type="text" id="nama" required></div>
-                    <div class="form-group"><label for="whatsapp">Nomor WhatsApp</label><input type="text" id="whatsapp" required></div>
-                    <div class="form-group"><label for="alamat">Alamat Lengkap</label><input type="text" id="alamat"></div>
-                    <div class="form-group"><label for="jenisKelamin">Jenis Kelamin</label><select id="jenisKelamin"><option value="LAKI-LAKI">LAKI-LAKI</option><option value="PEREMPUAN">PEREMPUAN</option></select></div>
-                    <div class="form-group"><label for="paket">Paket Langganan</label><select id="paket" required></select></div>
-                    <div class="form-group"><label for="tagihan">Tagihan</label><input type="text" id="tagihan" readonly></div>
-                    <div class="form-group"><label for="status">Status</label><select id="status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
-                    <div class="form-group"><label for="jenisPerangkat">Jenis Perangkat</label><input type="text" id="jenisPerangkat"></div>
-                    <div class="form-group"><label for="ipStatic">IP STATIC / PPOE</label><input type="text" id="ipStatic" placeholder="Contoh: 192.168.1.100 atau PPOE"></div>
+        <!-- Customer List Container with proper scrolling -->
+        <div id="customer-list" class="flex-1 overflow-y-auto max-h-[calc(100vh-280px)] pb-32">
+            <!-- Customer items will be dynamically inserted here -->
+        </div>
+        
+      </div>
+      
+      <!-- Fixed Floating Add Button -->
+      <button id="add-customer-btn" class="fixed bottom-28 right-5 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#683fe4] text-[#f9f8fb] shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+      </button>
+      
+      <!-- Customer Detail Modal -->
+      <div id="customer-detail-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50">
+        <div class="flex items-center justify-center min-h-screen p-4 pb-24">
+          <div class="bg-[#f9f8fb] rounded-lg w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-b border-[#eae8f3]">
+              <button id="close-detail-modal-btn" class="text-[#110e1b] flex size-12 shrink-0 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                </svg>
+              </button>
+              <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Customer Details</h2>
+            </div>
+            
+            <!-- Customer Profile Section -->
+            <div class="flex p-4">
+              <div class="flex w-full flex-col gap-4 items-center">
+                <div class="flex gap-4 flex-col items-center">
+                  <div id="detail-profile-image" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 bg-gray-300 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" fill="currentColor" viewBox="0 0 256 256" class="text-gray-500">
+                      <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                    </svg>
+                  </div>
+                  <div class="flex flex-col items-center justify-center">
+                    <p id="detail-customer-name" class="text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">-</p>
+                    <p id="detail-customer-id" class="text-[#625095] text-base font-normal leading-normal text-center">-</p>
+                  </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Simpan</button>
+              </div>
+            </div>
+            
+            
+            <!-- Customer Information Grid -->
+            <div class="p-4 grid grid-cols-2 gap-0">
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pr-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">IDPL</p>
+                <p id="detail-idpl" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pl-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">NAMA</p>
+                <p id="detail-nama" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pr-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">ALAMAT</p>
+                <p id="detail-alamat" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pl-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">JENIS KELAMIN</p>
+                <p id="detail-gender" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pr-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">WHATSAPP</p>
+                <p id="detail-whatsapp" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pl-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">PAKET</p>
+                <p id="detail-paket" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pr-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">TAGIHAN</p>
+                <p id="detail-tagihan" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pl-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">STATUS</p>
+                <p id="detail-status" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pr-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">TANGGAL PASANG</p>
+                <p id="detail-tanggal-pasang" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pl-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">JENIS PERANGKAT</p>
+                <p id="detail-jenis-perangkat" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+              <div class="flex flex-col gap-1 border-t border-solid border-t-[#d6d1e6] py-4 pr-2 col-span-2">
+                <p class="text-[#625095] text-sm font-normal leading-normal">IP STATIC/PPOE</p>
+                <p id="detail-ip-static" class="text-[#110e1b] text-sm font-normal leading-normal">-</p>
+              </div>
+            </div>
+            
+            <!-- Unpaid Bills Section -->
+            <div id="unpaid-bills-section" class="hidden">
+              <h2 class="text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Unpaid Bills</h2>
+              <div id="unpaid-bills-list">
+                <!-- Unpaid bills will be inserted here -->
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="sticky bottom-0 bg-[#f9f8fb] p-4 border-t border-[#eae8f3]">
+              <div class="flex gap-3">
+                <button
+                  id="edit-customer-detail-btn"
+                  class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#683fe4] text-[#f9f8fb] text-base font-bold leading-normal tracking-[0.015em]"
+                >
+                  Edit Customer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Add Customer Modal -->
+      <div id="add-customer-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50">
+        <div class="flex items-center justify-center min-h-screen p-4 pb-24">
+          <div class="bg-[#f9f8fb] rounded-lg w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-b border-[#eae8f3]">
+              <button id="close-modal-btn" class="text-[#110e1b] flex size-12 shrink-0 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                </svg>
+              </button>
+              <h2 id="modal-title" class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Add Customer</h2>
+            </div>
+            
+            <!-- Modal Form -->
+            <form id="customer-form" class="p-4 pb-0">
+              <div class="space-y-4">
+                <div>
+                  <input
+                    id="customer-name"
+                    placeholder="Full Name"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 placeholder:text-[#625095] p-4 text-base font-normal leading-normal"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <input
+                    id="customer-address"
+                    placeholder="Full Address"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 placeholder:text-[#625095] p-4 text-base font-normal leading-normal"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <input
+                    id="customer-whatsapp"
+                    placeholder="WhatsApp Number"
+                    type="tel"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 placeholder:text-[#625095] p-4 text-base font-normal leading-normal"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <select
+                    id="customer-gender"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 p-4 text-base font-normal leading-normal"
+                    required
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <select
+                    id="customer-package"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 p-4 text-base font-normal leading-normal"
+                    required
+                  >
+                    <option value="">Select Package</option>
+                    <option value="10 Mbps">10 Mbps</option>
+                    <option value="20 Mbps">20 Mbps</option>
+                    <option value="30 Mbps">30 Mbps</option>
+                    <option value="50 Mbps">50 Mbps</option>
+                    <option value="100 Mbps">100 Mbps</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <input
+                    id="customer-bill"
+                    placeholder="Monthly Bill Amount"
+                    type="number"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 placeholder:text-[#625095] p-4 text-base font-normal leading-normal"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <select
+                    id="customer-status"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 p-4 text-base font-normal leading-normal"
+                    required
+                  >
+                    <option value="">Select Status</option>
+                    <option value="AKTIF">AKTIF</option>
+                    <option value="NONAKTIF">NONAKTIF</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <input
+                    id="customer-device"
+                    placeholder="Device Type (Optional)"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 placeholder:text-[#625095] p-4 text-base font-normal leading-normal"
+                  />
+                </div>
+                
+                <div>
+                  <input
+                    id="customer-ip"
+                    placeholder="IP STATIC / PPOE (Optional)"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-14 placeholder:text-[#625095] p-4 text-base font-normal leading-normal"
+                  />
+                </div>
+              </div>
+              
+              <!-- Modal Footer - Fixed at bottom -->
+              <div class="sticky bottom-0 bg-[#f9f8fb] p-4 border-t border-[#eae8f3] mt-6">
+                <div class="flex gap-3">
+                  <button
+                    type="button"
+                    id="cancel-btn"
+                    class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-gray-300 text-gray-700 text-base font-bold leading-normal tracking-[0.015em]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    id="save-customer-btn"
+                    class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#683fe4] text-[#f9f8fb] text-base font-bold leading-normal tracking-[0.015em]"
+                  >
+                    <span id="save-btn-text">Save</span>
+                  </button>
+                </div>
+              </div>
             </form>
+          </div>
         </div>
+      </div>
+      </div>
+      
+      <!-- Fixed Bottom Navigation -->
+      <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
+        <div class="flex gap-2 px-4 pb-3 pt-2">
+          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="dashboard.html">
+            <div class="text-[#625095] flex h-8 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path></svg></div>
+            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Dashboard</p>
+          </a>
+          <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-[#110e1b]" href="pelanggan.html">
+            <div class="text-[#110e1b] flex h-8 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path></svg></div>
+            <p class="text-[#110e1b] text-xs font-medium leading-normal tracking-[0.015em]">Customers</p>
+          </a>
+          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="tagihan.html">
+            <div class="text-[#625095] flex h-8 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path></svg></div>
+            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Invoices</p>
+          </a>
+          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pengeluaran.html">
+            <div class="text-[#625095] flex h-8 items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path></svg>
+            </div>
+            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Expenses</p>
+          </a>
+          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="profile.html">
+            <div class="text-[#625095] flex h-8 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg></div>
+            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Profile</p>
+          </a>
+        </div>
+        <div class="h-5 bg-[#f9f8fb]"></div>
+      </footer>
     </div>
 
-    <!-- Modal untuk View Detail -->
-    <div id="view-modal" class="modal">
-        <div class="modal-content customer-detail-modal">
-            <span class="close-btn">&times;</span>
-            <div class="customer-detail-header">
-                <div class="customer-icon">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <h2 id="view-modal-title">Detail Pelanggan</h2>
-            </div>
-            <div class="customer-detail-body">
-                <div class="customer-info-section">
-                    <h3><i class="fas fa-info-circle"></i> Informasi Pelanggan</h3>
-                    <div id="view-modal-body"></div>
-                </div>
-                <div class="unpaid-bills-section">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Tagihan Belum Lunas</h3>
-                    <div id="unpaid-bills-container">
-                        <div class="no-bills-message" id="no-bills-message">
-                            <i class="fas fa-check-circle"></i>
-                            <p>Tidak ada tagihan yang belum lunas</p>
-                        </div>
-                        <div class="bills-table-container" id="bills-table-container" style="display: none;">
-                            <table class="bills-table">
-                                <thead>
-                                    <tr>
-                                        <th>Periode</th>
-                                        <th>Jumlah</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="unpaid-bills-body">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-    
     <script src="config.js"></script>
     <script src="auth.js"></script>
-    <script src="logo-navigation.js"></script>
     <script src="pelanggan.js"></script>
+    
+    <script>
+    // Customer Modal Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const addBtn = document.getElementById('add-customer-btn');
+        const modal = document.getElementById('add-customer-modal');
+        const closeBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const form = document.getElementById('customer-form');
+        const modalTitle = document.getElementById('modal-title');
+        const saveBtnText = document.getElementById('save-btn-text');
+        
+        let editMode = false;
+        let editCustomerId = null;
+        
+        // Open modal for adding new customer
+        addBtn.addEventListener('click', function() {
+            editMode = false;
+            editCustomerId = null;
+            modalTitle.textContent = 'Add Customer';
+            saveBtnText.textContent = 'Save';
+            form.reset();
+            modal.classList.remove('hidden');
+        });
+        
+        // Close modal functions
+        function closeModal() {
+            modal.classList.add('hidden');
+            form.reset();
+            editMode = false;
+            editCustomerId = null;
+        }
+        
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nama: document.getElementById('customer-name').value,
+                alamat: document.getElementById('customer-address').value,
+                whatsapp: document.getElementById('customer-whatsapp').value,
+                jenisKelamin: document.getElementById('customer-gender').value,
+                paket: document.getElementById('customer-package').value,
+                tagihan: document.getElementById('customer-bill').value,
+                status: document.getElementById('customer-status').value,
+                jenisPerangkat: document.getElementById('customer-device').value || '',
+                ipStatic: document.getElementById('customer-ip').value || ''
+            };
+            
+            try {
+                saveBtnText.textContent = editMode ? 'Updating...' : 'Saving...';
+                
+                const url = getApiUrl(editMode ? 'updatePelanggan' : 'addPelanggan');
+                const requestData = editMode ? { ...formData, idpl: editCustomerId } : formData;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(editMode ? 'Customer updated successfully!' : 'Customer added successfully!');
+                    closeModal();
+                    // Refresh customer list
+                    if (typeof loadCustomers === 'function') {
+                        loadCustomers();
+                    }
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to save customer'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving customer. Please try again.');
+            } finally {
+                saveBtnText.textContent = editMode ? 'Update' : 'Save';
+            }
+        });
+        
+        // Global function to open edit modal
+        window.openEditCustomer = function(customer) {
+            editMode = true;
+            editCustomerId = customer.idpl;
+            modalTitle.textContent = 'Edit Customer';
+            saveBtnText.textContent = 'Update';
+            
+            // Populate form with customer data
+            document.getElementById('customer-name').value = customer.nama || '';
+            document.getElementById('customer-address').value = customer.alamat || '';
+            document.getElementById('customer-whatsapp').value = customer.whatsapp || '';
+            document.getElementById('customer-gender').value = customer.jenisKelamin || '';
+            document.getElementById('customer-package').value = customer.paket || '';
+            document.getElementById('customer-bill').value = customer.tagihan || '';
+            document.getElementById('customer-status').value = customer.status || '';
+            document.getElementById('customer-device').value = customer.jenisPerangkat || '';
+            document.getElementById('customer-ip').value = customer.ipStatic || '';
+            
+            modal.classList.remove('hidden');
+        };
+        
+        // Global function to open customer detail modal
+        window.openCustomerDetail = function(customer) {
+            const detailModal = document.getElementById('customer-detail-modal');
+            
+            // Handle profile image
+            const profileImage = document.getElementById('detail-profile-image');
+            if (customer.foto && customer.foto !== '') {
+                profileImage.style.backgroundImage = `url("${customer.foto}")`;
+                profileImage.innerHTML = ''; // Remove default icon
+            } else {
+                profileImage.style.backgroundImage = '';
+                profileImage.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" fill="currentColor" viewBox="0 0 256 256" class="text-gray-500">
+                        <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                    </svg>
+                `;
+            }
+            
+            // Populate customer detail fields
+            document.getElementById('detail-customer-name').textContent = customer.nama || '-';
+            document.getElementById('detail-customer-id').textContent = customer.idpl || '-';
+            document.getElementById('detail-idpl').textContent = customer.idpl || '-';
+            document.getElementById('detail-nama').textContent = customer.nama || '-';
+            document.getElementById('detail-alamat').textContent = customer.alamat || '-';
+            document.getElementById('detail-gender').textContent = customer.jenisKelamin === 'L' ? 'Laki-laki' : customer.jenisKelamin === 'P' ? 'Perempuan' : (customer.jenisKelamin || '-');
+            document.getElementById('detail-whatsapp').textContent = customer.whatsapp || '-';
+            document.getElementById('detail-paket').textContent = customer.paket || '-';
+            document.getElementById('detail-tagihan').textContent = customer.tagihan ? 'Rp. ' + parseInt(customer.tagihan).toLocaleString('id-ID') : '-';
+            document.getElementById('detail-status').textContent = customer.status || '-';
+            document.getElementById('detail-tanggal-pasang').textContent = customer.tanggalPasang || '-';
+            document.getElementById('detail-jenis-perangkat').textContent = customer.jenisPerangkat || '-';
+            document.getElementById('detail-ip-static').textContent = customer.ipStatic || '-';
+            
+            // Debug log to check data
+            console.log('Customer data:', customer);
+            console.log('Jenis Kelamin:', customer.jenisKelamin);
+            console.log('IP Static:', customer.ipStatic);
+            
+            // Load unpaid bills for this customer
+            loadUnpaidBills(customer.idpl);
+            
+            // Store customer data for edit button
+            document.getElementById('edit-customer-detail-btn').onclick = function() {
+                detailModal.classList.add('hidden');
+                openEditCustomer(customer);
+            };
+            
+            detailModal.classList.remove('hidden');
+        };
+        
+        // Function to load unpaid bills for customer
+        async function loadUnpaidBills(customerId) {
+            const unpaidBillsSection = document.getElementById('unpaid-bills-section');
+            const unpaidBillsList = document.getElementById('unpaid-bills-list');
+            
+            try {
+                const response = await fetch(window.AppConfig.getApiUrl('getTagihan') + '?action=getTagihan');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const responseData = await response.json();
+                
+                if (Array.isArray(responseData)) {
+                    // Filter unpaid bills for this customer
+                    const customerUnpaidBills = responseData.filter(bill => 
+                        bill.IDPL === customerId && bill.STATUS !== 'LUNAS'
+                    );
+                    
+                    if (customerUnpaidBills.length > 0) {
+                        unpaidBillsSection.classList.remove('hidden');
+                        unpaidBillsList.innerHTML = '';
+                        
+                        customerUnpaidBills.forEach(bill => {
+                            const billItem = document.createElement('div');
+                            billItem.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between';
+                            
+                            const periodText = bill['PERIODE TAGIHAN'] || `${bill.BULAN || ''} ${bill.TAHUN || ''}`.trim();
+                            const amount = bill.TAGIHAN ? 'Rp. ' + parseInt(bill.TAGIHAN).toLocaleString('id-ID') : '-';
+                            
+                            billItem.innerHTML = `
+                                <div class="flex flex-col justify-center">
+                                    <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${bill.NAMA || '-'}</p>
+                                    <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${periodText}</p>
+                                </div>
+                                <div class="shrink-0">
+                                    <p class="text-[#110e1b] text-base font-normal leading-normal">${amount}</p>
+                                </div>
+                            `;
+                            
+                            unpaidBillsList.appendChild(billItem);
+                        });
+                    } else {
+                        unpaidBillsSection.classList.add('hidden');
+                    }
+                } else {
+                    unpaidBillsSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading unpaid bills:', error);
+                unpaidBillsSection.classList.add('hidden');
+            }
+        }
+        
+        // Customer detail modal close functionality
+        const detailModal = document.getElementById('customer-detail-modal');
+        const closeDetailBtn = document.getElementById('close-detail-modal-btn');
+        
+        closeDetailBtn.addEventListener('click', function() {
+            detailModal.classList.add('hidden');
+        });
+        
+        // Close detail modal when clicking outside
+        detailModal.addEventListener('click', function(e) {
+            if (e.target === detailModal) {
+                detailModal.classList.add('hidden');
+            }
+        });
+    });
+    </script>
     <script src="pwa-installer.js"></script>
 </body>
 </html>

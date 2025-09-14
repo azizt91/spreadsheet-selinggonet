@@ -17,37 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const errorMessage = document.getElementById('error-message');
     
-    // Loading Management Functions (Tidak ada perubahan di sini)
-    function showLoading(text = 'Memproses...') {
-        const loadingOverlay = document.createElement('div');
-        loadingOverlay.className = 'loading-overlay';
-        loadingOverlay.id = 'loading-overlay';
-        loadingOverlay.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">${text}</div>
-            </div>
-        `;
-        document.body.appendChild(loadingOverlay);
-    }
+    // --- PERUBAHAN: Disederhanakan untuk UI mobile ---
+    function setButtonLoading(button, loading) {
+        const textSpan = button.querySelector('span');
+        if (!textSpan) return;
 
-    function hideLoading() {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            loadingOverlay.remove();
-        }
-    }
-
-    function setButtonLoading(button, loading, originalText) {
         if (loading) {
-            button.dataset.originalText = originalText || button.textContent;
-            button.innerHTML = '<span class="loading-spinner"></span>Masuk...';
-            button.classList.add('loading');
             button.disabled = true;
+            textSpan.textContent = 'Logging in...';
+            // Tambahkan kelas untuk styling loading jika ada (opsional)
+            button.classList.add('opacity-75', 'cursor-not-allowed');
         } else {
-            button.innerHTML = button.dataset.originalText || originalText || 'Masuk';
-            button.classList.remove('loading');
             button.disabled = false;
+            textSpan.textContent = 'Login';
+            button.classList.remove('opacity-75', 'cursor-not-allowed');
         }
     }
 
@@ -61,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show loading state
         setButtonLoading(submitButton, true);
-        showLoading('Memverifikasi login...');
 
         try {
             const response = await fetch(window.AppConfig.API_BASE_URL, {
@@ -76,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             
             // Hide loading before processing result
-            hideLoading();
             setButtonLoading(submitButton, false);
             
             if (response.ok) {
@@ -99,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             // Hide loading before showing error
-            hideLoading();
             setButtonLoading(submitButton, false);
             errorMessage.textContent = 'Tidak dapat terhubung ke server.';
         }

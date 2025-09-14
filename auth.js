@@ -10,6 +10,20 @@ function checkSession() {
     return loggedInUser;
 }
 
+// --- Fungsi Pengecekan Authentication untuk Profile ---
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userData = localStorage.getItem('userData');
+    
+    if (!isLoggedIn || isLoggedIn !== 'true') {
+        alert('Anda harus login untuk mengakses halaman ini.');
+        window.location.href = 'index.html';
+        return false;
+    }
+    
+    return true;
+}
+
 // --- Fungsi Logout (Tidak Berubah) ---
 function initLogout() {
     const logoutBtn = document.getElementById('logout-btn');
