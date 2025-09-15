@@ -90,13 +90,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: '💰'
             },
             { 
-                label: 'Total Pendapatan', 
+                label: 'Pendapatan', 
                 value: formatter.format(stats.totalRevenue || 0), 
                 gradient: 'gradient-card-2',
                 icon: '📈'
             },
             { 
-                label: 'Total Pengeluaran', 
+                label: 'Pengeluaran', 
                 value: formatter.format(stats.totalExpenses || 0), 
                 gradient: 'gradient-card-3',
                 icon: '💸'
