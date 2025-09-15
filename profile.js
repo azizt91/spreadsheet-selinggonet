@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editInfoCard = document.getElementById('edit-info-card');
 
     // Edit Mode Elements
-    const backBtn = document.getElementById('back-btn');
+    const editBackBtn = document.getElementById('edit-back-btn');
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const editNama = document.getElementById('edit-nama');
@@ -164,7 +164,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Event Listeners ---
     editInfoCard.addEventListener('click', () => toggleMode(true));
     
-    backBtn.addEventListener('click', () => toggleMode(false));
+    // Back button event listener
+    editBackBtn.addEventListener('click', () => {
+        if (confirm('Yakin ingin kembali? Perubahan yang belum disimpan akan hilang.')) {
+            populateEditMode(currentAdminData); // Reset form data
+            toggleMode(false);
+        }
+    });
+    
     cancelBtn.addEventListener('click', () => {
         if (confirm('Yakin ingin membatalkan perubahan?')) {
             populateEditMode(currentAdminData); // Kembalikan data form
