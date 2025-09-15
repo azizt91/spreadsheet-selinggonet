@@ -1,33 +1,34 @@
-// pelanggan_profile.js (Versi Perbaikan Total)
+// pelanggan_profile.js - Customer Profile with Photo Upload
 document.addEventListener('DOMContentLoaded', function() {
-    // Check session
+    // Check session and get user data
     const loggedInUser = sessionStorage.getItem('loggedInUser');
     const userLevel = sessionStorage.getItem('userLevel');
     const userIdpl = sessionStorage.getItem('userIdpl');
 
+    // Redirect if not logged in or not a customer
     if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
         alert('Akses tidak valid. Silakan login sebagai pelanggan.');
         window.location.href = 'index.html';
         return;
     }
 
-    // Global variable to hold user data
-    let currentUserData = null;
+    // --- Global variable to hold current customer data ---
+    let currentCustomerData = null;
 
-    // DOM Elements
+    // --- DOM Element Selectors ---
     const profileView = document.getElementById('profile-view');
     const editView = document.getElementById('edit-view');
 
     // View Mode Elements
-    const viewAvatar = document.getElementById('view-avatar');
-    const viewNama = document.getElementById('view-nama');
-    const viewUser = document.getElementById('view-user');
-    const viewWhatsapp = document.getElementById('view-whatsapp');
-    const editBtn = document.getElementById('edit-btn');
-    const logoutBtn = document.getElementById('logout-btn');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const customerName = document.getElementById('customerName');
+    const customerEmail = document.getElementById('customerEmail');
+    const editInfoCard = document.getElementById('edit-info-card');
+    const photoEditBtn = document.getElementById('photo-edit-btn');
+    const photoInput = document.getElementById('photo-input');
 
     // Edit Mode Elements
-    const backBtn = document.getElementById('back-btn');
+    const editBackBtn = document.getElementById('edit-back-btn');
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const editNama = document.getElementById('edit-nama');
@@ -35,7 +36,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const editPassword = document.getElementById('edit-password');
     const editWhatsapp = document.getElementById('edit-whatsapp');
 
-    // Toggle between view and edit mode
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // --- Toggle between view and edit mode ---
     function toggleMode(showEdit) {
         if (showEdit) {
             profileView.classList.add('hidden');
@@ -46,8 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fetch and display profile data
-    async function loadAndDisplayProfile() {
+    // --- Fetch and display profile data ---
+    async function loadUserProfile() {
+        showSkeletonLoading();
         try {
             const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
             if (!response.ok) throw new Error('Gagal mengambil data dari server.');
@@ -55,76 +60,132 @@ document.addEventListener('DOMContentLoaded', function() {
             const allUsers = await response.json();
             if (!Array.isArray(allUsers)) throw new Error('Format data tidak valid.');
 
-            currentUserData = allUsers.find(user => user.IDPL === userIdpl);
-            if (!currentUserData) throw new Error('Profil pelanggan tidak ditemukan.');
+            currentCustomerData = allUsers.find(user => 
+                user.USER === loggedInUser && 
+                user.LEVEL === 'USER' && 
+                user.IDPL === userIdpl
+            );
+            
+            if (!currentCustomerData) throw new Error('Profil pelanggan tidak ditemukan.');
 
-            // Populate view mode
-            populateViewMode(currentUserData);
-            // Populate edit form
-            populateEditMode(currentUserData);
+            populateViewMode(currentCustomerData);
+            populateEditMode(currentCustomerData);
 
         } catch (error) {
             console.error('Error loading profile:', error);
-            alert(error.message);
-            viewNama.textContent = 'Gagal Memuat';
-            viewUser.textContent = 'Silakan coba lagi';
+            customerName.textContent = 'Gagal Memuat';
+            customerEmail.textContent = 'Silakan coba lagi';
+        } finally {
+            hideSkeletonLoading();
         }
     }
 
-    // Populate view mode with data
+    // --- Populate view mode with data ---
     function populateViewMode(data) {
-        // Replace skeleton with actual content
-        viewNama.className = "text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] text-center";
-        viewNama.textContent = data.NAMA || 'Nama tidak tersedia';
+        customerName.textContent = data.NAMA || 'Nama Pelanggan';
+        customerEmail.textContent = data.USER || 'username';
         
-        viewUser.className = "text-[#625095] text-base font-normal leading-normal text-center";
-        viewUser.textContent = data.USER || 'Username tidak tersedia';
-        
-        viewWhatsapp.className = "text-[#625095] text-base font-normal leading-normal text-center";
-        viewWhatsapp.textContent = data.WHATSAPP || 'No. WhatsApp tidak tersedia';
-        
-        // Replace avatar skeleton
-        viewAvatar.className = "bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32";
         const photoUrl = data.FOTO;
         if (photoUrl && photoUrl.startsWith('http')) {
-            viewAvatar.style.backgroundImage = `url("${photoUrl}")`;
+            profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
         } else {
             const initials = (data.NAMA || 'P').charAt(0).toUpperCase();
-            viewAvatar.style.backgroundImage = `url("https://via.placeholder.com/128/683fe4/ffffff?text=${initials}")`;
+            profileAvatar.style.backgroundImage = `none`;
+            profileAvatar.style.backgroundColor = '#6a5acd';
+            profileAvatar.innerHTML = `<span class="text-white text-4xl font-bold">${initials}</span>`;
         }
-        
-        // Replace button skeletons with actual buttons
-        const editBtn = document.getElementById('edit-btn');
-        editBtn.className = "flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#eae8f3] text-[#110e1b] text-sm font-bold leading-normal tracking-[0.015em] w-full max-w-[480px]";
-        editBtn.innerHTML = '<span class="truncate">Edit Profile</span>';
-        
-        const logoutBtn = document.getElementById('logout-btn');
-        logoutBtn.className = "flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#683fe4] text-[#f9f8fc] text-sm font-bold leading-normal tracking-[0.015em]";
-        logoutBtn.innerHTML = '<span class="truncate">Logout</span>';
     }
 
-    // Populate edit form with data
+    // --- Populate edit form with data ---
     function populateEditMode(data) {
         editNama.value = data.NAMA || '';
         editUser.value = data.USER || '';
-        editPassword.value = ''; // Keep password empty for security
+        editPassword.value = ''; // Always clear password
         editWhatsapp.value = data.WHATSAPP || '';
     }
 
-    // Save changes
+    // --- Photo upload functionality ---
+    function handlePhotoUpload() {
+        photoInput.click();
+    }
+
+    function handlePhotoChange(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Hanya file gambar yang diperbolehkan.');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file maksimal 5MB.');
+            return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            profileAvatar.style.backgroundImage = `url("${e.target.result}")`;
+            profileAvatar.innerHTML = '';
+        };
+        reader.readAsDataURL(file);
+
+        // Upload photo
+        uploadPhoto(file);
+    }
+
+    async function uploadPhoto(file) {
+        try {
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                
+                // Update customer data with new photo
+                const updateData = { 
+                    ...currentCustomerData, 
+                    foto: base64Data
+                };
+
+                const response = await fetch(window.AppConfig.API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'updatePelanggan',
+                        rowNumber: currentCustomerData.rowNumber,
+                        data: updateData
+                    })
+                });
+
+                const result = await response.json();
+                if (result.error) throw new Error(result.error);
+
+                alert('Foto profil berhasil diperbarui!');
+                await loadUserProfile(); // Reload data
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error uploading photo:', error);
+            alert(`Gagal mengupload foto: ${error.message}`);
+        }
+    }
+
+    // --- Save changes ---
     async function saveChanges() {
-        if (!currentUserData || !currentUserData.rowNumber) {
-            alert('Error: Data pengguna tidak lengkap untuk disimpan.');
+        if (!currentCustomerData || !currentCustomerData.rowNumber) {
+            alert('Error: Data pelanggan tidak lengkap untuk disimpan.');
             return;
         }
 
         const newNama = editNama.value.trim();
-        const newUser = editUser.value.trim();
         const newPassword = editPassword.value.trim();
         const newWhatsapp = editWhatsapp.value.trim();
 
-        if (!newNama || !newUser || !newWhatsapp) {
-            alert('Nama, Username, dan Nomor WhatsApp tidak boleh kosong.');
+        if (!newNama) {
+            alert('Nama Lengkap tidak boleh kosong.');
             return;
         }
 
@@ -132,13 +193,14 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBtn.disabled = true;
 
         try {
-            const updateData = {
+            // Data yang akan dikirim ke backend
+            const updateData = { 
+                ...currentCustomerData, 
                 nama: newNama,
-                user: newUser,
                 whatsapp: newWhatsapp
             };
-
-            // Only include password in payload if it was changed
+            
+            // Hanya tambahkan password ke payload jika diisi
             if (newPassword) {
                 updateData.password = newPassword;
             }
@@ -148,22 +210,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: 'updatePelanggan',
-                    rowNumber: currentUserData.rowNumber,
+                    rowNumber: currentCustomerData.rowNumber,
                     data: updateData
                 })
             });
 
             const result = await response.json();
             if (result.error) throw new Error(result.error);
-            
-            // Update sessionStorage if username was changed
-            if (newUser !== loggedInUser) {
-                sessionStorage.setItem('loggedInUser', newUser);
-            }
 
             alert('Profil berhasil diperbarui!');
-            await loadAndDisplayProfile(); // Reload data
-            toggleMode(false); // Switch back to view mode
+            await loadUserProfile(); // Reload data
+            toggleMode(false);
 
         } catch (error) {
             console.error('Error saving profile:', error);
@@ -174,26 +231,55 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Event Listeners
-    editBtn.addEventListener('click', () => toggleMode(true));
-    backBtn.addEventListener('click', () => toggleMode(false));
-    cancelBtn.addEventListener('click', () => {
-        if (confirm('Apakah Anda yakin ingin membatalkan perubahan?')) {
-            // Reset form to original values
-            if (currentUserData) {
-                populateEditMode(currentUserData);
-            }
+    // --- Skeleton Loading Functions ---
+    function showSkeletonLoading() {
+        customerName.className = 'h-7 bg-gray-200 rounded animate-pulse w-48 mb-2';
+        customerName.textContent = '';
+        customerEmail.className = 'h-5 bg-gray-200 rounded animate-pulse w-32';
+        customerEmail.textContent = '';
+        profileAvatar.style.backgroundColor = '#e0e0e0';
+        profileAvatar.classList.add('animate-pulse');
+        profileAvatar.innerHTML = '';
+    }
+
+    function hideSkeletonLoading() {
+        customerName.className = 'text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] text-center';
+        customerEmail.className = 'text-[#625095] text-base font-normal leading-normal text-center';
+        profileAvatar.classList.remove('animate-pulse');
+    }
+
+    // --- Event Listeners ---
+    editInfoCard.addEventListener('click', () => toggleMode(true));
+    
+    // Photo edit button
+    photoEditBtn.addEventListener('click', handlePhotoUpload);
+    photoInput.addEventListener('change', handlePhotoChange);
+    
+    // Back button event listener
+    editBackBtn.addEventListener('click', () => {
+        if (confirm('Yakin ingin kembali? Perubahan yang belum disimpan akan hilang.')) {
+            populateEditMode(currentCustomerData); // Reset form data
             toggleMode(false);
         }
     });
+    
+    cancelBtn.addEventListener('click', () => {
+        if (confirm('Yakin ingin membatalkan perubahan?')) {
+            populateEditMode(currentCustomerData); // Reset form data
+            toggleMode(false);
+        }
+    });
+    
     saveBtn.addEventListener('click', saveChanges);
+    
+    // Logout functionality
     logoutBtn.addEventListener('click', () => {
-        if (confirm('Apakah Anda yakin ingin logout?')) {
+        if (confirm('Yakin ingin logout?')) {
             sessionStorage.clear();
             window.location.href = 'index.html';
         }
     });
 
     // Initial load
-    loadAndDisplayProfile();
+    loadUserProfile();
 });

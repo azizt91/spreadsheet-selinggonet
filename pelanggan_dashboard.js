@@ -15,33 +15,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // DOM Elements
     const welcomeText = document.getElementById('welcome-text');
-    const dashboardCards = document.getElementById('dashboard-cards');
+    const cardsContainer = document.getElementById('cards-container');
 
     // ===============================================
     // Loading Management Functions
     // ===============================================
     function showSkeletonLoading() {
-        dashboardCards.innerHTML = '';
+        cardsContainer.innerHTML = '';
         
-        // Create 4 skeleton cards matching the template design
+        // Create 4 skeleton cards matching the new grid design
         for (let i = 0; i < 4; i++) {
             const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'p-4';
+            skeletonCard.className = 'rounded-2xl p-6 card-hover animate-fadeInUp skeleton-card';
             skeletonCard.innerHTML = `
-                <div class="flex flex-col items-stretch justify-start rounded-lg">
-                    <div class="w-full bg-gray-200 aspect-video rounded-lg skeleton-shimmer"></div>
-                    <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 py-4">
-                        <div class="bg-gray-200 h-6 w-3/4 rounded skeleton-shimmer"></div>
-                        <div class="flex items-end gap-3 justify-between">
-                            <div class="flex flex-col gap-1">
-                                <div class="bg-gray-200 h-4 w-1/2 rounded skeleton-shimmer"></div>
-                                <div class="bg-gray-200 h-4 w-2/3 rounded skeleton-shimmer"></div>
-                            </div>
-                        </div>
+                <div class="flex flex-col items-start justify-between h-32">
+                    <div class="flex items-center justify-between w-full">
+                        <div class="bg-gray-200 w-12 h-12 rounded-full skeleton-line"></div>
+                        <div class="bg-gray-200 w-6 h-6 rounded skeleton-line"></div>
+                    </div>
+                    <div class="w-full">
+                        <div class="bg-gray-200 h-8 w-16 rounded mb-2 skeleton-line"></div>
+                        <div class="bg-gray-200 h-4 w-24 rounded skeleton-line"></div>
                     </div>
                 </div>
             `;
-            dashboardCards.appendChild(skeletonCard);
+            cardsContainer.appendChild(skeletonCard);
         }
         
         // Add skeleton animation styles
@@ -110,8 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
             // Show error message
             welcomeText.textContent = 'Hallo, Pelanggan';
-            dashboardCards.innerHTML = `
-                <div class="p-4">
+            cardsContainer.innerHTML = `
+                <div class="col-span-2">
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
                         <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -134,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         welcomeText.textContent = `Hallo, ${profile.NAMA || 'Pelanggan'}`;
 
         // Clear cards container
-        dashboardCards.innerHTML = '';
+        cardsContainer.innerHTML = '';
 
         // Calculate totals
         const totalUnpaidAmount = unpaidBills.reduce((sum, bill) => {
@@ -156,55 +154,77 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Format installation date
         const installDate = profile['TANGGAL PASANG'] ? 
-            formatDate(profile['TANGGAL PASANG']) : 'March 1, 2023';
+            formatDate(profile['TANGGAL PASANG']) : 'Tidak tersedia';
 
-        // Define cards data based on template
+        // Define cards data with admin dashboard style
         const cards = [
             {
-                title: `You have ${unpaidBills.length} unpaid bills`,
-                subtitle1: 'View details',
-                subtitle2: unpaidBills.length > 0 ? `Due by ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}` : 'All bills paid',
-                image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBHAwY3BLD_1cl8g4JdcWqXkxz0MuI6KjgwnXLAHlCb6820a6YHt2RNTN3BKgm7qCzmwsqlC250zljmq_FfXRD2lo9t8l4MQGqvfPNLalWba1yzAK3ArYR6GxMq6x74cWMP1Vfl8Utd7RgVzAndYZcwqn4OWW7m8VOUAugNdWz3luGIxHNdtzC5ZRAqM6Ec618QOf1Ha9KHaNFu1o8l-GVTip2RUVH75mWyCoapBvr0ZykpQh0qHEKjZUR7duNYeVFGNOaxPeobbJ8'
+                title: 'Total Belum Dibayar',
+                value: formatter.format(totalUnpaidAmount).replace('Rp', '').trim(),
+                subtitle: 'Rupiah',
+                icon: '💳',
+                gradient: 'gradient-card-3'
             },
             {
-                title: 'Subscription since',
-                subtitle1: 'View details',
-                subtitle2: `Started on ${installDate}`,
-                image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFtD52ZGbSSkOyGqWCM6z9vOuidSnG0a0JuENZaYxLH1pg_M2kDlDHjANJQFOFEo5043JemNslH1YgaleRStVFOM4Watucq16tYeiULcs1wL4vYlaQWeno7_azvGp_0FW9jSzAkEQ6QGYTFVBcR0r3lgBFoaB9uBDRNMwkEBF7ifjB0baQaHk6qS3-mXxUiRXLbNR-vhWUQCpWRI8EN7QNXeTI9hWuWm_upbvJJc9Kf-jFbO2QWHus7y0TL1_32goSsogUEqQVVDY'
+                title: 'Berlangganan Sejak',
+                value: installDate.split(' ')[0] + ' ' + installDate.split(' ')[1], // Show day and month
+                subtitle: installDate.split(' ')[2] || '', // Show year
+                icon: '📅',
+                gradient: 'gradient-card-2'
             },
             {
-                title: 'Total unpaid amount',
-                subtitle1: 'View details',
-                subtitle2: `${unpaidBills.length} Months Unpaid`,
-                image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPQrBySHCsZJNs-iZYf2BS5lsrXbml9P5WHHJL8_Z4MpYIVgV67nsIFfXNM0z_MekFnlkmN6pDj8793T9LL04EshYmG-EJWQ7W3hMuX5yBgiTKtLABkLumXJ8AvBVxtjtML_4dPIEeZzik9UbethZNVF-OUNOz5BtbrbgJ3CBwEbXwuODgB7C9xYTWO9xylNcdjxWSkoJAZ7jcTSJK1TULNEppXUpJuhuiHBe55toMpx0IEYcMEsc0GH0OR7SceiiemrqxFxnQYO0'
+                title: 'Tagihan Belum Lunas',
+                value: unpaidBills.length.toString(),
+                subtitle: 'Tagihan',
+                icon: '⚠️',
+                gradient: 'gradient-card-1'
             },
             {
-                title: 'Total paid amount',
-                subtitle1: 'View details',
-                subtitle2: `${paidBills.length} Months Paid`,
-                image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBgsmVTpIstQu7jo9VyCIGYI_NtRB-VF3b-T_oNAjpRz7G6ma4L7plB4TjhDbezqm-ChLRExqldZ7UQRPotJ58wQ-ydQPvFqND_BhtKfTLOCiaIona7s3Xdmh3LIKKRhzzCvCE6USd64fZEzQ3C48OXjGQCn4z4y5BJwJF_8imNIB2gbhwJbTNnS9VCRK5hXYnvkC2OJ2xOqJeC9QjmrnWvJLUtquJ9INHx5ftf2aI7A_w26xXxRTBwiyL4zJSsUCNRJn49izljQY4'
+                title: 'Total Sudah Lunas',
+                value: paidBills.length.toString(),
+                subtitle: 'Pembayaran',
+                icon: '✅',
+                gradient: 'gradient-card-4'
             }
         ];
 
-        // Create and append cards
-        cards.forEach(card => {
+        // Create and append cards with admin dashboard style
+        cards.forEach((card, index) => {
             const cardElement = document.createElement('div');
-            cardElement.className = 'p-4 @container';
+            cardElement.className = `${card.gradient} rounded-2xl p-6 text-white card-hover animate-fadeInUp cursor-pointer transition-transform hover:scale-105`;
+            cardElement.style.animationDelay = `${index * 0.1}s`;
+            
+            // Add click functionality for specific cards
+            if (card.title === 'Tagihan Belum Lunas') {
+                cardElement.onclick = () => {
+                    // Navigate to payment history with unpaid tab
+                    sessionStorage.setItem('activeTab', 'unpaid');
+                    window.location.href = 'pelanggan_riwayat_lunas.html';
+                };
+            } else if (card.title === 'Total Sudah Lunas') {
+                cardElement.onclick = () => {
+                    // Navigate to payment history with paid tab
+                    sessionStorage.setItem('activeTab', 'paid');
+                    window.location.href = 'pelanggan_riwayat_lunas.html';
+                };
+            }
+            
             cardElement.innerHTML = `
-                <div class="flex flex-col items-stretch justify-start rounded-lg @xl:flex-row @xl:items-start">
-                    <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" style='background-image: url("${card.image}");'></div>
-                    <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 py-4 @xl:px-4">
-                        <p class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em]">${card.title}</p>
-                        <div class="flex items-end gap-3 justify-between">
-                            <div class="flex flex-col gap-1">
-                                <p class="text-[#604e97] text-base font-normal leading-normal">${card.subtitle1}</p>
-                                <p class="text-[#604e97] text-base font-normal leading-normal">${card.subtitle2}</p>
-                            </div>
-                        </div>
+                <div class="flex flex-col items-start justify-between h-32">
+                    <div class="flex items-center justify-between w-full">
+                        <div class="text-2xl">${card.icon}</div>
+                        <svg class="w-6 h-6 opacity-70" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="w-full">
+                        <div class="text-2xl font-bold mb-1">${card.value}</div>
+                        <div class="text-sm opacity-90">${card.subtitle}</div>
+                        <div class="text-xs opacity-70 mt-1">${card.title}</div>
                     </div>
                 </div>
             `;
-            dashboardCards.appendChild(cardElement);
+            cardsContainer.appendChild(cardElement);
         });
     }
 

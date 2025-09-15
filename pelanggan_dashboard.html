@@ -5,35 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pelanggan - Selinggonet</title>
     
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#501ee6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
     <meta name="description" content="Dashboard pelanggan sistem manajemen ISP">
     
-    <link rel="icon" type="image/png" href="assets/logo_192x192.png">
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
+    
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
+    <!-- Fonts and Tailwind CSS -->
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        /* Custom gradients and colors for customer dashboard */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card-1 {
+            /* Tagihan Belum Lunas: Merah ke Orange */
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+         
+        .gradient-card-2 {
+            /* Berlangganan Sejak: Hijau ke Teal */
+            background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%);
+        }
+         
+        .gradient-card-3 {
+            /* Total Belum Dibayar: Orange ke Merah */
+            background: linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%);
+        }
+         
+        .gradient-card-4 {
+            /* Total Lunas: Hijau ke Biru */
+            background: linear-gradient(135deg, #7bed9f 0%, #70a1ff 100%);
+        }
+        
+        /* Modern glass effect */
+        .glass-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Custom animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Hover effects */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Skeleton loading */
+        @keyframes skeleton-loading {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+        
+        .skeleton-line {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        .skeleton-card {
+            pointer-events: none;
+        }
+        
+        /* Header gradient */
+        .header-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
+        }
+        
+        /* Bottom navigation glass effect */
+        .nav-glass {
+            backdrop-filter: blur(20px);
+            background: rgba(249, 248, 251, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Responsive grid improvements */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fc] justify-between group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-        <div>
-            <!-- Header -->
-            <div class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-center">
-                <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em]">Dashboard</h2>
-            </div>
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-50 to-indigo-50" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+      
+      <!-- Main Content with bottom padding for fixed navigation -->
+      <div class="flex-1 pb-24">
+        
+        <!-- Modern Header with gradient - mobile optimized -->
+        <header class="header-gradient shadow-lg">
+          <div class="px-4 py-6">
+            <h2 id="welcome-text" class="text-white text-xl font-bold leading-tight text-center mb-1">Hallo, Pelanggan</h2>
+            <p class="text-white/80 text-xs text-center" id="current-datetime">Loading...</p>
+          </div>
+        </header>
 
-            <!-- Welcome Section -->
-            <h1 id="welcome-text" class="text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5">Hallo, Pelanggan</h1>
-
-            <!-- Dashboard Cards -->
-            <div id="dashboard-cards" class="pb-20">
-                <!-- Cards will be populated by JavaScript -->
-            </div>
+        <!-- Stats Cards Container with improved spacing -->
+        <div class="px-6 py-6">
+          <div id="cards-container" class="grid grid-cols-2 gap-4">
+              <!-- Cards will be dynamically inserted here by pelanggan_dashboard.js -->
+          </div>
         </div>
+      </div>
 
         <!-- Fixed Bottom Navigation -->
         <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
@@ -76,6 +196,7 @@
 
     <script src="config.js"></script>
     <script src="auth.js"></script>
+    <script src="datetime-display.js"></script>
     <script src="pelanggan_dashboard.js"></script>
 </body>
 </html>

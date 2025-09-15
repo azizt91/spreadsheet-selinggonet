@@ -30,7 +30,14 @@
                 <div class="flex p-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">
                         <div class="flex gap-4 flex-col items-center">
-                            <div id="profileAvatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 flex items-center justify-center bg-gray-300"></div>
+                            <div class="relative">
+                                <div id="profileAvatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 flex items-center justify-center bg-gray-300"></div>
+                                <button id="photo-edit-btn" class="absolute bottom-0 right-0 w-10 h-10 bg-[#5324e0] rounded-full flex items-center justify-center text-white shadow-lg hover:bg-[#4318d4] transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256">
+                                        <path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                             <div class="flex flex-col items-center justify-center">
                                 <p id="adminName" class="text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">Memuat...</p>
                                 <p id="adminEmail" class="text-[#625095] text-base font-normal leading-normal text-center">Memuat...</p>
@@ -42,7 +49,7 @@
                 <div class="px-4 mt-6 space-y-3">
                     <div id="edit-info-card" class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm cursor-pointer border border-gray-200">
                         <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z"></path></svg>
-                        <span class="flex-1 text-base font-medium text-gray-800">Edit Informasi & Password</span>
+                        <span class="flex-1 text-base font-medium text-gray-800">Edit Profil</span>
                         <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
                     </div>
                 </div>
@@ -114,6 +121,9 @@
         </div>
     </footer>
     </div>
+    
+    <!-- Hidden file input for photo upload -->
+    <input type="file" id="photo-input" accept="image/*" style="display: none;">
     
     <script src="config.js"></script>
     <script src="auth.js"></script>

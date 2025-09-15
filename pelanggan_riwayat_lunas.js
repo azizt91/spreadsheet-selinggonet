@@ -1,4 +1,4 @@
-// pelanggan_riwayat_lunas.js - Customer Payment History with Filtering
+// pelanggan_riwayat_lunas.js - Customer Payment History with Tabs
 
 document.addEventListener('DOMContentLoaded', function() {
     // Check session and get user data
@@ -13,40 +13,79 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // ===============================================
-    // State Management & Global Variables
-    // ===============================================
-    const API_URL = `${window.AppConfig.API_BASE_URL}?action=getLunas`;
-    let allLunasData = [];
+    // DOM Elements
+    const contentList = document.getElementById('content-list');
+    const searchInput = document.getElementById('search-input');
+    const unpaidTab = document.getElementById('unpaidTab');
+    const paidTab = document.getElementById('paidTab');
+    
+    // State management
+    let unpaidData = [];
+    let paidData = [];
+    let currentTab = 'paid'; // Start with paid tab active
 
     // ===============================================
-    // DOM Element Selectors
+    // Event Listeners Setup
     // ===============================================
-    const paymentHistoryList = document.getElementById('payment-history-list');
+    function initializeEventListeners() {
+        searchInput.addEventListener('input', renderList);
+        unpaidTab.addEventListener('click', () => switchTab('unpaid'));
+        paidTab.addEventListener('click', () => switchTab('paid'));
+    }
 
     // ===============================================
-    // Skeleton Loading Functions
+    // Tab Management
     // ===============================================
-    function showSkeletonLoading() {
-        paymentHistoryList.innerHTML = '';
+    function switchTab(tab) {
+        currentTab = tab;
+        if (tab === 'unpaid') {
+            // Set unpaid tab as active
+            unpaidTab.classList.add('active');
+            unpaidTab.classList.remove('border-b-transparent');
+            unpaidTab.classList.add('border-b-[#5324e0]', 'text-[#110e1b]');
+            
+            // Set paid tab as inactive
+            paidTab.classList.remove('active');
+            paidTab.classList.remove('border-b-[#5324e0]', 'text-[#110e1b]');
+            paidTab.classList.add('border-b-transparent', 'text-[#625095]');
+            
+            searchInput.placeholder = 'Cari tagihan belum dibayar...';
+        } else {
+            // Set paid tab as active
+            paidTab.classList.add('active');
+            paidTab.classList.remove('border-b-transparent');
+            paidTab.classList.add('border-b-[#5324e0]', 'text-[#110e1b]');
+            
+            // Set unpaid tab as inactive
+            unpaidTab.classList.remove('active');
+            unpaidTab.classList.remove('border-b-[#5324e0]', 'text-[#110e1b]');
+            unpaidTab.classList.add('border-b-transparent', 'text-[#625095]');
+            
+            searchInput.placeholder = 'Cari riwayat pembayaran...';
+        }
+        renderList();
+    }
+
+    // ===============================================
+    // Loading Management Functions
+    // ===============================================
+    function showLoading() {
+        contentList.innerHTML = '';
         
-        // Create 8 skeleton items matching the template design
-        for (let i = 0; i < 8; i++) {
+        // Create skeleton loading items
+        for (let i = 0; i < 5; i++) {
             const skeletonItem = document.createElement('div');
-            skeletonItem.className = 'flex items-center gap-4 bg-[#f9f8fc] px-4 min-h-[72px] py-2 justify-between';
+            skeletonItem.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
             skeletonItem.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="bg-gray-200 rounded-lg shrink-0 size-12 skeleton-shimmer"></div>
-                    <div class="flex flex-col justify-center gap-2">
-                        <div class="bg-gray-200 h-4 w-20 rounded skeleton-shimmer"></div>
-                        <div class="bg-gray-200 h-3 w-16 rounded skeleton-shimmer"></div>
-                    </div>
+                <div class="flex flex-col justify-center flex-1 gap-2">
+                    <div class="bg-gray-200 h-4 w-3/4 rounded skeleton-shimmer"></div>
+                    <div class="bg-gray-200 h-3 w-1/2 rounded skeleton-shimmer"></div>
                 </div>
                 <div class="shrink-0">
-                    <div class="bg-gray-200 h-4 w-12 rounded skeleton-shimmer"></div>
+                    <div class="bg-gray-200 h-4 w-20 rounded skeleton-shimmer"></div>
                 </div>
             `;
-            paymentHistoryList.appendChild(skeletonItem);
+            contentList.appendChild(skeletonItem);
         }
         
         // Add skeleton animation styles
@@ -67,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function hideSkeletonLoading() {
+    function hideLoading() {
         const skeletonStyles = document.getElementById('skeleton-styles');
         if (skeletonStyles) {
             skeletonStyles.remove();
@@ -75,53 +114,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // Initial Setup
+    // Data Fetching Functions
     // ===============================================
-    fetchCustomerPaymentHistory();
-
-    // ===============================================
-    // Currency Formatting
-    // ===============================================
-    function formatCurrency(amount) {
-        const formatter = new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        });
-        return formatter.format(parseFloat(amount || 0));
-    }
-
-    // ===============================================
-    // Main Data Fetch & Display Logic
-    // ===============================================
-    async function fetchCustomerPaymentHistory() {
-        showSkeletonLoading();
+    async function fetchData() {
+        showLoading();
         
         try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const responseData = await response.json();
+            // Fetch both unpaid and paid bills
+            const [unpaidResponse, paidResponse] = await Promise.all([
+                fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`),
+                fetch(`${window.AppConfig.API_BASE_URL}?action=getLunas`)
+            ]);
 
-            // Check if data is array
-            if (!Array.isArray(responseData)) {
-                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-                throw new TypeError('Format data yang diterima dari server salah.');
+            if (!unpaidResponse.ok || !paidResponse.ok) {
+                throw new Error('Gagal mengambil data dari server');
             }
-            
-            // Filter data for current customer only
-            const customerData = responseData.filter(item => item.IDPL === userIdpl);
-            
-            // Sort by rowNumber descending (newest first)
-            allLunasData = customerData.sort((a, b) => b.rowNumber - a.rowNumber);
-            
-            renderPaymentHistory();
+
+            const unpaidRawData = await unpaidResponse.json();
+            const paidRawData = await paidResponse.json();
+
+            // Filter data for current customer
+            unpaidData = Array.isArray(unpaidRawData) ? 
+                unpaidRawData.filter(bill => bill.IDPL === userIdpl) : [];
+            paidData = Array.isArray(paidRawData) ? 
+                paidRawData.filter(bill => bill.IDPL === userIdpl) : [];
+
+            // Sort data
+            unpaidData.sort((a, b) => new Date(b['TANGGAL PASANG'] || 0) - new Date(a['TANGGAL PASANG'] || 0));
+            paidData.sort((a, b) => new Date(b['TANGGAL BAYAR'] || 0) - new Date(a['TANGGAL BAYAR'] || 0));
+
+            renderList();
 
         } catch (error) {
-            console.error('Error fetching data:', error);
-            // Display error message
-            paymentHistoryList.innerHTML = `
+            console.error('Error:', error);
+            contentList.innerHTML = `
                 <div class="p-4">
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
                         <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
@@ -133,58 +159,131 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         } finally {
-            hideSkeletonLoading();
+            hideLoading();
         }
     }
 
-    function renderPaymentHistory() {
-        paymentHistoryList.innerHTML = '';
-        
-        if (allLunasData.length === 0) {
-            paymentHistoryList.innerHTML = `
-                <div class="p-4">
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        <p class="text-gray-600">Tidak ada riwayat pembayaran ditemukan.</p>
-                    </div>
-                </div>
-            `;
+    // ===============================================
+    // Render Functions
+    // ===============================================
+    function renderList() {
+        contentList.innerHTML = '';
+        const searchTerm = searchInput.value.toLowerCase();
+        const data = currentTab === 'unpaid' ? unpaidData : paidData;
+
+        if (!Array.isArray(data)) {
+            contentList.innerHTML = `<p class="text-center text-red-500 p-4">Error: Format data tidak valid</p>`;
             return;
         }
 
-        allLunasData.forEach(item => {
-            const periode = item['PERIODE TAGIHAN'] || 'Periode tidak tersedia';
-            const amount = formatCurrency(item.TAGIHAN || 0);
-            const tanggalBayar = item['TANGGAL BAYAR'] 
-                ? new Date(item['TANGGAL BAYAR']).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: '2-digit', 
-                    year: 'numeric'
-                  })
-                : 'Tanggal tidak tersedia';
+        const filteredData = data.filter(item => {
+            if (!item) return false;
+            return (item.NAMA && item.NAMA.toLowerCase().includes(searchTerm)) ||
+                   (item['PERIODE TAGIHAN'] && item['PERIODE TAGIHAN'].toLowerCase().includes(searchTerm));
+        });
 
-            const paymentItem = document.createElement('div');
-            paymentItem.className = 'flex items-center gap-4 bg-[#f9f8fc] px-4 min-h-[72px] py-2 justify-between';
-            paymentItem.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="text-[#110e1b] flex items-center justify-center rounded-lg bg-[#eae7f3] shrink-0 size-12">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path>
-                        </svg>
-                    </div>
+        if (filteredData.length === 0) {
+            const emptyMessage = currentTab === 'unpaid' ? 
+                'Tidak ada tagihan belum dibayar' : 'Belum ada riwayat pembayaran';
+            contentList.innerHTML = `<p class="text-center text-gray-500 p-4">${emptyMessage}</p>`;
+            return;
+        }
+
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+
+        filteredData.forEach(item => {
+            if (!item) return;
+
+            const amount = item.TAGIHAN ? formatter.format(String(item.TAGIHAN).replace(/[^0-9]/g, '')) : 'N/A';
+            const period = item['PERIODE TAGIHAN'] || 'Periode tidak tersedia';
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
+
+            if (currentTab === 'unpaid') {
+                itemDiv.innerHTML = `
                     <div class="flex flex-col justify-center">
-                        <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${tanggalBayar}</p>
-                        <p class="text-[#604e97] text-sm font-normal leading-normal line-clamp-2">${periode}</p>
+                        <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
+                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${amount}</p>
                     </div>
-                </div>
-                <div class="shrink-0">
-                    <p class="text-[#110e1b] text-base font-normal leading-normal">${amount}</p>
-                </div>
-            `;
-            paymentHistoryList.appendChild(paymentItem);
+                    <div class="shrink-0">
+                        <button onclick="window.location.href='pelanggan_info.html'" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]">
+                            <span class="truncate">Bayar</span>
+                        </button>
+                    </div>
+                `;
+            } else {
+                const paymentDate = item['TANGGAL BAYAR'] ? 
+                    formatDate(item['TANGGAL BAYAR']) : 'Tanggal tidak tersedia';
+                itemDiv.innerHTML = `
+                    <div class="flex flex-col justify-center">
+                        <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
+                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Dibayar: ${paymentDate}</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                        <p class="text-[#110e1b] text-base font-medium leading-normal">${amount}</p>
+                        <p class="text-green-600 text-xs font-medium">✓ Lunas</p>
+                    </div>
+                `;
+            }
+            contentList.appendChild(itemDiv);
         });
     }
 
+    // ===============================================
+    // Utility Functions
+    // ===============================================
+    function formatDate(dateString) {
+        if (!dateString) return 'Tidak tersedia';
+        
+        try {
+            let date;
+            if (dateString instanceof Date) {
+                date = dateString;
+            } else if (typeof dateString === 'string') {
+                date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    const parts = dateString.split(/[\/-]/);
+                    if (parts.length === 3) {
+                        date = new Date(parts[2], parts[1] - 1, parts[0]);
+                    }
+                }
+            } else {
+                return 'Format tanggal tidak valid';
+            }
+
+            if (isNaN(date.getTime())) {
+                return 'Tanggal tidak valid';
+            }
+
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return 'Format tanggal bermasalah';
+        }
+    }
+
+    // ===============================================
+    // Initialize
+    // ===============================================
+    initializeEventListeners();
+    
+    // Check for activeTab from sessionStorage (from dashboard navigation)
+    const activeTabFromStorage = sessionStorage.getItem('activeTab');
+    if (activeTabFromStorage && (activeTabFromStorage === 'paid' || activeTabFromStorage === 'unpaid')) {
+        currentTab = activeTabFromStorage;
+        switchTab(currentTab);
+        // Clear the sessionStorage after using it
+        sessionStorage.removeItem('activeTab');
+    }
+    
+    fetchData();
 });
