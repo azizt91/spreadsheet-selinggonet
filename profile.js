@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const adminName = document.getElementById('adminName');
     const adminEmail = document.getElementById('adminEmail');
     const editInfoCard = document.getElementById('edit-info-card');
-    const changePasswordCard = document.getElementById('change-password-card');
 
     // Edit Mode Elements
     const backBtn = document.getElementById('back-btn');
@@ -164,11 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Event Listeners ---
     editInfoCard.addEventListener('click', () => toggleMode(true));
-    changePasswordCard.addEventListener('click', () => {
-        toggleMode(true);
-        // Langsung fokus ke input password
-        setTimeout(() => editPassword.focus(), 100);
-    });
     
     backBtn.addEventListener('click', () => toggleMode(false));
     cancelBtn.addEventListener('click', () => {
