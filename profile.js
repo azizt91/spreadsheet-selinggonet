@@ -1,191 +1,184 @@
-// Profile Page JavaScript (Versi Perbaikan)
+// profile.js (Versi Perbaikan Total untuk Admin)
 document.addEventListener('DOMContentLoaded', function() {
-    // Fungsi checkSession() dan initLogout() sudah dijalankan dari auth.js
-    
-    // Memulai proses untuk memuat data profil
-    loadUserProfile();
-});
+    // Fungsi checkSession() sudah dijalankan dari auth.js
 
-async function loadUserProfile() {
     const loggedInUser = sessionStorage.getItem('loggedInUser');
     const userLevel = sessionStorage.getItem('userLevel');
 
-    // Pastikan yang mengakses adalah ADMIN
-    if (!loggedInUser || userLevel !== 'ADMIN') {
-        alert('Akses tidak diizinkan.');
+    if (userLevel !== 'ADMIN') {
+        alert('Hanya admin yang dapat mengakses halaman ini.');
         window.location.href = 'index.html';
         return;
     }
-    
-    // Show skeleton loading
-    showSkeletonLoading();
 
-    try {
-        // Panggil API untuk mendapatkan semua data pelanggan (termasuk admin)
-        const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    // --- Global variable to hold current admin data ---
+    let currentAdminData = null;
+
+    // --- DOM Element Selectors ---
+    const profileView = document.getElementById('profile-view');
+    const editView = document.getElementById('edit-view');
+
+    // View Mode Elements
+    const profileAvatar = document.getElementById('profileAvatar');
+    const adminName = document.getElementById('adminName');
+    const adminEmail = document.getElementById('adminEmail');
+    const editInfoCard = document.getElementById('edit-info-card');
+    const changePasswordCard = document.getElementById('change-password-card');
+
+    // Edit Mode Elements
+    const backBtn = document.getElementById('back-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const editNama = document.getElementById('edit-nama');
+    const editUser = document.getElementById('edit-user');
+    const editPassword = document.getElementById('edit-password');
+
+    // --- Toggle between view and edit mode ---
+    function toggleMode(showEdit) {
+        if (showEdit) {
+            profileView.classList.add('hidden');
+            editView.classList.remove('hidden');
+        } else {
+            profileView.classList.remove('hidden');
+            editView.classList.add('hidden');
         }
+    }
+
+    // --- Fetch and display profile data ---
+    async function loadUserProfile() {
+        showSkeletonLoading();
+        try {
+            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
+            if (!response.ok) throw new Error('Gagal mengambil data dari server.');
+            
+            const allUsers = await response.json();
+            if (!Array.isArray(allUsers)) throw new Error('Format data tidak valid.');
+
+            currentAdminData = allUsers.find(user => user.USER === loggedInUser && user.LEVEL === 'ADMIN');
+            if (!currentAdminData) throw new Error('Profil admin tidak ditemukan.');
+
+            populateViewMode(currentAdminData);
+            populateEditMode(currentAdminData);
+
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            adminName.textContent = 'Gagal Memuat';
+            adminEmail.textContent = 'Silakan coba lagi';
+        } finally {
+            hideSkeletonLoading();
+        }
+    }
+
+    // --- Populate view mode with data ---
+    function populateViewMode(data) {
+        adminName.textContent = data.NAMA || 'Nama Admin';
+        adminEmail.textContent = data.USER || 'username';
         
-        const allUsers = await response.json();
-        if (!Array.isArray(allUsers)) {
-            throw new Error('Format data tidak valid dari server.');
-        }
-
-        // Cari data admin yang cocok dengan username yang sedang login
-        const adminData = allUsers.find(user => user.USER === loggedInUser && user.LEVEL === 'ADMIN');
-
-        if (adminData) {
-            updateProfileDisplay(adminData);
-        } else {
-            // Jika data admin tidak ditemukan, tampilkan info default/error
-            console.error('Data admin tidak ditemukan di spreadsheet.');
-            updateProfileDisplay({
-                NAMA: 'Admin Tidak Ditemukan',
-                USER: loggedInUser,
-                FOTO: ''
-            });
-        }
-
-    } catch (error) {
-        console.error('Gagal memuat profil admin:', error);
-        // Tampilkan info default jika terjadi error
-        updateProfileDisplay({
-            NAMA: 'Gagal Memuat',
-            USER: loggedInUser,
-            FOTO: ''
-        });
-    } finally {
-        hideSkeletonLoading();
-    }
-}
-
-function updateProfileDisplay(adminData) {
-    const adminNameEl = document.getElementById('adminName');
-    const adminEmailEl = document.getElementById('adminEmail');
-    const profileAvatarEl = document.getElementById('profileAvatar');
-
-    if (!adminData) return;
-
-    // Update Nama
-    if (adminNameEl) {
-        adminNameEl.textContent = adminData.NAMA || 'Nama Admin';
-    }
-
-    // Update User (sebagai pengganti email)
-    if (adminEmailEl) {
-        adminEmailEl.textContent = adminData.USER || 'username';
-    }
-
-    // Update Foto Profil
-    if (profileAvatarEl) {
-        const photoUrl = adminData.FOTO;
-
+        const photoUrl = data.FOTO;
         if (photoUrl && photoUrl.startsWith('http')) {
-            // Jika ada URL foto yang valid, gunakan itu
-            profileAvatarEl.style.backgroundImage = `url("${photoUrl}")`;
-            profileAvatarEl.innerHTML = ''; // Hapus inisial jika ada
-            profileAvatarEl.style.backgroundColor = 'transparent';
+            profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
         } else {
-            // Jika tidak ada foto, buat avatar dari inisial nama
-            const initials = (adminData.NAMA || 'A')
-                .split(' ')
-                .map(name => name.charAt(0))
-                .join('')
-                .toUpperCase()
-                .substring(0, 2);
-            
-            profileAvatarEl.style.backgroundImage = 'none';
-            profileAvatarEl.style.backgroundColor = '#501ee6'; // Warna background avatar
-            profileAvatarEl.style.display = 'flex';
-            profileAvatarEl.style.alignItems = 'center';
-            profileAvatarEl.style.justifyContent = 'center';
-            profileAvatarEl.innerHTML = `<span style="color: white; font-size: 2.5rem; font-weight: bold;">${initials}</span>`;
+            const initials = (data.NAMA || 'A').charAt(0).toUpperCase();
+            profileAvatar.style.backgroundImage = `none`;
+            profileAvatar.style.backgroundColor = '#6a5acd';
+            profileAvatar.innerHTML = `<span class="text-white text-4xl font-bold">${initials}</span>`;
         }
     }
-}
 
-// ===============================================
-// Skeleton Loading Functions
-// ===============================================
-function showSkeletonLoading() {
-    const adminNameEl = document.getElementById('adminName');
-    const adminEmailEl = document.getElementById('adminEmail');
-    const profileAvatarEl = document.getElementById('profileAvatar');
-
-    // Show skeleton for avatar
-    if (profileAvatarEl) {
-        profileAvatarEl.style.backgroundImage = 'none';
-        profileAvatarEl.style.backgroundColor = '#f0f0f0';
-        profileAvatarEl.innerHTML = '';
-        profileAvatarEl.classList.add('skeleton-avatar');
+    // --- Populate edit form with data ---
+    function populateEditMode(data) {
+        editNama.value = data.NAMA || '';
+        editUser.value = data.USER || '';
+        editPassword.value = ''; // Selalu kosongkan password
     }
 
-    // Show skeleton for name
-    if (adminNameEl) {
-        adminNameEl.innerHTML = '<div class="skeleton-text skeleton-name"></div>';
-    }
+    // --- Save changes ---
+    async function saveChanges() {
+        if (!currentAdminData || !currentAdminData.rowNumber) {
+            alert('Error: Data admin tidak lengkap untuk disimpan.');
+            return;
+        }
 
-    // Show skeleton for email/username
-    if (adminEmailEl) {
-        adminEmailEl.innerHTML = '<div class="skeleton-text skeleton-email"></div>';
-    }
+        const newNama = editNama.value.trim();
+        const newPassword = editPassword.value.trim();
 
-    // Add skeleton styles if not exists
-    if (!document.getElementById('skeleton-styles')) {
-        const style = document.createElement('style');
-        style.id = 'skeleton-styles';
-        style.textContent = `
-            @keyframes skeleton-loading {
-                0% {
-                    background-position: -200px 0;
-                }
-                100% {
-                    background-position: calc(200px + 100%) 0;
-                }
-            }
+        if (!newNama) {
+            alert('Nama Lengkap tidak boleh kosong.');
+            return;
+        }
+
+        saveBtn.textContent = 'MENYIMPAN...';
+        saveBtn.disabled = true;
+
+        try {
+            // Data yang akan dikirim ke backend
+            const updateData = { ...currentAdminData, nama: newNama };
             
-            .skeleton-avatar {
-                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
-                background-size: 200px 100% !important;
-                animation: skeleton-loading 1.5s infinite !important;
+            // Hanya tambahkan password ke payload jika diisi
+            if (newPassword) {
+                updateData.password = newPassword;
             }
-            
-            .skeleton-text {
-                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-                background-size: 200px 100%;
-                animation: skeleton-loading 1.5s infinite;
-                border-radius: 4px;
-                height: 20px;
-                margin: 4px 0;
-            }
-            
-            .skeleton-name {
-                width: 150px;
-                height: 28px;
-                margin: 0 auto;
-            }
-            
-            .skeleton-email {
-                width: 120px;
-                height: 18px;
-                margin: 8px auto 0;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
 
-function hideSkeletonLoading() {
-    // Remove skeleton classes and styles
-    const profileAvatarEl = document.getElementById('profileAvatar');
-    if (profileAvatarEl) {
-        profileAvatarEl.classList.remove('skeleton-avatar');
+            const response = await fetch(window.AppConfig.API_BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'updatePelanggan',
+                    rowNumber: currentAdminData.rowNumber,
+                    data: updateData
+                })
+            });
+
+            const result = await response.json();
+            if (result.error) throw new Error(result.error);
+
+            alert('Profil berhasil diperbarui!');
+            await loadUserProfile(); // Muat ulang data
+            toggleMode(false);
+
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert(`Gagal menyimpan: ${error.message}`);
+        } finally {
+            saveBtn.textContent = 'SIMPAN';
+            saveBtn.disabled = false;
+        }
     }
 
-    // Remove skeleton styles
-    const skeletonStyles = document.getElementById('skeleton-styles');
-    if (skeletonStyles) {
-        skeletonStyles.remove();
+    // --- Skeleton Loading Functions ---
+    function showSkeletonLoading() {
+        adminName.className = 'h-7 bg-gray-200 rounded animate-pulse w-48 mb-2';
+        adminName.textContent = '';
+        adminEmail.className = 'h-5 bg-gray-200 rounded animate-pulse w-32';
+        adminEmail.textContent = '';
+        profileAvatar.style.backgroundColor = '#e0e0e0';
+        profileAvatar.classList.add('animate-pulse');
+        profileAvatar.innerHTML = '';
     }
-}
+
+    function hideSkeletonLoading() {
+        adminName.className = 'text-[#110e1b] text-[22px] font-bold leading-tight tracking-[-0.015em] text-center';
+        adminEmail.className = 'text-[#625095] text-base font-normal leading-normal text-center';
+        profileAvatar.classList.remove('animate-pulse');
+    }
+
+    // --- Event Listeners ---
+    editInfoCard.addEventListener('click', () => toggleMode(true));
+    changePasswordCard.addEventListener('click', () => {
+        toggleMode(true);
+        // Langsung fokus ke input password
+        setTimeout(() => editPassword.focus(), 100);
+    });
+    
+    backBtn.addEventListener('click', () => toggleMode(false));
+    cancelBtn.addEventListener('click', () => {
+        if (confirm('Yakin ingin membatalkan perubahan?')) {
+            populateEditMode(currentAdminData); // Kembalikan data form
+            toggleMode(false);
+        }
+    });
+    saveBtn.addEventListener('click', saveChanges);
+
+    // Initial load
+    loadUserProfile();
+});
