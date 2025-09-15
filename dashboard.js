@@ -161,22 +161,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // Modern Skeleton Loading Functions
+    // Mobile-Optimized Skeleton Loading Functions
     // ===============================================
     function showLoading() {
         cardsContainer.innerHTML = '';
         
-        // Create 7 modern skeleton cards
+        // Create 7 mobile-optimized skeleton cards
         for (let i = 0; i < 7; i++) {
             const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'skeleton-card glass-card rounded-3xl p-6';
+            skeletonCard.className = 'skeleton-card glass-card rounded-2xl p-4 min-h-[120px]';
+            
+            // First card (profit) full width
+            if (i === 0) {
+                skeletonCard.style.gridColumn = '1 / -1';
+                skeletonCard.className += ' min-h-[100px]';
+            }
+            
             skeletonCard.innerHTML = `
-                <div class="flex items-start justify-between mb-4">
-                    <div class="skeleton-line w-8 h-8 rounded-full"></div>
+                <div class="flex items-start justify-between mb-2">
                     <div class="skeleton-line w-6 h-6 rounded-full"></div>
+                    <div class="skeleton-line w-4 h-4 rounded-full"></div>
                 </div>
-                <div class="skeleton-line h-4 bg-gray-200 rounded-lg w-3/4 mb-2"></div>
-                <div class="skeleton-line h-6 bg-gray-300 rounded-lg w-1/2"></div>
+                <div class="flex-1">
+                    <div class="skeleton-line h-3 bg-gray-200 rounded w-2/3 mb-1"></div>
+                    <div class="skeleton-line h-5 bg-gray-300 rounded w-3/4"></div>
+                </div>
             `;
             cardsContainer.appendChild(skeletonCard);
         }
