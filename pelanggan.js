@@ -217,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         document.getElementById('detail-customer-name').textContent = customer.NAMA || '-';
         document.getElementById('detail-customer-id').textContent = customer.IDPL || '-';
-        document.getElementById('detail-profile-image').style.backgroundImage = `url('${customer.FOTO || ''}')`;
         
         const details = {
             'detail-idpl': customer.IDPL,
