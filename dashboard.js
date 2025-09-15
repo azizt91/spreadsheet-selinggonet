@@ -68,45 +68,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error:', error);
             hideLoading();
-            cardsContainer.innerHTML = `<p class="text-center text-red-500 col-span-2">Gagal memuat data: ${error.message}</p>`;
+            cardsContainer.innerHTML = `<p class="text-center text-red-500 col-span-full">Gagal memuat data: ${error.message}</p>`;
         }
     }
 
-    // --- Fungsi untuk menampilkan statistik di kartu-kartu ---
-    // function displayStats(stats) {
-    //     cardsContainer.innerHTML = ''; // Mengosongkan kartu sebelum diisi
-
-    //     const formatter = new Intl.NumberFormat('id-ID', {
-    //         style: 'currency',
-    //         currency: 'IDR',
-    //         minimumFractionDigits: 0
-    //     });
-
-    //     // Urutkan kartu: Keuangan dulu, baru statistik pelanggan
-    //     const statsCards = [
-    //         { icon: 'fas fa-wallet', label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), color: '#20b2aa' },
-    //         { icon: 'fas fa-sign-out-alt', label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), color: '#ff6347' },
-    //         { icon: 'fas fa-chart-line', label: 'Profit', value: formatter.format(stats.profit || 0), color: '#8a2be2' },
-    //         { icon: 'fas fa-users', label: 'Total Pelanggan', value: stats.totalCustomers || 0, color: '#6a5acd' },
-    //         { icon: 'fas fa-user-check', label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, color: '#32cd32' },
-    //         { icon: 'fas fa-user-slash', label: 'Pelanggan Nonaktif', value: stats.inactiveCustomers || 0, color: '#dc3545' },
-    //         { icon: 'fas fa-exclamation-circle', label: 'Belum Lunas', value: stats.totalUnpaid || 0, color: '#ffc107' },
-    //         { icon: 'fas fa-check-circle', label: 'Tagihan Lunas', value: stats.totalPaid || 0, color: '#1e90ff' }
-    //     ];
-
-    //     statsCards.forEach(card => {
-    //         const cardElement = document.createElement('div');
-    //         cardElement.className = 'card';
-    //         cardElement.innerHTML = `
-    //             <div class="card-icon" style="background-color: ${card.color}20; color: ${card.color};">
-    //                 <i class="${card.icon}"></i>
-    //             </div>
-    //             <h3>${card.label}</h3>
-    //             <div class="card-value">${card.value}</div>
-    //         `;
-    //         cardsContainer.appendChild(cardElement);
-    //     });
-    // }
+    // --- Fungsi untuk menampilkan statistik di kartu-kartu modern ---
     function displayStats(stats) {
         cardsContainer.innerHTML = ''; // Clear previous cards
 
@@ -117,26 +83,71 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const statsCards = [
-            { label: 'Profit', value: formatter.format(stats.profit || 0), bg: 'bg-[#eae8f3]' },
-            { label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), bg: 'bg-[#eae8f3]' },
-            { label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), bg: 'bg-[#eae8f3]' },
-            { label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, bg: 'border border-[#d6d1e6]' },
-            { label: 'Pelanggan Tidak Aktif', value: stats.inactiveCustomers || 0, bg: 'border border-[#d6d1e6]' },
-            { label: 'Belum Dibayar', value: stats.totalUnpaid || 0, bg: 'border border-[#d6d1e6]', link: 'tagihan.html' },
-            { label: 'Dibayar', value: stats.totalPaid || 0, bg: 'border border-[#d6d1e6]', link: 'lunas.html' }
+            { 
+                label: 'Profit', 
+                value: formatter.format(stats.profit || 0), 
+                gradient: 'gradient-card-1',
+                icon: '💰'
+            },
+            { 
+                label: 'Total Pendapatan', 
+                value: formatter.format(stats.totalRevenue || 0), 
+                gradient: 'gradient-card-2',
+                icon: '📈'
+            },
+            { 
+                label: 'Total Pengeluaran', 
+                value: formatter.format(stats.totalExpenses || 0), 
+                gradient: 'gradient-card-3',
+                icon: '💸'
+            },
+            { 
+                label: 'Pelanggan Aktif', 
+                value: stats.activeCustomers || 0, 
+                gradient: 'gradient-card-4',
+                icon: '👥'
+            },
+            { 
+                label: 'Pelanggan Tidak Aktif', 
+                value: stats.inactiveCustomers || 0, 
+                gradient: 'gradient-card-5',
+                icon: '😴'
+            },
+            { 
+                label: 'Belum Dibayar', 
+                value: stats.totalUnpaid || 0, 
+                gradient: 'gradient-card-6',
+                icon: '⏳',
+                link: 'tagihan.html'
+            },
+            { 
+                label: 'Dibayar', 
+                value: stats.totalPaid || 0, 
+                gradient: 'gradient-card-7',
+                icon: '✅',
+                link: 'lunas.html'
+            }
         ];
 
-        statsCards.forEach(card => {
+        statsCards.forEach((card, index) => {
             const cardElement = document.createElement('div');
-            cardElement.className = `flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 ${card.bg}`;
+            cardElement.className = `${card.gradient} card-hover rounded-3xl p-6 text-white shadow-lg animate-fadeInUp`;
+            cardElement.style.animationDelay = `${index * 0.1}s`;
             
             cardElement.innerHTML = `
-                <p class="text-[#110e1b] text-base font-medium leading-normal">${card.label}</p>
-                <p class="text-[#110e1b] tracking-light text-2xl font-bold leading-tight">${card.value}</p>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="text-3xl">${card.icon}</div>
+                    <div class="bg-white/20 rounded-full p-2 backdrop-blur-sm">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                </div>
+                <p class="text-white/90 text-sm font-medium mb-2">${card.label}</p>
+                <p class="text-white text-xl font-bold leading-tight">${card.value}</p>
+                ${card.link ? '<div class="mt-4 text-white/80 text-xs">👆 Ketuk untuk detail</div>' : ''}
             `;
 
             if (card.link) {
-                cardElement.classList.add('cursor-pointer', 'hover:bg-gray-200');
+                cardElement.classList.add('cursor-pointer');
                 cardElement.addEventListener('click', () => {
                     const bulan = filterBulan.value;
                     const tahun = filterTahun.value;
@@ -150,53 +161,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // Skeleton Loading Functions
+    // Modern Skeleton Loading Functions
     // ===============================================
     function showLoading() {
-        // Clear existing content and show skeleton cards
         cardsContainer.innerHTML = '';
         
-        // Create 7 skeleton cards (matching the number of actual stats cards)
+        // Create 7 modern skeleton cards
         for (let i = 0; i < 7; i++) {
             const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'skeleton-card flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 bg-[#eae8f3]';
+            skeletonCard.className = 'skeleton-card glass-card rounded-3xl p-6';
             skeletonCard.innerHTML = `
-                <div class="skeleton-line h-4 bg-gray-300 rounded w-3/4"></div>
-                <div class="skeleton-line h-8 bg-gray-300 rounded w-1/2 mt-2"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="skeleton-line w-8 h-8 rounded-full"></div>
+                    <div class="skeleton-line w-6 h-6 rounded-full"></div>
+                </div>
+                <div class="skeleton-line h-4 bg-gray-200 rounded-lg w-3/4 mb-2"></div>
+                <div class="skeleton-line h-6 bg-gray-300 rounded-lg w-1/2"></div>
             `;
             cardsContainer.appendChild(skeletonCard);
-        }
-        
-        // Add skeleton animation styles if not exists
-        if (!document.getElementById('skeleton-styles')) {
-            const style = document.createElement('style');
-            style.id = 'skeleton-styles';
-            style.textContent = `
-                @keyframes skeleton-loading {
-                    0% {
-                        background-position: -200px 0;
-                    }
-                    100% {
-                        background-position: calc(200px + 100%) 0;
-                    }
-                }
-                
-                .skeleton-line {
-                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-                    background-size: 200px 100%;
-                    animation: skeleton-loading 1.5s infinite;
-                }
-                
-                .skeleton-card {
-                    pointer-events: none;
-                }
-            `;
-            document.head.appendChild(style);
         }
     }
 
     function hideLoading() {
-        // Remove skeleton cards when done
         const skeletonCards = document.querySelectorAll('.skeleton-card');
         skeletonCards.forEach(card => card.remove());
     }
