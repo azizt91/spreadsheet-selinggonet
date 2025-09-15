@@ -118,12 +118,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const statsCards = [
             { label: 'Profit', value: formatter.format(stats.profit || 0), bg: 'bg-[#eae8f3]' },
-            { label: 'Total Revenue', value: formatter.format(stats.totalRevenue || 0), bg: 'bg-[#eae8f3]' },
-            { label: 'Total Expenses', value: formatter.format(stats.totalExpenses || 0), bg: 'bg-[#eae8f3]' },
-            { label: 'Active Customers', value: stats.activeCustomers || 0, bg: 'border border-[#d6d1e6]' },
-            { label: 'Inactive Customers', value: stats.inactiveCustomers || 0, bg: 'border border-[#d6d1e6]' },
-            { label: 'Unpaid Invoices', value: stats.totalUnpaid || 0, bg: 'border border-[#d6d1e6]', link: 'tagihan.html' },
-            { label: 'Paid Invoices', value: stats.totalPaid || 0, bg: 'border border-[#d6d1e6]', link: 'lunas.html' }
+            { label: 'Total Pendapatan', value: formatter.format(stats.totalRevenue || 0), bg: 'bg-[#eae8f3]' },
+            { label: 'Total Pengeluaran', value: formatter.format(stats.totalExpenses || 0), bg: 'bg-[#eae8f3]' },
+            { label: 'Pelanggan Aktif', value: stats.activeCustomers || 0, bg: 'border border-[#d6d1e6]' },
+            { label: 'Pelanggan Tidak Aktif', value: stats.inactiveCustomers || 0, bg: 'border border-[#d6d1e6]' },
+            { label: 'Belum Dibayar', value: stats.totalUnpaid || 0, bg: 'border border-[#d6d1e6]', link: 'tagihan.html' },
+            { label: 'Dibayar', value: stats.totalPaid || 0, bg: 'border border-[#d6d1e6]', link: 'lunas.html' }
         ];
 
         statsCards.forEach(card => {
