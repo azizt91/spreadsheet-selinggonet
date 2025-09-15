@@ -24,8 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const customerName = document.getElementById('customerName');
     const customerEmail = document.getElementById('customerEmail');
     const editInfoCard = document.getElementById('edit-info-card');
-    const photoEditBtn = document.getElementById('photo-edit-btn');
-    const photoInput = document.getElementById('photo-input');
 
     // Edit Mode Elements
     const editBackBtn = document.getElementById('edit-back-btn');
@@ -104,74 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
         editWhatsapp.value = data.WHATSAPP || '';
     }
 
-    // --- Photo upload functionality ---
-    function handlePhotoUpload() {
-        photoInput.click();
-    }
-
-    function handlePhotoChange(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            alert('Hanya file gambar yang diperbolehkan.');
-            return;
-        }
-
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB.');
-            return;
-        }
-
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            profileAvatar.style.backgroundImage = `url("${e.target.result}")`;
-            profileAvatar.innerHTML = '';
-        };
-        reader.readAsDataURL(file);
-
-        // Upload photo
-        uploadPhoto(file);
-    }
-
-    async function uploadPhoto(file) {
-        try {
-            // Convert to base64
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64Data = e.target.result;
-                
-                // Update customer data with new photo
-                const updateData = { 
-                    ...currentCustomerData, 
-                    foto: base64Data
-                };
-
-                const response = await fetch(window.AppConfig.API_BASE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'updatePelanggan',
-                        rowNumber: currentCustomerData.rowNumber,
-                        data: updateData
-                    })
-                });
-
-                const result = await response.json();
-                if (result.error) throw new Error(result.error);
-
-                alert('Foto profil berhasil diperbarui!');
-                await loadUserProfile(); // Reload data
-            };
-            reader.readAsDataURL(file);
-        } catch (error) {
-            console.error('Error uploading photo:', error);
-            alert(`Gagal mengupload foto: ${error.message}`);
-        }
-    }
 
     // --- Save changes ---
     async function saveChanges() {
@@ -250,10 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Event Listeners ---
     editInfoCard.addEventListener('click', () => toggleMode(true));
-    
-    // Photo edit button
-    photoEditBtn.addEventListener('click', handlePhotoUpload);
-    photoInput.addEventListener('change', handlePhotoChange);
     
     // Back button event listener
     editBackBtn.addEventListener('click', () => {
