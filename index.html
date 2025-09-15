@@ -28,56 +28,145 @@
       href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
     />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .floating-animation {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(80, 30, 230, 0.15);
+        }
+        
+        .btn-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(80, 30, 230, 0.3);
+        }
+    </style>
 </head>
 <body>
-    <div
-      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fc] justify-between group/design-root overflow-x-hidden"
-      style='font-family: Manrope, "Noto Sans", sans-serif;'
-    >
-      <div>
-        <div class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between">
-          <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Selinggonet</h2>
+    <div class="gradient-bg min-h-screen flex items-center justify-center p-4" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+      <div class="w-full max-w-md">
+        <!-- Logo and Brand -->
+        <div class="text-center mb-8 fade-in">
+          <div class="floating-animation">
+            <div class="w-20 h-20 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-lg p-2">
+              <img src="assets/logo_192x192.png" alt="Selinggonet Logo" class="w-full h-full object-contain">
+            </div>
+          </div>
+          <h1 class="text-3xl font-bold text-white mb-2">Selinggonet</h1>
         </div>
-        <h2 class="text-[#110e1b] tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Welcome Back</h2>
-        
-        <form id="login-form">
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
+
+        <!-- Login Form -->
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl fade-in">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+            <p class="text-white/70 text-sm">Silakan masuk ke akun Anda</p>
+          </div>
+
+          <form id="login-form" class="space-y-6">
+            <!-- Username Input -->
+            <div class="space-y-2">
+              <label for="username" class="block text-sm font-medium text-white/90">Username</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
                 <input
                   id="username"
-                  placeholder="Username"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border border-[#d6d0e7] bg-[#f9f8fc] focus:border-[#d6d0e7] h-14 placeholder:text-[#604e97] p-[15px] text-base font-normal leading-normal"
+                  type="text"
+                  placeholder="Masukkan username"
+                  class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
                   required
                 />
-              </label>
+              </div>
             </div>
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
+
+            <!-- Password Input -->
+            <div class="space-y-2">
+              <label for="password" class="block text-sm font-medium text-white/90">Password</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                </div>
                 <input
                   id="password"
                   type="password"
-                  placeholder="Password"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border border-[#d6d0e7] bg-[#f9f8fc] focus:border-[#d6d0e7] h-14 placeholder:text-[#604e97] p-[15px] text-base font-normal leading-normal"
+                  placeholder="Masukkan password"
+                  class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
                   required
                 />
-              </label>
+              </div>
             </div>
-            <div class="flex px-4 py-3">
-              <button
-                type="submit"
-                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#501ee6] text-[#f9f8fc] text-base font-bold leading-normal tracking-[0.015em]"
-              >
-                <span class="truncate">Login</span>
-              </button>
-            </div>
-            <p id="error-message" class="text-red-500 text-center mt-2 px-4"></p>
-        </form>
+
+            <!-- Login Button -->
+            <button
+              type="submit"
+              class="btn-hover w-full bg-white text-purple-600 font-bold py-3 px-4 rounded-xl hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
+            >
+              <span class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                Masuk
+              </span>
+            </button>
+
+            <!-- Error Message -->
+            <p id="error-message" class="text-red-300 text-center text-sm mt-4 hidden"></p>
+          </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 fade-in">
+          <p class="text-white/60 text-xs">
+            © 2024 Selinggonet. Semua hak dilindungi.
+          </p>
+        </div>
       </div>
-      <div>
-        <div
-          class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-none"
-          style='background-image: url("assets/login_illustration.svg"); aspect-ratio: 390 / 320;'
-        ></div>
+
+      <!-- Background Decoration -->
+      <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
       </div>
     </div>
     
