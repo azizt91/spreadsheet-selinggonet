@@ -131,7 +131,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         statsCards.forEach((card, index) => {
             const cardElement = document.createElement('div');
-            cardElement.className = `${card.gradient} card-hover rounded-3xl p-6 text-white shadow-lg animate-fadeInUp`;
+           let cardClasses = 'card-hover rounded-3xl p-6 text-white shadow-lg animate-fadeInUp';
+            
+            // Jika ini adalah kartu pertama (Profit), buat agar melebar 2 kolom
+            if (index === 0) {
+                cardClasses += ' col-span-2'; // Tambahkan kelas col-span-2
+            }
+            cardElement.className = `${card.gradient} ${cardClasses}`;
             cardElement.style.animationDelay = `${index * 0.1}s`;
             
             cardElement.innerHTML = `
@@ -173,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // First card (profit) full width
             if (i === 0) {
-                skeletonCard.style.gridColumn = '1 / -1';
+                skeletonCard.classList.add('col-span-2');
                 skeletonCard.className += ' min-h-[100px]';
             }
             
