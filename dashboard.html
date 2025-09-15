@@ -29,88 +29,211 @@
     />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style>
-        /* Custom style for dashboard select dropdowns */
-        .dashboard-select {
-            background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 fill=%27rgb(107,114,128)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z%27%3e%3c/path%3e%3c/svg%3e');
+        /* Custom gradients and colors */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-card-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .gradient-card-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .gradient-card-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .gradient-card-5 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .gradient-card-6 {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .gradient-card-7 {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+        
+        /* Modern glass effect */
+        .glass-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Custom animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Hover effects */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Custom select styling */
+        .modern-select {
+            background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 fill=%27rgb(255,255,255)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z%27%3e%3c/path%3e%3c/svg%3e');
             background-repeat: no-repeat;
-            background-position: right 12px center;
+            background-position: right 16px center;
             background-size: 16px;
-            padding-right: 40px;
+            padding-right: 48px;
         }
         
-        .dashboard-select:focus {
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        /* Skeleton loading */
+        @keyframes skeleton-loading {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
         }
         
-        /* Custom style for old select arrow (keeping for compatibility) */
-        .custom-select {
-            background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(98,80,149)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e');
+        .skeleton-line {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        .skeleton-card {
+            pointer-events: none;
+        }
+        
+        /* Header gradient */
+        .header-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Bottom navigation glass effect */
+        .nav-glass {
+            backdrop-filter: blur(20px);
+            background: rgba(249, 248, 251, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Responsive grid improvements */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 <body>
-    <div
-      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden"
-      style='font-family: Manrope, "Noto Sans", sans-serif;'
-    >
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-50 to-indigo-50" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+      
       <!-- Main Content with bottom padding for fixed navigation -->
-      <div class="flex-1 pb-20">
-        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
-          <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Dasbor</h2>
-        </header>
+      <div class="flex-1 pb-24">
         
-        <!-- Filters -->
-        <div class="flex gap-3 px-4 py-3">
-          <div class="flex-1">
-            <select id="filter-bulan" class="dashboard-select w-full h-12 px-4 bg-white border border-[#e5e7eb] rounded-xl text-[#110e1b] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:border-transparent appearance-none">
-              <!-- Options will be populated by JavaScript -->
-            </select>
+        <!-- Modern Header with gradient -->
+        <header class="header-gradient shadow-lg">
+          <div class="px-6 py-8">
+            <h2 class="text-white text-2xl font-bold leading-tight text-center mb-2">Dashboard</h2>
+            <p class="text-white/80 text-sm text-center">Selinggonet Management System</p>
           </div>
-          <div class="flex-1">
-            <select id="filter-tahun" class="dashboard-select w-full h-12 px-4 bg-white border border-[#e5e7eb] rounded-xl text-[#110e1b] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:border-transparent appearance-none">
-              <!-- Options will be populated by JavaScript -->
-            </select>
+          
+          <!-- Modern Filters -->
+          <div class="px-6 pb-6">
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <select id="filter-bulan" class="modern-select w-full h-14 px-6 bg-white/20 border-0 rounded-2xl text-white text-sm font-medium placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 appearance-none backdrop-blur-sm">
+                  <!-- Options will be populated by JavaScript -->
+                </select>
+              </div>
+              <div class="flex-1">
+                <select id="filter-tahun" class="modern-select w-full h-14 px-6 bg-white/20 border-0 rounded-2xl text-white text-sm font-medium placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 appearance-none backdrop-blur-sm">
+                  <!-- Options will be populated by JavaScript -->
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
+        </header>
 
-        <!-- Stats Cards Container -->
-        <div id="cards-container" class="flex flex-wrap gap-4 p-4">
-            <!-- Cards will be dynamically inserted here by dashboard.js -->
+        <!-- Stats Cards Container with improved spacing -->
+        <div class="px-6 py-6">
+          <div id="cards-container" class="stats-grid">
+              <!-- Cards will be dynamically inserted here by dashboard.js -->
+          </div>
         </div>
       </div>
       
-      <!-- Fixed Bottom Navigation -->
-      <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
-        <div class="flex gap-2 px-4 pb-3 pt-2">
-          <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-[#110e1b]" href="dashboard.html">
-            <div class="text-[#110e1b] flex h-8 items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
+      <!-- Modern Fixed Bottom Navigation with glass effect -->
+      <footer class="fixed bottom-0 left-0 right-0 z-50 nav-glass">
+        <div class="flex justify-around px-4 py-3">
+          <a class="flex flex-col items-center gap-1 p-3 rounded-xl text-indigo-600 bg-indigo-50" href="dashboard.html">
+            <div class="flex h-6 items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
+              </svg>
             </div>
-            <p class="text-[#110e1b] text-xs font-medium leading-normal tracking-[0.015em]">Dasbor</p>
+            <p class="text-xs font-semibold">Dasbor</p>
           </a>
-          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan.html">
-            <div class="text-[#625095] flex h-8 items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path></svg>
+          
+          <a class="flex flex-col items-center gap-1 p-3 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" href="pelanggan.html">
+            <div class="flex h-6 items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+              </svg>
             </div>
-            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Pelanggan</p>
+            <p class="text-xs font-semibold">Pelanggan</p>
           </a>
-          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="tagihan.html">
-            <div class="text-[#625095] flex h-8 items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path></svg>
+          
+          <a class="flex flex-col items-center gap-1 p-3 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" href="tagihan.html">
+            <div class="flex h-6 items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path>
+              </svg>
             </div>
-            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Tagihan</p>
+            <p class="text-xs font-semibold">Tagihan</p>
           </a>
-          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pengeluaran.html">
-            <div class="text-[#625095] flex h-8 items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path></svg>
+          
+          <a class="flex flex-col items-center gap-1 p-3 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" href="pengeluaran.html">
+            <div class="flex h-6 items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+              </svg>
             </div>
-            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Pengeluaran</p>
+            <p class="text-xs font-semibold">Pengeluaran</p>
           </a>
-          <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="profile.html">
-            <div class="text-[#625095] flex h-8 items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
+          
+          <a class="flex flex-col items-center gap-1 p-3 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" href="profile.html">
+            <div class="flex h-6 items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+              </svg>
             </div>
-            <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Profil</p>
+            <p class="text-xs font-semibold">Profil</p>
           </a>
         </div>
       </footer>
