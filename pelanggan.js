@@ -1,47 +1,71 @@
+// pelanggan.js (Versi Perbaikan Total)
 document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // State Management & Global Variables
     // ===============================================
+    const API_BASE_URL = window.AppConfig.API_BASE_URL;
     let allData = [];
     let filteredData = [];
     let currentFilter = 'all'; // 'all', 'active', 'inactive'
-    
-    // Make loadCustomers function global for modal integration
-    window.loadCustomers = fetchData;
+    let currentEditingRowNumber = null;
+
+    // Opsi paket sesuai permintaan dari file lama
+    const paketOptions = {
+        '1,5 Mbps': 'Rp 50.000',
+        '3 Mbps': 'Rp 100.000',
+        '5 Mbps': 'Rp 150.000',
+        '8 Mbps': 'Rp 180.000',
+        '10 Mbps': 'Rp 200.000',
+        '20 Mbps': 'Rp 250.000',
+    };
 
     // ===============================================
     // DOM Element Selectors
     // ===============================================
     const customerList = document.getElementById('customer-list');
     const searchInput = document.getElementById('search-input');
-    const filterAllBtn = document.getElementById('filter-all');
-    const filterActiveBtn = document.getElementById('filter-active');
-    const filterInactiveBtn = document.getElementById('filter-inactive');
+    const filterButtons = {
+        all: document.getElementById('filter-all'),
+        active: document.getElementById('filter-active'),
+        inactive: document.getElementById('filter-inactive')
+    };
+    
+    // Modal Elements
     const addCustomerBtn = document.getElementById('add-customer-btn');
-
+    const formModal = document.getElementById('add-customer-modal');
+    const detailModal = document.getElementById('customer-detail-modal');
+    const customerForm = document.getElementById('customer-form');
+    
     // ===============================================
     // Initial Setup
     // ===============================================
     initializeEventListeners();
+    populatePaketDropdown();
     fetchData();
 
     // ===============================================
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
-        // Remove old search button functionality since we now have always-visible search
-        // searchBtn is no longer needed with new UI
-        
         searchInput.addEventListener('input', applyFilters);
-        filterAllBtn.addEventListener('click', () => setFilter('all'));
-        filterActiveBtn.addEventListener('click', () => setFilter('active'));
-        filterInactiveBtn.addEventListener('click', () => setFilter('inactive'));
         
-        // Note: Add customer functionality will likely navigate to a new page in a real app
-        // addCustomerBtn.addEventListener('click', () => { 
-        //     alert('Navigating to add customer page...');
-        //     // window.location.href = 'add_customer.html'; 
-        // });
+        filterButtons.all.addEventListener('click', () => setFilter('all'));
+        filterButtons.active.addEventListener('click', () => setFilter('active'));
+        filterButtons.inactive.addEventListener('click', () => setFilter('inactive'));
+
+        addCustomerBtn.addEventListener('click', openAddModal);
+        
+        // Modal Listeners
+        formModal.querySelector('#close-modal-btn').addEventListener('click', () => closeModal(formModal));
+        formModal.querySelector('#cancel-btn').addEventListener('click', () => closeModal(formModal));
+        detailModal.querySelector('#close-detail-modal-btn').addEventListener('click', () => closeModal(detailModal));
+        customerForm.addEventListener('submit', handleFormSubmit);
+
+        // Paket change listener
+        document.getElementById('customer-package').addEventListener('change', handlePaketChange);
+
+        // Edit button inside detail view
+        document.getElementById('edit-customer-detail-btn').addEventListener('click', handleEditFromDetailView);
     }
 
     // ===============================================
@@ -49,69 +73,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     async function fetchData() {
         showLoading();
-        
         try {
-            const response = await fetch(window.AppConfig.getApiUrl('getPelanggan') + '?action=getPelanggan');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const responseData = await response.json();
+            if (responseData.error) throw new Error(responseData.error);
 
-            if (!Array.isArray(responseData)) {
-                if (responseData && responseData.error) throw new Error(`Error dari server: ${responseData.error}`);
-                throw new TypeError('Format data yang diterima dari server salah.');
-            }
+            allData = responseData
+                .filter(item => item.LEVEL === 'USER')
+                .sort((a, b) => b.rowNumber - a.rowNumber);
             
-            allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber);
-            hideLoading();
-            setFilter('all'); // Set initial filter and render
+            applyFilters();
         } catch (error) {
             console.error('Error fetching data:', error);
+            customerList.innerHTML = `<p class="text-center text-red-500 p-4">Gagal memuat data: ${error.message}</p>`;
+        } finally {
             hideLoading();
-            customerList.innerHTML = `<p class="text-center text-red-500 p-4">Gagal memuat data. ${error.message}</p>`;
         }
     }
 
     function setFilter(filterType) {
         currentFilter = filterType;
-        
-        // Update active button style
-        const buttons = {
-            all: filterAllBtn,
-            active: filterActiveBtn,
-            inactive: filterInactiveBtn
-        };
-
-        for (const key in buttons) {
-            buttons[key].classList.remove('bg-[#501ee6]', 'text-white');
-            buttons[key].classList.add('bg-[#eae8f3]', 'text-[#110e1b]');
-        }
-        buttons[filterType].classList.add('bg-[#501ee6]', 'text-white');
-        buttons[filterType].classList.remove('bg-[#eae8f3]', 'text-[#110e1b]');
-        
+        Object.values(filterButtons).forEach(btn => btn.classList.remove('bg-[#501ee6]', 'text-white'));
+        filterButtons[filterType].classList.add('bg-[#501ee6]', 'text-white');
         applyFilters();
     }
 
     function applyFilters() {
         const searchTerm = searchInput.value.toLowerCase();
         
-        let data = [...allData];
+        let data = allData;
+        if (currentFilter === 'active') data = data.filter(item => item.STATUS === 'AKTIF');
+        if (currentFilter === 'inactive') data = data.filter(item => item.STATUS === 'NONAKTIF');
 
-        // Filter by status
-        if (currentFilter === 'active') {
-            data = data.filter(item => item.STATUS && item.STATUS.toUpperCase() === 'AKTIF');
-        } else if (currentFilter === 'inactive') {
-            data = data.filter(item => item.STATUS && item.STATUS.toUpperCase() === 'NONAKTIF');
-        }
-
-        // Filter by search term
-        if (searchTerm) {
-            data = data.filter(item =>
-                Object.values(item).some(val =>
-                    String(val).toLowerCase().includes(searchTerm)
-                )
-            );
-        }
-        
-        filteredData = data;
+        filteredData = data.filter(item =>
+            Object.values(item).some(val => String(val).toLowerCase().includes(searchTerm))
+        );
         renderCustomerList();
     }
 
@@ -123,55 +120,152 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         filteredData.forEach(item => {
-            const status = item.STATUS || 'N/A';
-            const statusColor = status.toUpperCase() === 'AKTIF' ? 'bg-[#078843]' : 'bg-red-500';
-            const tanggalPasang = item['TANGGAL PASANG'] 
-                ? new Date(item['TANGGAL PASANG']).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) 
-                : 'Tanggal tidak tersedia';
-            const profileImage = item.FOTO || 'assets/logo_192x192.png'; // Fallback image
-
-            const customerItem = document.createElement('div');
-            customerItem.className = "flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200 cursor-pointer hover:bg-gray-100";
+            const statusColor = item.STATUS === 'AKTIF' ? 'bg-[#078843]' : 'bg-red-500';
+            const tanggalPasang = item['TANGGAL PASANG'] ? new Date(item['TANGGAL PASANG']).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
             
+            const customerItem = document.createElement('div');
+            customerItem.className = "flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50";
             customerItem.innerHTML = `
               <div class="flex items-center gap-4">
-                <div
-                  class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14"
-                  style='background-image: url("${profileImage}");'
-                ></div>
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" style="background-image: url('${item.FOTO || ''}');"></div>
                 <div class="flex flex-col justify-center">
-                  <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${item.NAMA || ''}</p>
+                  <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${item.NAMA}</p>
                   <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${tanggalPasang}</p>
                 </div>
               </div>
-              <div class="shrink-0">
-                <div class="flex size-7 items-center justify-center"><div class="size-3 rounded-full ${statusColor}"></div></div>
-              </div>
+              <div class="shrink-0"><div class="flex size-7 items-center justify-center"><div class="size-3 rounded-full ${statusColor}"></div></div></div>
             `;
-            
-            // Add click event to open customer detail modal
-            customerItem.addEventListener('click', () => {
-                if (typeof openCustomerDetail === 'function') {
-                    const customerData = {
-                        idpl: item.IDPL,
-                        nama: item.NAMA,
-                        alamat: item.ALAMAT,
-                        jenisKelamin: item['JENIS KELAMIN'],
-                        whatsapp: item.WHATSAPP,
-                        paket: item.PAKET,
-                        tagihan: item.TAGIHAN,
-                        status: item.STATUS,
-                        tanggalPasang: item['TANGGAL PASANG'],
-                        jenisPerangkat: item['JENIS PERANGKAT'],
-                        ipStatic: item['IP STATIC / PPOE'],
-                        foto: item.FOTO
-                    };
-                    openCustomerDetail(customerData);
-                }
-            });
-
+            customerItem.addEventListener('click', () => openDetailModal(item));
             customerList.appendChild(customerItem);
         });
+    }
+
+    // ===============================================
+    // Modal & Form Logic
+    // ===============================================
+    function openModal(modal) { modal.classList.remove('hidden'); }
+    function closeModal(modal) { modal.classList.add('hidden'); }
+
+    function populatePaketDropdown() {
+        const paketSelect = document.getElementById('customer-package');
+        paketSelect.innerHTML = '<option value="">-- Pilih Paket --</option>';
+        for (const paket in paketOptions) {
+            const option = document.createElement('option');
+            option.value = paket;
+            option.textContent = paket;
+            paketSelect.appendChild(option);
+        }
+    }
+
+    function handlePaketChange(event) {
+        const selectedPaket = event.target.value;
+        const tagihanInput = document.getElementById('customer-bill');
+        const priceString = paketOptions[selectedPaket] || '0';
+        tagihanInput.value = priceString.replace(/[^0-9]/g, '');
+    }
+    
+    function openAddModal() {
+        customerForm.reset();
+        currentEditingRowNumber = null;
+        document.getElementById('modal-title').textContent = 'Tambah Pelanggan';
+        document.getElementById('save-btn-text').textContent = 'Simpan';
+        openModal(formModal);
+    }
+    
+    function openEditModal(customerData) {
+        customerForm.reset();
+        currentEditingRowNumber = customerData.rowNumber;
+        document.getElementById('modal-title').textContent = 'Edit Pelanggan';
+        document.getElementById('save-btn-text').textContent = 'Update';
+
+        document.getElementById('customer-name').value = customerData.NAMA || '';
+        document.getElementById('customer-address').value = customerData.ALAMAT || '';
+        document.getElementById('customer-whatsapp').value = customerData.WHATSAPP || '';
+        document.getElementById('customer-gender').value = customerData['JENIS KELAMIN'] || '';
+        document.getElementById('customer-package').value = customerData.PAKET || '';
+        document.getElementById('customer-bill').value = String(customerData.TAGIHAN || '').replace(/[^0-9]/g, '');
+        document.getElementById('customer-status').value = customerData.STATUS || '';
+        document.getElementById('customer-device').value = customerData['JENIS PERANGKAT'] || '';
+        document.getElementById('customer-ip').value = customerData['IP STATIC / PPOE'] || '';
+
+        openModal(formModal);
+    }
+    
+    function handleEditFromDetailView() {
+        const customerData = allData.find(item => item.rowNumber === currentEditingRowNumber);
+        if (customerData) {
+            closeModal(detailModal);
+            openEditModal(customerData);
+        }
+    }
+
+    function openDetailModal(customer) {
+        currentEditingRowNumber = customer.rowNumber;
+        document.getElementById('detail-customer-name').textContent = customer.NAMA || '-';
+        document.getElementById('detail-customer-id').textContent = customer.IDPL || '-';
+        document.getElementById('detail-profile-image').style.backgroundImage = `url('${customer.FOTO || ''}')`;
+        
+        const details = {
+            'detail-idpl': customer.IDPL,
+            'detail-nama': customer.NAMA,
+            'detail-alamat': customer.ALAMAT,
+            'detail-gender': customer['JENIS KELAMIN'],
+            'detail-whatsapp': customer.WHATSAPP,
+            'detail-paket': customer.PAKET,
+            'detail-tagihan': customer.TAGIHAN ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(customer.TAGIHAN) : '-',
+            'detail-status': customer.STATUS,
+            'detail-tanggal-pasang': customer['TANGGAL PASANG'] ? new Date(customer['TANGGAL PASANG']).toLocaleDateString('id-ID') : '-',
+            'detail-jenis-perangkat': customer['JENIS PERANGKAT'],
+            'detail-ip-static': customer['IP STATIC / PPOE']
+        };
+
+        for (const id in details) {
+            document.getElementById(id).textContent = details[id] || '-';
+        }
+        
+        openModal(detailModal);
+    }
+
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        const saveBtn = document.getElementById('save-customer-btn');
+        const isEditing = !!currentEditingRowNumber;
+        
+        const formData = {
+            nama: document.getElementById('customer-name').value,
+            alamat: document.getElementById('customer-address').value,
+            whatsapp: document.getElementById('customer-whatsapp').value,
+            jenisKelamin: document.getElementById('customer-gender').value,
+            paket: document.getElementById('customer-package').value,
+            tagihan: document.getElementById('customer-bill').value,
+            status: document.getElementById('customer-status').value,
+            jenisPerangkat: document.getElementById('customer-device').value,
+            ipStatic: document.getElementById('customer-ip').value
+        };
+
+        setButtonLoading(saveBtn, true, isEditing ? 'Update' : 'Simpan');
+
+        try {
+            const response = await fetch(API_BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: isEditing ? 'updatePelanggan' : 'addPelanggan',
+                    rowNumber: currentEditingRowNumber,
+                    data: formData
+                })
+            });
+            const result = await response.json();
+            if (result.error) throw new Error(result.error);
+            
+            showSuccessNotification(result.message);
+            closeModal(formModal);
+            fetchData();
+        } catch (error) {
+            showErrorNotification(`Error: ${error.message}`);
+        } finally {
+            setButtonLoading(saveBtn, false, isEditing ? 'Update' : 'Simpan');
+        }
     }
 
     // ===============================================
@@ -233,4 +327,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const skeletonItems = document.querySelectorAll('.skeleton-item');
         skeletonItems.forEach(item => item.remove());
     }
+
+    function setButtonLoading(button, isLoading, originalText) {
+        button.disabled = isLoading;
+        button.querySelector('span').textContent = isLoading ? 'Memproses...' : originalText;
+    }
+
+    function showSuccessNotification(message) { /* Implementasi notifikasi sukses */ alert(message); }
+    function showErrorNotification(message) { /* Implementasi notifikasi error */ alert(message); }
 });
+
+    
+
