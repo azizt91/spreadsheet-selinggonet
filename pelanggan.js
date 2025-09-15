@@ -201,6 +201,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openDetailModal(customer) {
         currentEditingRowNumber = customer.rowNumber;
+        const profileImage = document.getElementById('detail-profile-image');
+        if (customer.FOTO && customer.FOTO.startsWith('http')) {
+            profileImage.style.backgroundImage = `url('${customer.FOTO}')`;
+            // Hapus ikon SVG di dalamnya agar tidak tumpang tindih
+            profileImage.innerHTML = ''; 
+        } else {
+            // Jika tidak ada foto, tampilkan ikon default
+            profileImage.style.backgroundImage = 'none';
+            profileImage.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" fill="currentColor" viewBox="0 0 256 256" class="text-gray-500">
+                    <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                </svg>
+            `;
+        }
         document.getElementById('detail-customer-name').textContent = customer.NAMA || '-';
         document.getElementById('detail-customer-id').textContent = customer.IDPL || '-';
         document.getElementById('detail-profile-image').style.backgroundImage = `url('${customer.FOTO || ''}')`;
@@ -222,8 +236,60 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const id in details) {
             document.getElementById(id).textContent = details[id] || '-';
         }
+
+        loadUnpaidBills(customer.IDPL);
         
         openModal(detailModal);
+    }
+
+    // Tambahkan fungsi ini di dalam file pelanggan.js (bisa di bagian paling bawah sebelum kurung tutup terakhir)
+    async function loadUnpaidBills(customerId) {
+        const unpaidBillsSection = document.getElementById('unpaid-bills-section');
+        const unpaidBillsList = document.getElementById('unpaid-bills-list');
+        
+        unpaidBillsSection.classList.remove('hidden');
+        unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Memuat tagihan...</p>';
+    
+        try {
+            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const responseData = await response.json();
+            
+            if (Array.isArray(responseData)) {
+                const customerUnpaidBills = responseData.filter(bill => 
+                    bill.IDPL === customerId && bill.STATUS !== 'LUNAS'
+                );
+                
+                if (customerUnpaidBills.length > 0) {
+                    unpaidBillsList.innerHTML = ''; // Kosongkan list sebelum diisi
+                    customerUnpaidBills.forEach(bill => {
+                        const billItem = document.createElement('div');
+                        billItem.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between';
+                        
+                        const periodText = bill['PERIODE TAGIHAN'] || `${bill.BULAN || ''} ${bill.TAHUN || ''}`.trim();
+                        const amount = bill.TAGIHAN ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(bill.TAGIHAN) : '-';
+                        
+                        billItem.innerHTML = `
+                            <div class="flex flex-col justify-center">
+                                <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${bill.NAMA || '-'}</p>
+                                <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${periodText}</p>
+                            </div>
+                            <div class="shrink-0">
+                                <p class="text-[#110e1b] text-base font-normal leading-normal">${amount}</p>
+                            </div>
+                        `;
+                        unpaidBillsList.appendChild(billItem);
+                    });
+                } else {
+                    unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Tidak ada tagihan yang belum dibayar.</p>';
+                }
+            } else {
+                throw new Error("Format data tagihan tidak valid.");
+            }
+        } catch (error) {
+            console.error('Error loading unpaid bills:', error);
+            unpaidBillsList.innerHTML = `<p class="text-sm text-red-500 px-4">Gagal memuat tagihan.</p>`;
+        }
     }
 
     async function handleFormSubmit(event) {
