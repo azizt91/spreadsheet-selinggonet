@@ -6,7 +6,7 @@
     <title>Tagihan - Selinggonet</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#501ee6">
+    <meta name="theme-color" content="#f9f8fb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
@@ -35,18 +35,18 @@
       style='font-family: Manrope, "Noto Sans", sans-serif;'
     >
       <!-- Main Content with bottom padding for fixed navigation -->
-      <div class="flex-1">
-        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
+      <div class="flex-1 pb-32">
+        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
           <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tagihan</h2>
         </header>
         
         <!-- Tabs -->
         <div class="pb-3">
           <div class="flex border-b border-[#d6d1e6] px-4 gap-8">
-            <button id="unpaid-tab" class="flex flex-col items-center justify-center border-b-[3px] border-b-[#5324e0] text-[#110e1b] pb-[13px] pt-4 tab-button active">
+            <button id="unpaid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-[#5324e0] text-[#110e1b] pb-[13px] pt-4 tab-button active">
               <p class="text-sm font-bold leading-normal tracking-[0.015em]">Belum Dibayar</p>
             </button>
-            <button id="paid-tab" class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
+            <button id="paid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
               <p class="text-sm font-bold leading-normal tracking-[0.015em]">Dibayar</p>
             </button>
           </div>
@@ -116,9 +116,9 @@
       </footer>
     </div>
 
-    <script src="config.js"></script>
+        <script src="config.js"></script>
     <script src="auth.js"></script>
-    <script src="tagihan.js"></script>
+    <script type="module" src="tagihan.js"></script>
     <script src="logo-navigation.js"></script>
     <script src="datetime-display.js"></script>
     <script src="pwa-installer.js"></script>

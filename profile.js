@@ -1,18 +1,25 @@
-// profile.js (Versi Perbaikan Total untuk Admin)
-document.addEventListener('DOMContentLoaded', function() {
-    // Fungsi checkSession() sudah dijalankan dari auth.js
+// profile.js (Supabase Version)
+import { supabase } from './supabase-client.js';
+import { requireRole, checkAuth } from './auth.js';
 
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    const userLevel = sessionStorage.getItem('userLevel');
-
-    if (userLevel !== 'ADMIN') {
-        alert('Hanya admin yang dapat mengakses halaman ini.');
-        window.location.href = 'index.html';
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Profile page loaded, checking authentication...');
+    
+    try {
+        const user = await requireRole('ADMIN');
+        if (!user) {
+            console.log('Authentication failed, user will be redirected');
+            return;
+        }
+        console.log('Authentication successful for user:', user.id);
+    } catch (error) {
+        console.error('Authentication error:', error);
         return;
     }
 
     // --- Global variable to hold current admin data ---
     let currentAdminData = null;
+    let currentUser = null;
 
     // --- DOM Element Selectors ---
     const profileView = document.getElementById('profile-view');
@@ -47,15 +54,34 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadUserProfile() {
         showSkeletonLoading();
         try {
-            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
-            if (!response.ok) throw new Error('Gagal mengambil data dari server.');
+            console.log('Fetching user profile...');
             
-            const allUsers = await response.json();
-            if (!Array.isArray(allUsers)) throw new Error('Format data tidak valid.');
+            // Get current authenticated user
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError || !session) {
+                throw new Error('Sesi tidak valid');
+            }
+            
+            currentUser = session.user;
+            
+            // Fetch profile data from profiles table
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
 
-            currentAdminData = allUsers.find(user => user.USER === loggedInUser && user.LEVEL === 'ADMIN');
-            if (!currentAdminData) throw new Error('Profil admin tidak ditemukan.');
+            console.log('Profile data:', { profile, error });
 
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            if (!profile) {
+                throw new Error('Profil tidak ditemukan');
+            }
+
+            currentAdminData = profile;
             populateViewMode(currentAdminData);
             populateEditMode(currentAdminData);
 
@@ -70,14 +96,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Populate view mode with data ---
     function populateViewMode(data) {
-        adminName.textContent = data.NAMA || 'Nama Admin';
-        adminEmail.textContent = data.USER || 'username';
+        adminName.textContent = data.full_name || 'Nama Admin';
+        adminEmail.textContent = currentUser?.email || 'email@example.com';
         
-        const photoUrl = data.FOTO;
+        const photoUrl = data.photo_url;
         if (photoUrl && photoUrl.startsWith('http')) {
             profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
+            profileAvatar.innerHTML = '';
         } else {
-            const initials = (data.NAMA || 'A').charAt(0).toUpperCase();
+            const initials = (data.full_name || 'A').charAt(0).toUpperCase();
             profileAvatar.style.backgroundImage = `none`;
             profileAvatar.style.backgroundColor = '#6a5acd';
             profileAvatar.innerHTML = `<span class="text-white text-4xl font-bold">${initials}</span>`;
@@ -86,15 +113,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Populate edit form with data ---
     function populateEditMode(data) {
-        editNama.value = data.NAMA || '';
-        editUser.value = data.USER || '';
+        editNama.value = data.full_name || '';
+        editUser.value = currentUser?.email || '';
         editPassword.value = ''; // Selalu kosongkan password
     }
 
 
     // --- Save changes ---
     async function saveChanges() {
-        if (!currentAdminData || !currentAdminData.rowNumber) {
+        if (!currentAdminData || !currentUser) {
             alert('Error: Data admin tidak lengkap untuk disimpan.');
             return;
         }
@@ -107,30 +134,35 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        if (newPassword && newPassword.length < 6) {
+            alert('Password baru harus minimal 6 karakter.');
+            return;
+        }
+
         saveBtn.textContent = 'MENYIMPAN...';
         saveBtn.disabled = true;
 
         try {
-            // Data yang akan dikirim ke backend
-            const updateData = { ...currentAdminData, nama: newNama };
-            
-            // Hanya tambahkan password ke payload jika diisi
-            if (newPassword) {
-                updateData.password = newPassword;
+            // Update profile data in profiles table
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({ full_name: newNama })
+                .eq('id', currentUser.id);
+
+            if (profileError) {
+                throw new Error(profileError.message);
             }
 
-            const response = await fetch(window.AppConfig.API_BASE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: 'updatePelanggan',
-                    rowNumber: currentAdminData.rowNumber,
-                    data: updateData
-                })
-            });
+            // Update password if provided
+            if (newPassword) {
+                const { error: passwordError } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
 
-            const result = await response.json();
-            if (result.error) throw new Error(result.error);
+                if (passwordError) {
+                    throw new Error(`Gagal mengubah password: ${passwordError.message}`);
+                }
+            }
 
             alert('Profil berhasil diperbarui!');
             await loadUserProfile(); // Muat ulang data
@@ -162,6 +194,22 @@ document.addEventListener('DOMContentLoaded', function() {
         profileAvatar.classList.remove('animate-pulse');
     }
 
+    // --- Logout function ---
+    async function handleLogout() {
+        if (confirm('Yakin ingin logout?')) {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('Logout error:', error);
+                }
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = 'index.html';
+            }
+        }
+    }
+
     // --- Event Listeners ---
     editInfoCard.addEventListener('click', () => toggleMode(true));
     
@@ -179,8 +227,15 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleMode(false);
         }
     });
+    
     saveBtn.addEventListener('click', saveChanges);
+    
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
 
     // Initial load
-    loadUserProfile();
+    await loadUserProfile();
 });

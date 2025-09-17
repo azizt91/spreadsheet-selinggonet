@@ -6,7 +6,7 @@
     <title>Dashboard - Selinggonet</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#501ee6">
+    <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
@@ -168,6 +168,7 @@
           <div class="px-4 py-6">
             <h2 class="text-white text-xl font-bold leading-tight text-center mb-1">Dasbor</h2>
             <p class="text-white/80 text-xs text-center">Selinggonet Management System</p>
+            <p class="text-white/80 text-xs text-center" id="current-datetime">Loading...</p>
           </div>
           
           <!-- Modern Filters -->
@@ -232,9 +233,10 @@
       </footer>
     </div>
 
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="dashboard.js"></script>
+    <script type="module" src="supabase-client.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script src="datetime-display.js"></script>
+    <script type="module" src="dashboard.js"></script>
     <script src="pwa-installer.js"></script>
 </body>
 </html>

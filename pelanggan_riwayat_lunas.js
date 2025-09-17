@@ -1,17 +1,14 @@
 // pelanggan_riwayat_lunas.js - Customer Payment History with Tabs
+import { supabase } from './supabase-client.js';
+import { checkAuth, requireRole } from './auth.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Check session and get user data
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    const userLevel = sessionStorage.getItem('userLevel');
-    const userIdpl = sessionStorage.getItem('userIdpl');
+let currentUser = null;
+let currentProfile = null;
 
-    // Redirect if not logged in or not a customer
-    if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
-        alert('Akses tidak valid. Silakan login sebagai pelanggan.');
-        window.location.href = 'index.html';
-        return;
-    }
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check authentication and require USER role
+    currentUser = await requireRole('USER');
+    if (!currentUser) return; // Stop if not authenticated or not USER role
 
     // DOM Elements
     const contentList = document.getElementById('content-list');
@@ -24,6 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let paidData = [];
     let currentTab = 'paid'; // Start with paid tab active
 
+    // Initialize the page
+    await initializePage();
+
     // ===============================================
     // Event Listeners Setup
     // ===============================================
@@ -31,6 +31,21 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', renderList);
         unpaidTab.addEventListener('click', () => switchTab('unpaid'));
         paidTab.addEventListener('click', () => switchTab('paid'));
+    }
+
+    async function initializePage() {
+        initializeEventListeners();
+        
+        // Check for activeTab from sessionStorage (from dashboard navigation)
+        const activeTabFromStorage = sessionStorage.getItem('activeTab');
+        if (activeTabFromStorage && (activeTabFromStorage === 'paid' || activeTabFromStorage === 'unpaid')) {
+            currentTab = activeTabFromStorage;
+            switchTab(currentTab);
+            // Clear the sessionStorage after using it
+            sessionStorage.removeItem('activeTab');
+        }
+        
+        await fetchData();
     }
 
     // ===============================================
@@ -73,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         contentList.innerHTML = '';
         
         // Create skeleton loading items
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 10; i++) {
             const skeletonItem = document.createElement('div');
             skeletonItem.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
             skeletonItem.innerHTML = `
@@ -114,39 +129,147 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
+    // Utility Functions
+    // ===============================================
+    function calculateDueDate(invoicePeriod, installationDate) {
+        console.log('calculateDueDate called with:', { invoicePeriod, installationDate });
+        
+        if (!installationDate || !invoicePeriod) {
+            console.log('Missing data:', { installationDate, invoicePeriod });
+            return null;
+        }
+        
+        let year, month;
+        
+        // Parse invoice period - handle both "YYYY-MM" and "Month YYYY" formats
+        if (invoicePeriod.includes('-')) {
+            // Format: "YYYY-MM"
+            [year, month] = invoicePeriod.split('-');
+            month = parseInt(month);
+        } else {
+            // Format: "Month YYYY" (e.g., "September 2025")
+            const monthNames = {
+                'January': 1, 'Januari': 1,
+                'February': 2, 'Februari': 2,
+                'March': 3, 'Maret': 3,
+                'April': 4,
+                'May': 5, 'Mei': 5,
+                'June': 6, 'Juni': 6,
+                'July': 7, 'Juli': 7,
+                'August': 8, 'Agustus': 8,
+                'September': 9,
+                'October': 10, 'Oktober': 10,
+                'November': 11,
+                'December': 12, 'Desember': 12
+            };
+            
+            const parts = invoicePeriod.trim().split(' ');
+            if (parts.length >= 2) {
+                const monthName = parts[0];
+                year = parts[1];
+                month = monthNames[monthName];
+                
+                if (!month) {
+                    console.log('Unknown month name:', monthName);
+                    return null;
+                }
+            } else {
+                console.log('Invalid invoice period format:', invoicePeriod);
+                return null;
+            }
+        }
+        
+        if (!year || !month) {
+            console.log('Could not parse year/month from:', invoicePeriod);
+            return null;
+        }
+        
+        // Get installation day
+        const installDate = new Date(installationDate);
+        if (isNaN(installDate.getTime())) {
+            console.log('Invalid installation date:', installationDate);
+            return null;
+        }
+        
+        const installDay = installDate.getDate();
+        console.log('Installation day:', installDay);
+        
+        // Create due date using installation day
+        const dueDate = new Date(parseInt(year), month - 1, installDay);
+        console.log('Calculated due date:', dueDate);
+        
+        return dueDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+    }
+
+    // ===============================================
     // Data Fetching Functions
     // ===============================================
     async function fetchData() {
         showLoading();
         
         try {
-            // Fetch both unpaid and paid bills
-            const [unpaidResponse, paidResponse] = await Promise.all([
-                fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`),
-                fetch(`${window.AppConfig.API_BASE_URL}?action=getLunas`)
-            ]);
+            console.log('Fetching payment history for user:', currentUser.id);
+            
+            // First, get customer profile to get installation_date
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('installation_date')
+                .eq('id', currentUser.id)
+                .single();
 
-            if (!unpaidResponse.ok || !paidResponse.ok) {
-                throw new Error('Gagal mengambil data dari server');
+            if (profileError) {
+                throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
             }
 
-            const unpaidRawData = await unpaidResponse.json();
-            const paidRawData = await paidResponse.json();
+            console.log('Customer profile loaded:', profile);
+            console.log('Installation date from profile:', profile?.installation_date);
+            
+            // Fetch unpaid bills (invoices with status='unpaid')
+            const { data: unpaidBills, error: unpaidError } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('customer_id', currentUser.id)
+                .eq('status', 'unpaid')
+                .order('invoice_period', { ascending: false });
 
-            // Filter data for current customer
-            unpaidData = Array.isArray(unpaidRawData) ? 
-                unpaidRawData.filter(bill => bill.IDPL === userIdpl) : [];
-            paidData = Array.isArray(paidRawData) ? 
-                paidRawData.filter(bill => bill.IDPL === userIdpl) : [];
+            if (unpaidError) {
+                throw new Error(`Gagal mengambil data tagihan: ${unpaidError.message}`);
+            }
 
-            // Sort data
-            unpaidData.sort((a, b) => new Date(b['TANGGAL PASANG'] || 0) - new Date(a['TANGGAL PASANG'] || 0));
-            paidData.sort((a, b) => new Date(b['TANGGAL BAYAR'] || 0) - new Date(a['TANGGAL BAYAR'] || 0));
+            // Calculate due dates for unpaid bills based on installation_date
+            const unpaidBillsWithDueDate = unpaidBills.map(bill => {
+                const calculatedDate = calculateDueDate(bill.invoice_period, profile.installation_date);
+                console.log(`Bill ${bill.invoice_period}: calculated_due_date = ${calculatedDate}`);
+                return {
+                    ...bill,
+                    calculated_due_date: calculatedDate
+                };
+            });
+
+            console.log('Unpaid bills loaded:', unpaidBillsWithDueDate);
+
+            // Fetch paid bills (invoices with status='paid')
+            const { data: paidBills, error: paidError } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('customer_id', currentUser.id)
+                .eq('status', 'paid')
+                .order('paid_at', { ascending: false });
+
+            if (paidError) {
+                throw new Error(`Gagal mengambil data riwayat: ${paidError.message}`);
+            }
+
+            console.log('Paid bills loaded:', paidBills);
+
+            // Store data globally
+            unpaidData = unpaidBillsWithDueDate || [];
+            paidData = paidBills || [];
 
             renderList();
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching payment history:', error);
             contentList.innerHTML = `
                 <div class="p-4">
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
@@ -178,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const filteredData = data.filter(item => {
             if (!item) return false;
-            return (item.NAMA && item.NAMA.toLowerCase().includes(searchTerm)) ||
-                   (item['PERIODE TAGIHAN'] && item['PERIODE TAGIHAN'].toLowerCase().includes(searchTerm));
+            return (item.invoice_period && item.invoice_period.toLowerCase().includes(searchTerm)) ||
+                   (item.amount && item.amount.toString().includes(searchTerm));
         });
 
         if (filteredData.length === 0) {
@@ -198,17 +321,65 @@ document.addEventListener('DOMContentLoaded', function() {
         filteredData.forEach(item => {
             if (!item) return;
 
-            const amount = item.TAGIHAN ? formatter.format(String(item.TAGIHAN).replace(/[^0-9]/g, '')) : 'N/A';
-            const period = item['PERIODE TAGIHAN'] || 'Periode tidak tersedia';
+            const amount = item.amount ? formatter.format(item.amount) : 'N/A';
+            const period = item.invoice_period || 'Periode tidak tersedia';
 
             const itemDiv = document.createElement('div');
             itemDiv.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
 
             if (currentTab === 'unpaid') {
+                // Use calculated_due_date based on installation_date, fallback to original due_date
+                let dueDate = 'Tanggal tidak tersedia';
+                
+                if (item.calculated_due_date) {
+                    dueDate = formatDate(item.calculated_due_date);
+                } else if (item.due_date) {
+                    dueDate = formatDate(item.due_date);
+                } else {
+                    // If no installation_date, use default: 1st of the month
+                    // Handle both "YYYY-MM" and "Month YYYY" formats
+                    const period = item.invoice_period || '';
+                    let year, month;
+                    
+                    if (period.includes('-')) {
+                        [year, month] = period.split('-');
+                        month = parseInt(month);
+                    } else {
+                        const monthNames = {
+                            'January': 1, 'Januari': 1,
+                            'February': 2, 'Februari': 2,
+                            'March': 3, 'Maret': 3,
+                            'April': 4,
+                            'May': 5, 'Mei': 5,
+                            'June': 6, 'Juni': 6,
+                            'July': 7, 'Juli': 7,
+                            'August': 8, 'Agustus': 8,
+                            'September': 9,
+                            'October': 10, 'Oktober': 10,
+                            'November': 11,
+                            'December': 12, 'Desember': 12
+                        };
+                        
+                        const parts = period.trim().split(' ');
+                        if (parts.length >= 2) {
+                            const monthName = parts[0];
+                            year = parts[1];
+                            month = monthNames[monthName];
+                        }
+                    }
+                    
+                    if (year && month) {
+                        const defaultDueDate = new Date(parseInt(year), month - 1, 1);
+                        dueDate = formatDate(defaultDueDate.toISOString().split('T')[0]);
+                    }
+                }
+                
+                console.log(`Rendering bill ${item.invoice_period}: due_date = ${dueDate}`);
                 itemDiv.innerHTML = `
                     <div class="flex flex-col justify-center">
                         <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
-                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${amount}</p>
+                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ${dueDate}</p>
+                        <p class="text-red-600 text-sm font-medium">${amount}</p>
                     </div>
                     <div class="shrink-0">
                         <button onclick="window.location.href='pelanggan_info.html'" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]">
@@ -217,8 +388,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             } else {
-                const paymentDate = item['TANGGAL BAYAR'] ? 
-                    formatDate(item['TANGGAL BAYAR']) : 'Tanggal tidak tersedia';
+                const paymentDate = item.paid_at ? 
+                    formatDate(item.paid_at) : 'Tanggal tidak tersedia';
                 itemDiv.innerHTML = `
                     <div class="flex flex-col justify-center">
                         <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
@@ -271,19 +442,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ===============================================
-    // Initialize
-    // ===============================================
-    initializeEventListeners();
-    
-    // Check for activeTab from sessionStorage (from dashboard navigation)
-    const activeTabFromStorage = sessionStorage.getItem('activeTab');
-    if (activeTabFromStorage && (activeTabFromStorage === 'paid' || activeTabFromStorage === 'unpaid')) {
-        currentTab = activeTabFromStorage;
-        switchTab(currentTab);
-        // Clear the sessionStorage after using it
-        sessionStorage.removeItem('activeTab');
-    }
-    
-    fetchData();
 });

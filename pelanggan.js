@@ -1,289 +1,409 @@
-// pelanggan.js (Versi Perbaikan Total - Tanpa Modal)
-document.addEventListener('DOMContentLoaded', () => {
-    // ===============================================
-    // State Management & Global Variables
-    // ===============================================
-    const API_BASE_URL = window.AppConfig.API_BASE_URL;
-    let allData = [];
+// pelanggan.js (Supabase Version - FINAL & COMPLETE with Event Delegation)
+import { supabase } from './supabase-client.js';
+import { requireRole } from './auth.js';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await requireRole('ADMIN');
+
+    // State Management
+    let allPackages = [];
+    let currentEditingProfileId = null;
+    let lastView = 'list';
     let currentFilter = 'all';
-    let currentEditingRowNumber = null;
-    let lastView = 'list'; // Untuk melacak view terakhir sebelum ke form
 
-    const paketOptions = {
-        '1,5 Mbps': 'Rp 50.000',
-        '3 Mbps': 'Rp 100.000',
-        '5 Mbps': 'Rp 150.000',
-        '8 Mbps': 'Rp 180.000',
-        '10 Mbps': 'Rp 200.000',
-        '20 Mbps': 'Rp 250.000',
-    };
-
-    // ===============================================
-    // DOM Element Selectors
-    // ===============================================
-    const views = {
-        list: document.getElementById('list-view'),
-        detail: document.getElementById('detail-view'),
-        form: document.getElementById('form-view')
-    };
-    
+    // DOM Selectors
+    const views = { list: document.getElementById('list-view'), detail: document.getElementById('detail-view'), form: document.getElementById('form-view') };
     const customerList = document.getElementById('customer-list');
     const searchInput = document.getElementById('search-input');
-    const filterButtons = {
-        all: document.getElementById('filter-all'),
-        active: document.getElementById('filter-active'),
-        inactive: document.getElementById('filter-inactive')
-    };
-    const addCustomerBtn = document.getElementById('add-customer-btn');
+    const filterButtons = { all: document.getElementById('filter-all'), active: document.getElementById('filter-active'), inactive: document.getElementById('filter-inactive') };
     const customerForm = document.getElementById('customer-form');
+    const modalTitle = document.getElementById('modal-title');
+    const saveBtnText = document.getElementById('save-btn-text');
+    const newUserFields = document.getElementById('new-user-fields');
+    const editUserFields = document.getElementById('edit-user-fields');
 
-    // ===============================================
     // Initial Setup
-    // ===============================================
     initializeEventListeners();
-    populatePaketDropdown();
-    fetchData();
+    fetchInitialData();
 
-    // ===============================================
-    // PERUBAHAN 1: View Management (Pengganti Modal)
-    // ===============================================
+    // View Management
     function switchView(viewName) {
         Object.values(views).forEach(view => view.classList.add('hidden'));
-        if (views[viewName]) {
-            views[viewName].classList.remove('hidden');
-        }
+        if (views[viewName]) views[viewName].classList.remove('hidden');
         window.scrollTo(0, 0);
     }
 
-    // ===============================================
-    // PERUBAHAN 2: Event Listeners Disesuaikan
-    // ===============================================
+    // Event Listeners using Event Delegation
     function initializeEventListeners() {
-        searchInput.addEventListener('input', renderCustomerList);
-        Object.keys(filterButtons).forEach(key => {
-            filterButtons[key].addEventListener('click', () => setFilter(key));
+        document.body.addEventListener('click', (event) => {
+            const button = event.target.closest('button');
+            if (!button) return;
+
+            const id = button.id;
+
+            if (id === 'back-from-form' || id === 'cancel-btn' || id === 'back-from-detail') {
+                if (id !== 'back-from-detail' && confirm('Yakin ingin kembali? Perubahan yang belum disimpan akan hilang.')) {
+                    switchView(lastView);
+                } else if (id === 'back-from-detail') {
+                    switchView('list');
+                }
+                return;
+            }
+
+            if (id === 'edit-customer-detail-btn') {
+                handleEditFromDetailView();
+                return;
+            }
+
+            if (id === 'add-customer-btn') {
+                openAddForm();
+                return;
+            }
         });
 
-        addCustomerBtn.addEventListener('click', openAddForm);
+        // Listeners for non-button elements or form submissions
+        searchInput.addEventListener('input', () => fetchData());
         customerForm.addEventListener('submit', handleFormSubmit);
-
-        // Tombol Kembali
-        document.getElementById('back-from-detail').addEventListener('click', () => switchView('list'));
-        document.getElementById('back-from-form').addEventListener('click', () => {
-             // Kembali ke view sebelumnya (bisa list atau detail)
-            if (confirm('Yakin ingin kembali? Perubahan yang belum disimpan akan hilang.')) {
-                switchView(lastView);
-            }
-        });
-        document.getElementById('cancel-btn').addEventListener('click', () => {
-            if (confirm('Yakin ingin membatalkan? Perubahan yang belum disimpan akan hilang.')) {
-                switchView(lastView);
-            }
-        });
-
-        // Event listener lainnya
         document.getElementById('customer-package').addEventListener('change', handlePaketChange);
-        document.getElementById('edit-customer-detail-btn').addEventListener('click', handleEditFromDetailView);
+
+        // Filter buttons
+        Object.keys(filterButtons).forEach(key => {
+            filterButtons[key].addEventListener('click', () => {
+                currentFilter = key;
+                Object.values(filterButtons).forEach(btn => btn.classList.remove('bg-[#501ee6]', 'text-white'));
+                filterButtons[key].classList.add('bg-[#501ee6]', 'text-white');
+                fetchData();
+            });
+        });
     }
 
-    // ===============================================
-    // Data Fetch & Display Logic (Tidak banyak berubah)
-    // ===============================================
-    async function fetchData() {
-        showLoading(); // <-- Skeleton Loading tetap di sini
-        switchView('list');
-        try {
-            const response = await fetch(`${API_BASE_URL}?action=getPelanggan`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const responseData = await response.json();
-            if (responseData.error) throw new Error(responseData.error);
+    // Data Fetching
+    async function fetchInitialData() {
+        showLoading();
+        await fetchPackages();
+        await fetchData();
+        filterButtons.all.classList.add('bg-[#501ee6]', 'text-white');
+    }
 
-            allData = responseData
-                .filter(item => item.LEVEL === 'USER')
-                .sort((a, b) => b.rowNumber - a.rowNumber);
-            
-            setFilter('all');
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            customerList.innerHTML = `<p class="text-center text-red-500 p-4">Gagal memuat data: ${error.message}</p>`;
+    async function fetchPackages() {
+        const { data, error } = await supabase.from('packages').select('*').order('price', { ascending: true });
+        if (error) {
+            console.error('Error fetching packages:', error);
+            return;
         }
+        allPackages = data;
+        populatePaketDropdown();
     }
 
-    function setFilter(filterType) {
-        currentFilter = filterType;
-        Object.values(filterButtons).forEach(btn => btn.classList.remove('bg-[#501ee6]', 'text-white'));
-        filterButtons[filterType].classList.add('bg-[#501ee6]', 'text-white');
-        renderCustomerList();
+    async function fetchData() {
+        showLoading();
+        const { data, error } = await supabase.rpc('get_all_customers', {
+            p_filter: currentFilter,
+            p_search_term: searchInput.value
+        });
+
+        if (error) {
+            console.error('Error fetching profiles:', error);
+            customerList.innerHTML = `<p class="text-center text-red-500 p-4">Gagal memuat data: ${error.message}</p>`;
+            return;
+        }
+        renderCustomerList(data);
     }
 
-    function renderCustomerList() {
-        const searchTerm = searchInput.value.toLowerCase();
-        let data = allData;
-
-        if (currentFilter === 'active') data = data.filter(item => item.STATUS === 'AKTIF');
-        if (currentFilter === 'inactive') data = data.filter(item => item.STATUS === 'NONAKTIF');
-
-        const filteredData = data.filter(item =>
-            Object.values(item).some(val => String(val).toLowerCase().includes(searchTerm))
-        );
-        
-        customerList.innerHTML = ''; // Pastikan skeleton dihapus sebelum render
-        if (filteredData.length === 0) {
+    function renderCustomerList(data) {
+        customerList.innerHTML = '';
+        if (!data || data.length === 0) {
             customerList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada pelanggan ditemukan.</p>`;
             return;
         }
-
-        filteredData.forEach(item => {
-            const statusColor = item.STATUS === 'AKTIF' ? 'bg-[#078843]' : 'bg-red-500';
-            const tanggalPasang = item['TANGGAL PASANG'] ? new Date(item['TANGGAL PASANG']).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
-            
+        data.forEach(profile => {
+            const statusColor = profile.status === 'AKTIF' ? 'bg-green-500' : 'bg-red-500';
+            const installDate = profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
             const customerItem = document.createElement('div');
             customerItem.className = "flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50";
-            customerItem.innerHTML = `<div class="flex items-center gap-4"><div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" style="background-image: url('${item.FOTO || ''}');"></div><div class="flex flex-col justify-center"><p class="text-[#110e1b] text-base font-medium">${item.NAMA}</p><p class="text-[#625095] text-sm">${tanggalPasang}</p></div></div><div class="shrink-0"><div class="flex size-7 items-center justify-center"><div class="size-3 rounded-full ${statusColor}"></div></div></div>`;
-            customerItem.addEventListener('click', () => openDetailView(item)); // <-- Mengarah ke view detail
+            customerItem.innerHTML = `
+                <div class="flex items-center gap-4 w-full">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" style="background-image: url('${profile.photo_url || 'assets/login_illustration.svg'}');"></div>
+                    <div class="flex flex-col justify-center overflow-hidden">
+                        <p class="text-[#110e1b] text-base font-medium truncate">${profile.full_name}</p>
+                        <p class="text-[#625095] text-sm">Terdaftar: ${installDate}</p>
+                    </div>
+                    <div class="shrink-0 ml-auto"><div class="flex size-7 items-center justify-center"><div class="size-3 rounded-full ${statusColor}"></div></div></div>
+                </div>`;
+            customerItem.addEventListener('click', () => openDetailView(profile.id));
             customerList.appendChild(customerItem);
         });
     }
 
-    // ===============================================
-    // PERUBAHAN 3: Fungsi Form & Detail diubah menjadi View
-    // ===============================================
+    // Form & Detail View Logic
     function populatePaketDropdown() {
         const paketSelect = document.getElementById('customer-package');
         paketSelect.innerHTML = '<option value="">-- Pilih Paket --</option>';
-        Object.keys(paketOptions).forEach(paket => {
-            paketSelect.innerHTML += `<option value="${paket}">${paket}</option>`;
+        allPackages.forEach(pkg => {
+            paketSelect.innerHTML += `<option value="${pkg.id}" data-price="${pkg.price}">${pkg.package_name} - ${pkg.speed_mbps} Mbps</option>`;
         });
     }
-
-    function handlePaketChange(event) {
-        const priceString = paketOptions[event.target.value] || '0';
-        document.getElementById('customer-bill').value = priceString.replace(/[^0-9]/g, '');
-    }
     
+    function handlePaketChange(event) {
+        const selectedOption = event.target.options[event.target.selectedIndex];
+        const price = selectedOption.dataset.price || '0';
+        document.getElementById('customer-bill').value = price;
+    }
+
     function openAddForm() {
         customerForm.reset();
-        currentEditingRowNumber = null;
-        document.getElementById('modal-title').textContent = 'Tambah Pelanggan';
-        document.getElementById('save-btn-text').textContent = 'Simpan';
-        lastView = 'list'; // Jika batal, kembali ke list
+        currentEditingProfileId = null;
+        modalTitle.textContent = 'Tambah Pelanggan';
+        saveBtnText.textContent = 'Simpan';
+        newUserFields.classList.remove('hidden');
+        editUserFields.classList.add('hidden');
+        document.getElementById('customer-email').required = true;
+        document.getElementById('customer-password').required = true;
+        lastView = 'list';
         switchView('form');
-    }
-    
-    function openEditForm(customerData) {
-        customerForm.reset();
-        currentEditingRowNumber = customerData.rowNumber;
-        document.getElementById('modal-title').textContent = 'Edit Pelanggan';
-        document.getElementById('save-btn-text').textContent = 'Update';
-        
-        document.getElementById('customer-name').value = customerData.NAMA || '';
-        document.getElementById('customer-address').value = customerData.ALAMAT || '';
-        document.getElementById('customer-whatsapp').value = customerData.WHATSAPP || '';
-        document.getElementById('customer-gender').value = customerData['JENIS KELAMIN'] || '';
-        document.getElementById('customer-package').value = customerData.PAKET || '';
-        document.getElementById('customer-bill').value = String(customerData.TAGIHAN || '').replace(/[^0-9]/g, '');
-        document.getElementById('customer-status').value = customerData.STATUS || '';
-        document.getElementById('customer-device').value = customerData['JENIS PERANGKAT'] || '';
-        document.getElementById('customer-ip').value = customerData['IP STATIC / PPOE'] || '';
-        
-        lastView = 'detail'; // Jika batal, kembali ke detail
-        switchView('form');
-    }
-    
-    function handleEditFromDetailView() {
-        const customerData = allData.find(item => item.rowNumber === currentEditingRowNumber);
-        if (customerData) openEditForm(customerData);
     }
 
-    function openDetailView(customer) {
-        currentEditingRowNumber = customer.rowNumber;
-        const profileImage = document.getElementById('detail-profile-image');
-        if (customer.FOTO && customer.FOTO.startsWith('http')) {
-            profileImage.style.backgroundImage = `url('${customer.FOTO}')`;
-            profileImage.innerHTML = '';
-        } else {
-            profileImage.style.backgroundImage = 'none';
-            profileImage.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" fill="currentColor" viewBox="0 0 256 256" class="text-gray-500"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>`;
+    async function openEditForm(profile) {
+        customerForm.reset();
+        currentEditingProfileId = profile.id;
+        modalTitle.textContent = 'Edit Pelanggan';
+        saveBtnText.textContent = 'Update';
+        newUserFields.classList.add('hidden');
+        editUserFields.classList.remove('hidden');
+        document.getElementById('customer-email').required = false;
+        document.getElementById('customer-password').required = false;
+
+        // Get user email for editing
+        const { data: userEmail } = await supabase.rpc('get_user_email', { user_id: profile.id });
+        
+        document.getElementById('customer-name').value = profile.full_name || '';
+        document.getElementById('customer-address').value = profile.address || '';
+        document.getElementById('customer-whatsapp').value = profile.whatsapp_number || '';
+        document.getElementById('customer-gender').value = profile.gender || '';
+        document.getElementById('customer-status').value = profile.status || 'AKTIF';
+        document.getElementById('customer-device').value = profile.device_type || '';
+        document.getElementById('customer-ip').value = profile.ip_static_pppoe || '';
+        document.getElementById('edit-customer-email').value = userEmail || '';
+        document.getElementById('edit-customer-password').value = '';
+        
+        const { data: invoice } = await supabase.from('invoices').select('package_id, amount').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
+        if (invoice) {
+            document.getElementById('customer-package').value = invoice.package_id;
+            document.getElementById('customer-bill').value = invoice.amount;
         }
-        
-        document.getElementById('detail-customer-name').textContent = customer.NAMA || '-';
-        document.getElementById('detail-customer-id').textContent = customer.IDPL || '-';
-        
-        const details = {
-            'idpl': customer.IDPL, 'nama': customer.NAMA, 'alamat': customer.ALAMAT,
-            'gender': customer['JENIS KELAMIN'], 'whatsapp': customer.WHATSAPP, 'paket': customer.PAKET,
-            'tagihan': customer.TAGIHAN ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(customer.TAGIHAN) : '-',
-            'status': customer.STATUS, 'tanggal-pasang': customer['TANGGAL PASANG'] ? new Date(customer['TANGGAL PASANG']).toLocaleDateString('id-ID') : '-',
-            'jenis-perangkat': customer['JENIS PERANGKAT'], 'ip-static': customer['IP STATIC / PPOE']
-        };
-        for (const key in details) {
-            document.getElementById(`detail-${key}`).textContent = details[key] || '-';
-        }
-        
-        loadUnpaidBills(customer.IDPL);
+
+        lastView = 'detail';
+        switchView('form');
+    }
+
+    async function handleEditFromDetailView() {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentEditingProfileId).single();
+        if (profile) openEditForm(profile);
+    }
+
+    async function openDetailView(profileId) {
+        lastView = 'list';
         switchView('detail');
+        
+        // Show loading state without removing existing elements
+        const profileImage = document.getElementById('detail-profile-image');
+        const customerName = document.getElementById('detail-customer-name');
+        const customerId = document.getElementById('detail-customer-id');
+        
+        if (customerName) customerName.textContent = 'Memuat...';
+        if (customerId) customerId.textContent = 'Memuat...';
+
+        const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', profileId).single();
+
+        if (error || !profile) {
+            console.error('Error fetching profile detail:', error);
+            if (customerName) customerName.textContent = 'Gagal memuat data';
+            if (customerId) customerId.textContent = 'Error';
+            return;
+        }
+        
+        currentEditingProfileId = profile.id;
+        
+        // Update profile image
+        if (profileImage) {
+            profileImage.style.backgroundImage = `url('${profile.photo_url || 'assets/login_illustration.svg'}')`;
+        }
+        
+        // Update basic info
+        if (customerName) customerName.textContent = profile.full_name || '-';
+        if (customerId) customerId.textContent = profile.idpl || '-';
+
+        // Get latest invoice data
+        const { data: latest_invoice } = await supabase.from('invoices').select('*, packages(*)').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
+
+        // Panggil database function 'get_user_email' untuk mendapatkan email
+        const { data: userEmail, error: emailError } = await supabase.rpc('get_user_email', { user_id: profile.id });
+        if (emailError) console.error('Gagal mengambil email:', emailError);
+
+        // Update individual detail fields using existing IDs
+        const detailElements = {
+            'detail-idpl': profile.idpl,
+            'detail-nama': profile.full_name,
+            'detail-alamat': profile.address,
+            'detail-gender': profile.gender,
+            'detail-whatsapp': profile.whatsapp_number,
+            'detail-email': userEmail || '-',
+            'detail-paket': latest_invoice && latest_invoice.packages ? latest_invoice.packages.package_name : '-',
+            'detail-tagihan': latest_invoice ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(latest_invoice.amount) : '-',
+            'detail-status': profile.status,
+            'detail-tanggal-pasang': profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID') : '-',
+            'detail-jenis-perangkat': profile.device_type,
+            'detail-ip-static': profile.ip_static_pppoe
+        };
+        
+        // Update each detail field
+        Object.entries(detailElements).forEach(([elementId, value]) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value || '-';
+            }
+        });
+
+        // Show unpaid bills section and load bills
+        const unpaidBillsSection = document.getElementById('unpaid-bills-section');
+        if (unpaidBillsSection) {
+            unpaidBillsSection.classList.remove('hidden');
+        }
+        
+        loadUnpaidBills(profile.id);
     }
 
     async function handleFormSubmit(event) {
         event.preventDefault();
         const saveBtn = document.getElementById('save-customer-btn');
-        const isEditing = !!currentEditingRowNumber;
-        if (isEditing && !confirm('Yakin ingin menyimpan perubahan?')) return;
+        const isEditing = !!currentEditingProfileId;
 
-        const formData = {
-            nama: document.getElementById('customer-name').value, alamat: document.getElementById('customer-address').value,
-            whatsapp: document.getElementById('customer-whatsapp').value, jenisKelamin: document.getElementById('customer-gender').value,
-            paket: document.getElementById('customer-package').value, tagihan: document.getElementById('customer-bill').value,
-            status: document.getElementById('customer-status').value, jenisPerangkat: document.getElementById('customer-device').value,
-            ipStatic: document.getElementById('customer-ip').value
-        };
+        if (isEditing) {
+            if (!confirm('Yakin ingin menyimpan perubahan?')) return;
+            setButtonLoading(saveBtn, true, 'Update');
+            
+            const profileData = {
+                full_name: document.getElementById('customer-name').value,
+                address: document.getElementById('customer-address').value,
+                whatsapp_number: document.getElementById('customer-whatsapp').value,
+                gender: document.getElementById('customer-gender').value,
+                status: document.getElementById('customer-status').value,
+                device_type: document.getElementById('customer-device').value,
+                ip_static_pppoe: document.getElementById('customer-ip').value
+            };
 
-        setButtonLoading(saveBtn, true, isEditing ? 'Update' : 'Simpan');
-        try {
-            const response = await fetch(API_BASE_URL, {
-                method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: isEditing ? 'updatePelanggan' : 'addPelanggan',
-                    rowNumber: currentEditingRowNumber, data: formData
-                })
-            });
-            showSuccessNotification(isEditing ? 'Data berhasil diperbarui!' : 'Pelanggan baru berhasil ditambahkan!');
-            fetchData();
-        } catch (error) {
-            showErrorNotification(`Gagal terhubung ke server.`);
-        } finally {
-            setButtonLoading(saveBtn, false, isEditing ? 'Update' : 'Simpan');
+            // Update profile data
+            const { error: profileError } = await supabase.from('profiles').update(profileData).eq('id', currentEditingProfileId);
+
+            if (profileError) {
+                showErrorNotification(profileError.message);
+                setButtonLoading(saveBtn, false, 'Update');
+                return;
+            }
+
+            // Update email and password if provided
+            const newEmail = document.getElementById('edit-customer-email').value;
+            const newPassword = document.getElementById('edit-customer-password').value;
+
+            if (newEmail || newPassword) {
+                const updateData = {};
+                if (newEmail) updateData.email = newEmail;
+                if (newPassword) updateData.password = newPassword;
+
+                const { data, error: functionError } = await supabase.functions.invoke('update-user-auth', {
+                    body: {
+                        user_id: currentEditingProfileId,
+                        update_data: updateData
+                    }
+                });
+
+                if (functionError) {
+                    showErrorNotification('Data pelanggan diperbarui, tapi gagal mengubah email/password: ' + functionError.message);
+                } else if (data && !data.success) {
+                    showErrorNotification('Gagal mengubah email/password: ' + data.message);
+                } else {
+                    showSuccessNotification('Data pelanggan dan kredensial berhasil diperbarui!');
+                }
+            } else {
+                showSuccessNotification('Data pelanggan berhasil diperbarui!');
+            }
+
+            await fetchData();
+            openDetailView(currentEditingProfileId);
+            setButtonLoading(saveBtn, false, 'Update');
+
+        } else {
+            // Add Logic
+            const customerData = {
+                email: document.getElementById('customer-email').value,
+                password: document.getElementById('customer-password').value,
+                full_name: document.getElementById('customer-name').value,
+                address: document.getElementById('customer-address').value,
+                whatsapp_number: document.getElementById('customer-whatsapp').value,
+                gender: document.getElementById('customer-gender').value,
+                status: document.getElementById('customer-status').value,
+                device_type: document.getElementById('customer-device').value,
+                ip_static_pppoe: document.getElementById('customer-ip').value,
+                idpl: `CST${Date.now()}`,
+                installation_date: new Date().toISOString(),
+                package_id: document.getElementById('customer-package').value,
+                amount: document.getElementById('customer-bill').value
+            };
+
+            if (!customerData.email || !customerData.password || !customerData.package_id) {
+                showErrorNotification("Email, Password, dan Paket harus diisi.");
+                return;
+            }
+            if (customerData.password.length < 6) {
+                showErrorNotification("Password harus terdiri dari minimal 6 karakter.");
+                return;
+            }
+
+            setButtonLoading(saveBtn, true, 'Simpan');
+            const { data, error } = await supabase.functions.invoke('create-customer', { body: customerData });
+
+            if (error) {
+                showErrorNotification(error.message);
+            } else {
+                showSuccessNotification(data.message || 'Pelanggan berhasil ditambahkan!');
+                await fetchData();
+                switchView('list');
+            }
+            setButtonLoading(saveBtn, false, 'Simpan');
         }
     }
 
-    // ===============================================
-    // UI Helpers (Termasuk Skeleton Loading Anda)
-    // ===============================================
+    // UI Helpers
     function showLoading() {
-        customerList.innerHTML = Array(6).fill('').map(() => `<div class="skeleton-item flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 animate-pulse"><div class="flex items-center gap-4"><div class="bg-gray-200 rounded-full h-14 w-14"></div><div class="flex flex-col justify-center gap-2"><div class="bg-gray-200 h-4 w-32 rounded"></div><div class="bg-gray-200 h-3 w-24 rounded"></div></div></div><div class="shrink-0"><div class="bg-gray-200 size-3 rounded-full"></div></div></div>`).join('');
+        customerList.innerHTML = Array(10).fill('').map(() => `<div class="skeleton-item flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 animate-pulse"><div class="flex items-center gap-4"><div class="bg-gray-200 rounded-full h-14 w-14"></div><div class="flex flex-col justify-center gap-2"><div class="bg-gray-200 h-4 w-32 rounded"></div><div class="bg-gray-200 h-3 w-24 rounded"></div></div></div><div class="shrink-0"><div class="bg-gray-200 size-3 rounded-full"></div></div></div>`).join('');
     }
 
-    async function loadUnpaidBills(customerId) {
-        const unpaidBillsSection = document.getElementById('unpaid-bills-section');
+    async function loadUnpaidBills(profileId) {
         const unpaidBillsList = document.getElementById('unpaid-bills-list');
-        unpaidBillsSection.classList.remove('hidden');
         unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Memuat tagihan...</p>';
-        try {
-            const response = await fetch(`${API_BASE_URL}?action=getTagihan`);
-            const responseData = await response.json();
-            const customerUnpaidBills = responseData.filter(bill => bill.IDPL === customerId && bill.STATUS !== 'LUNAS');
-            
-            if (customerUnpaidBills.length > 0) {
-                unpaidBillsList.innerHTML = '';
-                customerUnpaidBills.forEach(bill => {
-                    unpaidBillsList.innerHTML += `<div class="flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between"><div class="flex flex-col justify-center"><p class="text-[#110e1b] text-base font-medium">${bill.NAMA || '-'}</p><p class="text-[#625095] text-sm">${bill['PERIODE TAGIHAN'] || ''}</p></div><div class="shrink-0"><p class="text-[#110e1b] text-base">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(bill.TAGIHAN)}</p></div></div>`;
-                });
-            } else {
-                unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Tidak ada tagihan yang belum dibayar.</p>';
-            }
-        } catch (error) {
+        
+        // const { data, error } = await supabase.from('invoices').select('*').eq('customer_id', profileId).eq('status', 'unpaid');
+        const { data, error } = await supabase.from('invoices').select('*, profiles!inner(*)').eq('customer_id', profileId).eq('status', 'unpaid');
+
+        if (error) {
             unpaidBillsList.innerHTML = `<p class="text-sm text-red-500 px-4">Gagal memuat tagihan.</p>`;
+            return;
+        }
+
+        if (data.length > 0) {
+            unpaidBillsList.innerHTML = '';
+            data.forEach(bill => {
+                unpaidBillsList.innerHTML += `
+                    <div class="flex items-center gap-4 bg-[#f0eff3] px-4 min-h-[72px] py-2 justify-between rounded-lg mb-2">
+                        <div class="flex flex-col justify-center">
+                            <p class="text-[#110e1b] text-base font-medium">${bill.profiles.full_name || '-'}</p>
+                            <p class="text-[#625095] text-sm">${bill.invoice_period || '-'}</p>
+                        </div>
+                        <div class="shrink-0"><p class="text-yellow-600 text-sm font-bold">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(bill.amount)}</p></div>
+                    </div>`;
+            });
+        } else {
+            unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Tidak ada tagihan yang belum dibayar.</p>';
         }
     }
     

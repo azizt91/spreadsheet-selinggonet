@@ -17,10 +17,13 @@
   "author": "Selinggonet",
   "license": "MIT",
   "dependencies": {
-    "googleapis": "^126.0.1",
-    "crypto": "1.0.1"
+    "crypto": "1.0.1",
+    "googleapis": "^126.0.1"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "supabase": "^2.40.7"
   }
 }

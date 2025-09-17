@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Saya - Pelanggan</title>
     
-    <meta name="theme-color" content="#6a5acd">
+    <meta name="theme-color" content="#f9f8fc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
@@ -24,7 +24,7 @@
         <main class="flex-1 pb-24">
             
             <div id="profile-view">
-                <header class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between">
+                <header class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between border-none shadow-none">
                     <div class="w-12 flex justify-start">
                         <!-- Placeholder untuk symmetry -->
                     </div>
@@ -123,8 +123,9 @@
     </div>
     
     <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="pelanggan_profile.js"></script>
+    <script type="module" src="supabase-client.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="pelanggan_profile.js"></script>
 </body>
 </html>
 

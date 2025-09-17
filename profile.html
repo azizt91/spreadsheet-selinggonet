@@ -6,7 +6,7 @@
     <title>Profile - Selinggonet</title>
     <link rel="icon" type="image/png" href="assets/logo_192x192.png">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#501ee6">
+    <meta name="theme-color" content="#f9f8fb">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
     <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -17,7 +17,7 @@
         <main class="flex-1 pb-24">
             
             <div id="profile-view">
-                <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
+                <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
                     <div class="w-12 flex justify-start">
                         <!-- Placeholder untuk symmetry -->
                     </div>
@@ -115,8 +115,8 @@
     </footer>
     </div>
     
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="profile.js"></script>
+    <script type="module" src="supabase-client.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="profile.js"></script>
 </body>
 </html>

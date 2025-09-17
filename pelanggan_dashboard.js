@@ -1,21 +1,21 @@
 // pelanggan_dashboard.js - Customer Dashboard with 4 Cards and Loading Indicators
+import { supabase } from './supabase-client.js';
+import { checkAuth, requireRole } from './auth.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Check session and get user data
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    const userLevel = sessionStorage.getItem('userLevel');
-    const userIdpl = sessionStorage.getItem('userIdpl');
+let currentUser = null;
+let currentProfile = null;
 
-    // Redirect if not logged in or not a customer
-    if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
-        alert('Akses tidak valid. Silakan login sebagai pelanggan.');
-        window.location.href = 'index.html';
-        return;
-    }
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check authentication and require USER role
+    currentUser = await requireRole('USER');
+    if (!currentUser) return; // Stop if not authenticated or not USER role
 
     // DOM Elements
     const welcomeText = document.getElementById('welcome-text');
     const cardsContainer = document.getElementById('cards-container');
+
+    // Initialize dashboard
+    await fetchCustomerData();
 
     // ===============================================
     // Loading Management Functions
@@ -74,38 +74,57 @@ document.addEventListener('DOMContentLoaded', function() {
         showSkeletonLoading();
         
         try {
-            // Fetch customer profile data
-            const pelangganResponse = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
-            if (!pelangganResponse.ok) throw new Error('Gagal mengambil data pelanggan');
-            const pelangganData = await pelangganResponse.json();
+            console.log('Fetching customer data for user:', currentUser.id);
             
-            // Find current customer data
-            const customerProfile = pelangganData.find(customer => customer.IDPL === userIdpl);
-            if (!customerProfile) {
+            // Fetch current customer profile from Supabase
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (profileError) {
+                throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
+            }
+
+            if (!profile) {
                 throw new Error('Data pelanggan tidak ditemukan');
             }
 
-            // Fetch unpaid bills
-            const tagihanResponse = await fetch(`${window.AppConfig.API_BASE_URL}?action=getTagihan`);
-            if (!tagihanResponse.ok) throw new Error('Gagal mengambil data tagihan');
-            const tagihanData = await tagihanResponse.json();
-            
-            // Filter bills for current customer
-            const customerUnpaidBills = tagihanData.filter(bill => bill.IDPL === userIdpl);
+            currentProfile = profile;
+            console.log('Customer profile loaded:', profile);
 
-            // Fetch paid bills
-            const lunasResponse = await fetch(`${window.AppConfig.API_BASE_URL}?action=getLunas`);
-            if (!lunasResponse.ok) throw new Error('Gagal mengambil data lunas');
-            const lunasData = await lunasResponse.json();
-            
-            // Filter paid bills for current customer
-            const customerPaidBills = lunasData.filter(bill => bill.IDPL === userIdpl);
+            // Fetch unpaid bills (invoices with status='unpaid')
+            const { data: unpaidBills, error: unpaidError } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('customer_id', currentUser.id)
+                .eq('status', 'unpaid');
+
+            if (unpaidError) {
+                throw new Error(`Gagal mengambil data tagihan: ${unpaidError.message}`);
+            }
+
+            console.log('Unpaid bills loaded:', unpaidBills);
+
+            // Fetch paid bills (invoices with status='paid')
+            const { data: paidBills, error: paidError } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('customer_id', currentUser.id)
+                .eq('status', 'paid');
+
+            if (paidError) {
+                throw new Error(`Gagal mengambil data lunas: ${paidError.message}`);
+            }
+
+            console.log('Paid bills loaded:', paidBills);
 
             // Display data
-            displayCustomerDashboard(customerProfile, customerUnpaidBills, customerPaidBills);
+            displayCustomerDashboard(profile, unpaidBills || [], paidBills || []);
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching customer data:', error);
             // Show error message
             welcomeText.textContent = 'Hallo, Pelanggan';
             cardsContainer.innerHTML = `
@@ -129,19 +148,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     function displayCustomerDashboard(profile, unpaidBills, paidBills) {
         // Update welcome message
-        welcomeText.textContent = `Hallo, ${profile.NAMA || 'Pelanggan'}`;
+        welcomeText.textContent = `Hallo, ${profile.full_name || 'Pelanggan'}`;
 
         // Clear cards container
         cardsContainer.innerHTML = '';
 
         // Calculate totals
         const totalUnpaidAmount = unpaidBills.reduce((sum, bill) => {
-            const amount = parseFloat(bill.TAGIHAN || 0);
+            const amount = parseFloat(bill.amount || 0);
             return sum + (isNaN(amount) ? 0 : amount);
         }, 0);
 
         const totalPaidAmount = paidBills.reduce((sum, bill) => {
-            const amount = parseFloat(bill.TAGIHAN || 0);
+            const amount = parseFloat(bill.amount || 0);
             return sum + (isNaN(amount) ? 0 : amount);
         }, 0);
 
@@ -153,15 +172,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Format installation date
-        const installDate = profile['TANGGAL PASANG'] ? 
-            formatDate(profile['TANGGAL PASANG']) : 'Tidak tersedia';
+        const installDate = profile.installation_date ? 
+            formatDate(profile.installation_date) : 'Tidak tersedia';
 
         // Define cards data with admin dashboard style
         const cards = [
             {
                 title: 'Total Belum Dibayar',
-                value: formatter.format(totalUnpaidAmount).replace('Rp', '').trim(),
-                subtitle: 'Rupiah',
+                value: 'Rp ' + formatter.format(totalUnpaidAmount).replace('Rp', '').trim(),
+                subtitle: '',
                 icon: '💳',
                 gradient: 'gradient-card-3'
             },
@@ -173,14 +192,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 gradient: 'gradient-card-2'
             },
             {
-                title: 'Tagihan Belum Lunas',
+                title: 'Belum Lunas',
                 value: unpaidBills.length.toString(),
                 subtitle: 'Tagihan',
                 icon: '⚠️',
                 gradient: 'gradient-card-1'
             },
             {
-                title: 'Total Sudah Lunas',
+                title: 'Sudah Lunas',
                 value: paidBills.length.toString(),
                 subtitle: 'Pembayaran',
                 icon: '✅',
@@ -209,18 +228,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
             }
             
+            // Add "Ketuk untuk detail" text for clickable cards
+            const isClickable = card.title === 'Tagihan Belum Lunas' || card.title === 'Total Sudah Lunas';
+            
             cardElement.innerHTML = `
                 <div class="flex flex-col items-start justify-between h-32">
                     <div class="flex items-center justify-between w-full">
                         <div class="text-2xl">${card.icon}</div>
-                        <svg class="w-6 h-6 opacity-70" fill="currentColor" viewBox="0 0 20 20">
+                        ${isClickable ? `<svg class="w-6 h-6 opacity-70" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
+                        </svg>` : ''}
                     </div>
                     <div class="w-full">
                         <div class="text-2xl font-bold mb-1">${card.value}</div>
                         <div class="text-sm opacity-90">${card.subtitle}</div>
                         <div class="text-xs opacity-70 mt-1">${card.title}</div>
+                        ${isClickable ? '<div class="text-xs opacity-60 mt-1 italic">Ketuk untuk detail</div>' : ''}
                     </div>
                 </div>
             `;
@@ -269,8 +292,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ===============================================
-    // Initialize Dashboard
-    // ===============================================
-    fetchCustomerData();
 });

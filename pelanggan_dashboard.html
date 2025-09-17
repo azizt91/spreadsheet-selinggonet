@@ -6,7 +6,7 @@
     <title>Dashboard Pelanggan - Selinggonet</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#501ee6">
+    <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
@@ -35,23 +35,23 @@
         }
         
         .gradient-card-1 {
-            /* Tagihan Belum Lunas: Merah ke Orange */
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            /* Total Belum Dibayar: Ungu Senja ke Biru Malam (sama dengan dashboard) */
+            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
         }
          
         .gradient-card-2 {
-            /* Berlangganan Sejak: Hijau ke Teal */
-            background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%);
+            /* Berlangganan Sejak: Biru Cerah ke Navy (sama dengan dashboard) */
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         }
          
         .gradient-card-3 {
-            /* Total Belum Dibayar: Orange ke Merah */
-            background: linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%);
+            /* Total Belum Dibayar: Ungu Senja ke Biru Malam (sama dengan dashboard) */
+            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
         }
          
         .gradient-card-4 {
-            /* Total Lunas: Hijau ke Biru */
-            background: linear-gradient(135deg, #7bed9f 0%, #70a1ff 100%);
+            /* Total Lunas: Biru Malam yang Elegan (sama dengan dashboard) */
+            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
         }
         
         /* Modern glass effect */
@@ -194,9 +194,9 @@
         </footer>
     </div>
 
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
+    <script type="module" src="supabase-client.js"></script>
+    <script type="module" src="auth.js"></script>
     <script src="datetime-display.js"></script>
-    <script src="pelanggan_dashboard.js"></script>
+    <script type="module" src="pelanggan_dashboard.js"></script>
 </body>
 </html>

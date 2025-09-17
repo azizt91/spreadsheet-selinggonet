@@ -1,19 +1,14 @@
 // pelanggan_profile.js - Customer Profile with Photo Upload
-document.addEventListener('DOMContentLoaded', function() {
-    // Check session and get user data
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    const userLevel = sessionStorage.getItem('userLevel');
-    const userIdpl = sessionStorage.getItem('userIdpl');
+import { supabase } from './supabase-client.js';
+import { checkAuth, requireRole } from './auth.js';
 
-    // Redirect if not logged in or not a customer
-    if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
-        alert('Akses tidak valid. Silakan login sebagai pelanggan.');
-        window.location.href = 'index.html';
-        return;
-    }
+let currentUser = null;
+let currentProfile = null;
 
-    // --- Global variable to hold current customer data ---
-    let currentCustomerData = null;
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check authentication and require USER role
+    currentUser = await requireRole('USER');
+    if (!currentUser) return; // Stop if not authenticated or not USER role
 
     // --- DOM Element Selectors ---
     const profileView = document.getElementById('profile-view');
@@ -52,22 +47,28 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadUserProfile() {
         showSkeletonLoading();
         try {
-            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
-            if (!response.ok) throw new Error('Gagal mengambil data dari server.');
+            console.log('Fetching profile for user:', currentUser.id);
             
-            const allUsers = await response.json();
-            if (!Array.isArray(allUsers)) throw new Error('Format data tidak valid.');
+            // Fetch current customer profile from Supabase
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
 
-            currentCustomerData = allUsers.find(user => 
-                user.USER === loggedInUser && 
-                user.LEVEL === 'USER' && 
-                user.IDPL === userIdpl
-            );
-            
-            if (!currentCustomerData) throw new Error('Profil pelanggan tidak ditemukan.');
+            if (profileError) {
+                throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
+            }
 
-            populateViewMode(currentCustomerData);
-            populateEditMode(currentCustomerData);
+            if (!profile) {
+                throw new Error('Profil pelanggan tidak ditemukan');
+            }
+
+            currentProfile = profile;
+            console.log('Customer profile loaded:', profile);
+
+            populateViewMode(profile);
+            populateEditMode(profile);
 
         } catch (error) {
             console.error('Error loading profile:', error);
@@ -80,14 +81,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Populate view mode with data ---
     function populateViewMode(data) {
-        customerName.textContent = data.NAMA || 'Nama Pelanggan';
-        customerEmail.textContent = data.USER || 'username';
+        customerName.textContent = data.full_name || 'Nama Pelanggan';
+        customerEmail.textContent = currentUser.email || 'email@example.com';
         
-        const photoUrl = data.FOTO;
+        const photoUrl = data.photo_url;
         if (photoUrl && photoUrl.startsWith('http')) {
             profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
         } else {
-            const initials = (data.NAMA || 'P').charAt(0).toUpperCase();
+            const initials = (data.full_name || 'P').charAt(0).toUpperCase();
             profileAvatar.style.backgroundImage = `none`;
             profileAvatar.style.backgroundColor = '#6a5acd';
             profileAvatar.innerHTML = `<span class="text-white text-4xl font-bold">${initials}</span>`;
@@ -96,17 +97,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Populate edit form with data ---
     function populateEditMode(data) {
-        editNama.value = data.NAMA || '';
-        editUser.value = data.USER || '';
+        editNama.value = data.full_name || '';
+        editUser.value = currentUser.email || '';
         editPassword.value = ''; // Always clear password
-        editWhatsapp.value = data.WHATSAPP || '';
+        editWhatsapp.value = data.whatsapp_number || '';
     }
 
 
     // --- Save changes ---
     async function saveChanges() {
-        if (!currentCustomerData || !currentCustomerData.rowNumber) {
-            alert('Error: Data pelanggan tidak lengkap untuk disimpan.');
+        if (!currentProfile) {
+            alert('Error: Data profil tidak tersedia.');
             return;
         }
 
@@ -123,30 +124,29 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBtn.disabled = true;
 
         try {
-            // Data yang akan dikirim ke backend
-            const updateData = { 
-                ...currentCustomerData, 
-                nama: newNama,
-                whatsapp: newWhatsapp
-            };
-            
-            // Hanya tambahkan password ke payload jika diisi
-            if (newPassword) {
-                updateData.password = newPassword;
+            // Update profile data in Supabase
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({
+                    full_name: newNama,
+                    whatsapp_number: newWhatsapp
+                })
+                .eq('id', currentUser.id);
+
+            if (updateError) {
+                throw new Error(`Gagal memperbarui profil: ${updateError.message}`);
             }
 
-            const response = await fetch(window.AppConfig.API_BASE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: 'updatePelanggan',
-                    rowNumber: currentCustomerData.rowNumber,
-                    data: updateData
-                })
-            });
+            // Update password if provided
+            if (newPassword) {
+                const { error: passwordError } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
 
-            const result = await response.json();
-            if (result.error) throw new Error(result.error);
+                if (passwordError) {
+                    throw new Error(`Gagal memperbarui password: ${passwordError.message}`);
+                }
+            }
 
             alert('Profil berhasil diperbarui!');
             await loadUserProfile(); // Reload data
@@ -184,14 +184,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Back button event listener
     editBackBtn.addEventListener('click', () => {
         if (confirm('Yakin ingin kembali? Perubahan yang belum disimpan akan hilang.')) {
-            populateEditMode(currentCustomerData); // Reset form data
+            populateEditMode(currentProfile); // Reset form data
             toggleMode(false);
         }
     });
     
     cancelBtn.addEventListener('click', () => {
         if (confirm('Yakin ingin membatalkan perubahan?')) {
-            populateEditMode(currentCustomerData); // Reset form data
+            populateEditMode(currentProfile); // Reset form data
             toggleMode(false);
         }
     });
@@ -199,10 +199,18 @@ document.addEventListener('DOMContentLoaded', function() {
     saveBtn.addEventListener('click', saveChanges);
     
     // Logout functionality
-    logoutBtn.addEventListener('click', () => {
+    logoutBtn.addEventListener('click', async () => {
         if (confirm('Yakin ingin logout?')) {
-            sessionStorage.clear();
-            window.location.href = 'index.html';
+            try {
+                await supabase.auth.signOut();
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Force logout even if there's an error
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            }
         }
     });
 

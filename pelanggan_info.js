@@ -1,17 +1,17 @@
 // pelanggan_info.js - Payment Information Page with Copy Functionality and WhatsApp Integration
+import { supabase } from './supabase-client.js';
+import { checkAuth, requireRole } from './auth.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Check session and get user data
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    const userLevel = sessionStorage.getItem('userLevel');
-    const userIdpl = sessionStorage.getItem('userIdpl');
+let currentUser = null;
+let currentProfile = null;
 
-    // Redirect if not logged in or not a customer
-    if (!loggedInUser || userLevel !== 'USER' || !userIdpl) {
-        alert('Akses tidak valid. Silakan login sebagai pelanggan.');
-        window.location.href = 'index.html';
-        return;
-    }
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check authentication and require USER role
+    currentUser = await requireRole('USER');
+    if (!currentUser) return; // Stop if not authenticated or not USER role
+
+    // Fetch current user profile
+    await fetchCurrentProfile();
 
     // DOM Elements
     const confirmTransferBtn = document.getElementById('confirm-transfer-btn');
@@ -81,27 +81,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     async function handleTransferConfirmation() {
         try {
-            // Get customer data for personalized message
-            const customerData = await fetchCustomerData();
-            const customerName = customerData ? customerData.NAMA : loggedInUser;
+            // Use current profile data for personalized message
+            const customerName = currentProfile ? currentProfile.full_name : currentUser.email;
+            const customerIdpl = currentProfile ? currentProfile.idpl : 'N/A';
             
             // Create WhatsApp message
-            const message = createTransferConfirmationMessage(customerName, userIdpl);
+            const message = createTransferConfirmationMessage(customerName, customerIdpl);
             
             // Send to WhatsApp
             sendWhatsAppMessage(message);
             
         } catch (error) {
-            console.error('Error fetching customer data:', error);
+            console.error('Error creating transfer confirmation:', error);
             // Fallback to basic message
-            const basicMessage = createTransferConfirmationMessage(loggedInUser, userIdpl);
+            const basicMessage = createTransferConfirmationMessage(currentUser.email, 'N/A');
             sendWhatsAppMessage(basicMessage);
         }
     }
 
     function handleLocationRequest() {
-        const customerName = loggedInUser;
-        const message = createLocationRequestMessage(customerName, userIdpl);
+        const customerName = currentProfile ? currentProfile.full_name : currentUser.email;
+        const customerIdpl = currentProfile ? currentProfile.idpl : 'N/A';
+        const message = createLocationRequestMessage(customerName, customerIdpl);
         sendWhatsAppMessage(message);
     }
 
@@ -175,15 +176,31 @@ _Pesan otomatis dari aplikasi Selinggonet_`;
     // ===============================================
     // Helper Functions
     // ===============================================
-    async function fetchCustomerData() {
+    async function fetchCurrentProfile() {
         try {
-            const response = await fetch(`${window.AppConfig.API_BASE_URL}?action=getPelanggan`);
-            if (!response.ok) throw new Error('Gagal mengambil data pelanggan');
+            console.log('Fetching profile for user:', currentUser.id);
             
-            const customerList = await response.json();
-            return customerList.find(customer => customer.IDPL === userIdpl);
+            // Fetch current customer profile from Supabase
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (profileError) {
+                throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
+            }
+
+            if (!profile) {
+                throw new Error('Data pelanggan tidak ditemukan');
+            }
+
+            currentProfile = profile;
+            console.log('Customer profile loaded:', profile);
+            
+            return profile;
         } catch (error) {
-            console.error('Error fetching customer data:', error);
+            console.error('Error fetching customer profile:', error);
             return null;
         }
     }

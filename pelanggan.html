@@ -80,7 +80,8 @@
                 <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">ALAMAT</p><p id="detail-alamat" class="text-[#110e1b] text-sm">-</p></div>
                 <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">JENIS KELAMIN</p><p id="detail-gender" class="text-[#110e1b] text-sm">-</p></div>
                 <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">WHATSAPP</p><p id="detail-whatsapp" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">PAKET</p><p id="detail-paket" class="text-[#110e1b] text-sm">-</p></div>
+                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">EMAIL</p><p id="detail-email" class="text-[#110e1b] text-sm">-</p></div>
+                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">PAKET</p><p id="detail-paket" class="text-[#110e1b] text-sm">-</p></div>
                 <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">TAGIHAN</p><p id="detail-tagihan" class="text-[#110e1b] text-sm">-</p></div>
                 <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">STATUS</p><p id="detail-status" class="text-[#110e1b] text-sm">-</p></div>
                 <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">TANGGAL PASANG</p><p id="detail-tanggal-pasang" class="text-[#110e1b] text-sm">-</p></div>
@@ -106,9 +107,17 @@
             <form id="customer-form" class="p-4">
               <div class="space-y-4">
                   <div><input id="customer-name" placeholder="Nama Lengkap" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
+                  <div id="new-user-fields" class="hidden">
+                      <div class="mt-4"><input id="customer-email" placeholder="Email Login" type="email" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+                      <div class="mt-4"><input id="customer-password" placeholder="Password Baru (min. 6 karakter)" type="password" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+                  </div>
+                  <div id="edit-user-fields" class="hidden">
+                      <div class="mt-4"><input id="edit-customer-email" placeholder="Email Login" type="email" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+                      <div class="mt-4"><input id="edit-customer-password" placeholder="Password Baru (kosongkan jika tidak ingin mengubah)" type="password" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+                  </div>
                   <div><input id="customer-address" placeholder="Alamat Lengkap" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
                   <div><input id="customer-whatsapp" placeholder="Nomor WhatsApp" type="tel" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
-                  <div><select id="customer-gender" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required><option value="">Pilih Jenis Kelamin</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+                  <div><select id="customer-gender" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required><option value="">Pilih Jenis Kelamin</option><option value="LAKI-LAKI">Laki-laki</option><option value="PEREMPUAN">Perempuan</option></select></div>
                   <div><select id="customer-package" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required></select></div>
                   <div><input id="customer-bill" placeholder="Tagihan Bulanan" type="number" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
                   <div><select id="customer-status" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required><option value="">Pilih Status</option><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
@@ -152,9 +161,9 @@
       </footer>
     </div>
 
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="pelanggan.js"></script>
+    <script type="module" src="supabase-client.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="pelanggan.js"></script>
     <script src="pwa-installer.js"></script>
 
     </body>

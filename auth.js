@@ -1,96 +1,77 @@
-// auth.js (Shared Authentication & Responsive Logic)
+// auth.js (Supabase version)
+import { supabase } from './supabase-client.js';
 
-// --- Fungsi Pengecekan Sesi (Tidak Berubah) ---
-function checkSession() {
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+// --- Session Check ---
+// Checks for an active session. If none, redirects to login.
+// Returns the user object if a session exists.
+export async function checkAuth() {
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error) {
+        console.error('Error getting session:', error.message);
+        window.location.href = 'index.html';
+        return null;
+    }
+
+    if (!session) {
         alert('Anda harus login untuk mengakses halaman ini.');
         window.location.href = 'index.html';
+        return null;
     }
-    return loggedInUser;
+
+    return session.user;
 }
 
-// --- Fungsi Pengecekan Authentication untuk Profile ---
-function checkAuth() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userData = localStorage.getItem('userData');
-    
-    if (!isLoggedIn || isLoggedIn !== 'true') {
-        alert('Anda harus login untuk mengakses halaman ini.');
+// --- Role-specific Access Control ---
+// Checks if the logged-in user has the required role.
+export async function requireRole(requiredRole) {
+    const user = await checkAuth();
+    if (!user) return null; // Stop if not authenticated
+
+    try {
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (error || !profile) {
+            throw new Error('Gagal memverifikasi peran pengguna.');
+        }
+
+        if (profile.role !== requiredRole) {
+            alert(`Akses ditolak. Halaman ini hanya untuk ${requiredRole}.`);
+            // Redirect to a relevant page based on their actual role if needed
+            window.location.href = profile.role === 'ADMIN' ? 'dashboard.html' : 'pelanggan_dashboard.html';
+            return null;
+        }
+
+        return user; // Return user object if authorized
+    } catch (error) {
+        console.error('Authorization Error:', error.message);
+        await supabase.auth.signOut();
         window.location.href = 'index.html';
-        return false;
+        return null;
     }
-    
-    return true;
 }
 
-// --- Fungsi Logout (Tidak Berubah) ---
-function initLogout() {
-    const logoutBtn = document.getElementById('logout-btn');
+
+// --- Logout Function ---
+// Initializes logout functionality for a given button ID.
+export function initLogout(buttonId) {
+    const logoutBtn = document.getElementById(buttonId);
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
+        logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            sessionStorage.removeItem('loggedInUser');
-            alert('Anda berhasil logout.');
-            window.location.href = 'index.html';
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                alert('Gagal untuk logout. Silakan coba lagi.');
+            } else {
+                alert('Anda berhasil logout.');
+                sessionStorage.clear(); // Clear any remaining session data
+                window.location.href = 'index.html';
+            }
         });
     }
 }
-
-// --- Fungsi Hamburger Menu (Tidak Berubah) ---
-function initHamburgerMenu() {
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-
-    if (hamburgerBtn && sidebar && overlay) {
-        hamburgerBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-        });
-
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-        });
-    }
-}
-
-// function initHamburgerMenu() {
-//     console.log("Mencoba menginisialisasi menu hamburger..."); // Pesan 1
-
-//     const hamburgerBtn = document.getElementById('hamburger-btn');
-//     const sidebar = document.getElementById('sidebar');
-//     const overlay = document.getElementById('sidebar-overlay');
-
-//     if (hamburgerBtn && sidebar && overlay) {
-//         console.log("SUKSES: Tombol hamburger dan elemen lain ditemukan!"); // Pesan 2
-
-//         hamburgerBtn.addEventListener('click', () => {
-//             console.log("Tombol hamburger di-klik!"); // Pesan 3
-//             sidebar.classList.toggle('show');
-//             overlay.classList.toggle('show');
-//         });
-
-//         overlay.addEventListener('click', () => {
-//             sidebar.classList.remove('show');
-//             overlay.classList.remove('show');
-//         });
-//     } else {
-//         console.error("GAGAL: Salah satu elemen tidak ditemukan!"); // Pesan 4
-//         if (!hamburgerBtn) console.error("Elemen dengan id='hamburger-btn' tidak ada.");
-//         if (!sidebar) console.error("Elemen dengan id='sidebar' tidak ada.");
-//         if (!overlay) console.error("Elemen dengan id='sidebar-overlay' tidak ada.");
-//     }
-// }
-
-// ===============================================
-// --- PERBAIKAN DI SINI ---
-// Jalankan semua fungsi HANYA SETELAH seluruh halaman HTML siap
-// ===============================================
-document.addEventListener('DOMContentLoaded', () => {
-    checkSession();
-    initLogout();
-    initHamburgerMenu(); // Jalankan fungsi hamburger di sini
-});
-

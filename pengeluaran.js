@@ -1,9 +1,27 @@
-document.addEventListener('DOMContentLoaded', () => {
+// pengeluaran.js (Supabase Version)
+import { supabase } from './supabase-client.js';
+import { requireRole } from './auth.js';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Pengeluaran page loaded, checking authentication...');
+    
+    try {
+        const user = await requireRole('ADMIN');
+        if (!user) {
+            console.log('Authentication failed, user will be redirected');
+            return;
+        }
+        console.log('Authentication successful for user:', user.id);
+    } catch (error) {
+        console.error('Authentication error:', error);
+        return;
+    }
+    
     // ===============================================
     // State Management & Global Variables
     // ===============================================
-    const API_BASE_URL = window.AppConfig.API_BASE_URL;
     let allData = [];
+    let currentEditingId = null;
 
     // ===============================================
     // DOM Element Selectors
@@ -20,8 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // Initial Setup
     // ===============================================
+    console.log('Initializing event listeners and fetching data...');
     initializeEventListeners();
-    fetchData();
+    await fetchData();
 
     // ===============================================
     // Event Listeners Setup
@@ -48,15 +67,20 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchData() {
         showLoading();
         try {
-            const response = await fetch(`${API_BASE_URL}?action=getPengeluaran`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            
-            const responseData = await response.json();
-            if (!Array.isArray(responseData)) {
-                throw new TypeError('Format data tidak valid');
+            console.log('Fetching expenses data...');
+            const { data, error } = await supabase
+                .from('expenses')
+                .select('*')
+                .order('expense_date', { ascending: false });
+
+            console.log('Supabase response:', { data, error });
+
+            if (error) {
+                throw new Error(error.message);
             }
 
-            allData = responseData.sort((a, b) => b.rowNumber - a.rowNumber); // Newest first
+            allData = data || [];
+            console.log('Loaded expenses:', allData.length, 'items');
             hideLoading();
             renderList();
 
@@ -82,9 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         allData.forEach(item => {
-            const amount = item.JUMLAH ? formatter.format(String(item.JUMLAH).replace(/[^0-9]/g, '')) : 'N/A';
-            const date = item.TANGGAL ? new Date(item.TANGGAL).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A';
-            const description = item['DESKRIPSI PENGELUARAN'] || item.DESKRIPSI_PENGELUARAN || 'Deskripsi tidak tersedia';
+            const amount = item.amount ? formatter.format(item.amount) : 'N/A';
+            const date = item.expense_date ? new Date(item.expense_date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A';
+            const description = item.description || 'Deskripsi tidak tersedia';
 
             const expenseItem = document.createElement('div');
             expenseItem.className = "flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200";
@@ -96,12 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex items-center gap-2 shrink-0">
                     <p class="text-[#110e1b] text-base font-normal leading-normal">${date}</p>
                     <div class="flex gap-1">
-                        <button class="edit-expense-btn text-blue-600 hover:text-blue-800 p-1" data-row="${item.rowNumber}" title="Edit">
+                        <button class="edit-expense-btn text-blue-600 hover:text-blue-800 p-1" data-id="${item.id}" title="Edit">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
                                 <path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z"></path>
                             </svg>
                         </button>
-                        <button class="delete-expense-btn text-red-600 hover:text-red-800 p-1" data-row="${item.rowNumber}" title="Delete">
+                        <button class="delete-expense-btn text-red-600 hover:text-red-800 p-1" data-id="${item.id}" title="Delete">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
                                 <path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path>
                             </svg>
@@ -115,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const deleteBtn = expenseItem.querySelector('.delete-expense-btn');
             
             editBtn.addEventListener('click', () => openEditExpenseModal(item));
-            deleteBtn.addEventListener('click', () => handleDeleteExpense(item.rowNumber));
+            deleteBtn.addEventListener('click', () => handleDeleteExpense(item.id));
             
             expenseList.appendChild(expenseItem);
         });
@@ -140,11 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function openEditExpenseModal(item) {
         addExpenseModal.classList.remove('hidden');
         // Fill form with existing data
-        expenseDescription.value = item['DESKRIPSI PENGELUARAN'] || item.DESKRIPSI_PENGELUARAN || '';
-        expenseAmount.value = String(item.JUMLAH || '').replace(/[^0-9]/g, '');
+        expenseDescription.value = item.description || '';
+        expenseAmount.value = item.amount || '';
         
-        if (item.TANGGAL) {
-            expenseDate.value = new Date(item.TANGGAL).toISOString().split('T')[0];
+        if (item.expense_date) {
+            expenseDate.value = new Date(item.expense_date).toISOString().split('T')[0];
         } else {
             expenseDate.value = new Date().toISOString().split('T')[0];
         }
@@ -154,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveExpenseBtn.textContent = 'UPDATE';
         
         // Store the item being edited
-        saveExpenseBtn.dataset.editingRowNumber = item.rowNumber;
+        currentEditingId = item.id;
         expenseDescription.focus();
     }
 
@@ -165,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const description = expenseDescription.value.trim();
         const amount = expenseAmount.value.trim();
         const date = expenseDate.value;
-        const isEditing = !!saveExpenseBtn.dataset.editingRowNumber;
+        const isEditing = !!currentEditingId;
 
         if (!description || !amount || !date) {
             showErrorNotification('Mohon lengkapi semua field');
@@ -180,44 +204,40 @@ document.addEventListener('DOMContentLoaded', () => {
         showPaymentLoading(isEditing ? 'Mengupdate pengeluaran...' : 'Menyimpan pengeluaran...');
 
         try {
-            const requestBody = {
-                action: isEditing ? 'updatePengeluaran' : 'addPengeluaran',
-                data: {
-                    DESKRIPSI_PENGELUARAN: description,
-                    JUMLAH: parseFloat(amount),
-                    TANGGAL: date
-                }
+            const expenseData = {
+                description: description,
+                amount: parseFloat(amount),
+                expense_date: date
             };
 
+            let result;
             if (isEditing) {
-                requestBody.rowNumber = saveExpenseBtn.dataset.editingRowNumber;
-            }
-
-            const response = await fetch(API_BASE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            console.log('API response:', result);
-
-            if (result.error) {
-                throw new Error(result.error);
+                const { data, error } = await supabase
+                    .from('expenses')
+                    .update(expenseData)
+                    .eq('id', currentEditingId)
+                    .select();
+                
+                if (error) throw error;
+                result = { data, message: 'Pengeluaran berhasil diupdate' };
+            } else {
+                const { data, error } = await supabase
+                    .from('expenses')
+                    .insert([expenseData])
+                    .select();
+                
+                if (error) throw error;
+                result = { data, message: 'Pengeluaran berhasil ditambahkan' };
             }
 
             hidePaymentLoading();
-            showSuccessNotification(result.message || (isEditing ? 'Pengeluaran berhasil diupdate' : 'Pengeluaran berhasil ditambahkan'));
+            showSuccessNotification(result.message);
             closeAddExpenseModal();
             
             // Reset modal state
             document.querySelector('#add-expense-modal h2').textContent = 'Tambah Pengeluaran';
             saveExpenseBtn.textContent = 'SIMPAN';
-            delete saveExpenseBtn.dataset.editingRowNumber;
+            currentEditingId = null;
             
             fetchData(); // Refresh data
 
@@ -231,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // Delete Expense Functionality
     // ===============================================
-    async function handleDeleteExpense(rowNumber) {
+    async function handleDeleteExpense(expenseId) {
         if (!confirm('Apakah Anda yakin ingin menghapus pengeluaran ini?')) {
             return;
         }
@@ -239,28 +259,17 @@ document.addEventListener('DOMContentLoaded', () => {
         showPaymentLoading('Menghapus pengeluaran...');
 
         try {
-            const response = await fetch(API_BASE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: 'deletePengeluaran',
-                    rowNumber: rowNumber
-                })
-            });
+            const { error } = await supabase
+                .from('expenses')
+                .delete()
+                .eq('id', expenseId);
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            console.log('API response:', result);
-
-            if (result.error) {
-                throw new Error(result.error);
+            if (error) {
+                throw new Error(error.message);
             }
 
             hidePaymentLoading();
-            showSuccessNotification(result.message || 'Pengeluaran berhasil dihapus');
+            showSuccessNotification('Pengeluaran berhasil dihapus');
             fetchData(); // Refresh data
 
         } catch (error) {
@@ -278,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
         expenseList.innerHTML = '';
         
         // Create skeleton items
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 10; i++) {
             const skeletonItem = document.createElement('div');
             skeletonItem.className = 'skeleton-item flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
             skeletonItem.innerHTML = `
