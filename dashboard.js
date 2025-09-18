@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         showLoading();
         
         try {
-            // Call the RPC function in Supabase
+            // Call the RPC function in Supabase for stats
             const { data: stats, error } = await supabase.rpc('get_dashboard_stats', {
                 p_month: month_filter,
                 p_year: year_filter
@@ -63,8 +63,25 @@ document.addEventListener('DOMContentLoaded', async function() {
                 throw new Error(`Supabase RPC Error: ${error.message}`);
             }
 
+            // Call the RPC function for charts data
+            const { data: chartsData, error: chartsError } = await supabase.rpc('get_dashboard_charts_data', {
+                p_months: 6
+            });
+
+            if (chartsError) {
+                console.warn('Charts data error:', chartsError.message);
+            }
+
             hideLoading();
             displayStats(stats[0]); // RPC returns an array, get the first element
+            
+            // Render charts if data available
+            if (chartsData) {
+                console.log('Charts data received:', chartsData);
+                renderCharts(chartsData);
+            } else {
+                console.warn('No charts data received');
+            }
 
         } catch (error) {
             console.error('Error fetching dashboard stats:', error);
@@ -88,14 +105,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Membuat URL dengan parameter filter
         const unpaidLink = `tagihan.html?status=unpaid&bulan=${selectedMonth}&tahun=${selectedYear}`;
         const paidLink = `tagihan.html?status=paid&bulan=${selectedMonth}&tahun=${selectedYear}`;
-
+        const activeCustomersLink = `pelanggan.html?status=AKTIF`;
+        const inactiveCustomersLink = `pelanggan.html?status=NONAKTIF`;
 
         const statsCards = [
             { label: 'Profit', value: formatter.format(stats.profit || 0), gradient: 'gradient-card-1', icon: '💰' },
             { label: 'Pendapatan', value: formatter.format(stats.total_revenue || 0), gradient: 'gradient-card-2', icon: '📈' },
             { label: 'Pengeluaran', value: formatter.format(stats.total_expenses || 0), gradient: 'gradient-card-3', icon: '💸' },
-            { label: 'Pelanggan Aktif', value: stats.active_customers || 0, gradient: 'gradient-card-4', icon: '👥' },
-            { label: 'Pelanggan Tdk Aktif', value: stats.inactive_customers || 0, gradient: 'gradient-card-5', icon: '😴' },
+            { label: 'Pelanggan Aktif', value: stats.active_customers || 0, gradient: 'gradient-card-4', icon: '👥', link: activeCustomersLink },
+            { label: 'Pelanggan Tdk Aktif', value: stats.inactive_customers || 0, gradient: 'gradient-card-5', icon: '😴', link: inactiveCustomersLink },
             { label: 'Belum Dibayar', value: stats.unpaid_invoices_count || 0, gradient: 'gradient-card-6', icon: '⏳', link: unpaidLink },
             { label: 'Lunas Bulan Ini', value: stats.paid_invoices_count || 0, gradient: 'gradient-card-7', icon: '✅', link: paidLink }
         ];
@@ -155,6 +173,197 @@ document.addEventListener('DOMContentLoaded', async function() {
     function hideLoading() {
         const skeletonCards = document.querySelectorAll('.skeleton-card');
         skeletonCards.forEach(card => card.remove());
+    }
+
+    // Chart instances
+    let revenueChart = null;
+    let paymentStatusChart = null;
+    let customerGrowthChart = null;
+    let customerTotalChart = null;
+
+    // Chart rendering function
+    function renderCharts(chartsData) {
+        try {
+            console.log('Rendering charts with data:', chartsData);
+            
+            // Destroy existing charts
+            if (revenueChart) revenueChart.destroy();
+            if (paymentStatusChart) paymentStatusChart.destroy();
+            if (customerGrowthChart) customerGrowthChart.destroy();
+            if (customerTotalChart) customerTotalChart.destroy();
+
+            // Revenue & Profit Line Chart
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx && chartsData.revenue_chart) {
+                revenueChart = new Chart(revenueCtx, {
+                    type: 'line',
+                    data: chartsData.revenue_chart,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': Rp ' + 
+                                               new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + new Intl.NumberFormat('id-ID', {
+                                            notation: 'compact',
+                                            compactDisplay: 'short'
+                                        }).format(value);
+                                    }
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        }
+                    }
+                });
+            }
+
+            // Payment Status Pie Chart
+            const paymentStatusCtx = document.getElementById('paymentStatusChart');
+            console.log('Payment Status Chart - Context:', paymentStatusCtx);
+            console.log('Payment Status Chart - Data:', chartsData.payment_status_chart);
+            
+            if (paymentStatusCtx && chartsData.payment_status_chart) {
+                paymentStatusChart = new Chart(paymentStatusCtx, {
+                    type: 'doughnut',
+                    data: chartsData.payment_status_chart,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                        return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+
+            // Customer Growth Bar Chart (New vs Churn)
+            const customerGrowthCtx = document.getElementById('customerGrowthChart');
+            if (customerGrowthCtx && chartsData.customer_growth_chart) {
+                customerGrowthChart = new Chart(customerGrowthCtx, {
+                    type: 'bar',
+                    data: chartsData.customer_growth_chart,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y + ' pelanggan';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Customer Total Line Chart
+            const customerTotalCtx = document.getElementById('customerTotalChart');
+            if (customerTotalCtx && chartsData.customer_total_chart) {
+                customerTotalChart = new Chart(customerTotalCtx, {
+                    type: 'line',
+                    data: chartsData.customer_total_chart,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Total Aktif: ' + context.parsed.y + ' pelanggan';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 5
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        }
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error('Error rendering charts:', error);
+        }
     }
 });
 

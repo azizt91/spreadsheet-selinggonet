@@ -224,12 +224,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.log('Customer profile loaded:', profile);
             console.log('Installation date from profile:', profile?.installation_date);
             
-            // Fetch unpaid bills (invoices with status='unpaid')
+            // Fetch unpaid bills (invoices with status='unpaid' or 'partially_paid')
             const { data: unpaidBills, error: unpaidError } = await supabase
                 .from('invoices')
-                .select('*')
+                .select(`
+                    id,
+                    invoice_period,
+                    amount,
+                    total_due,
+                    amount_paid,
+                    status,
+                    paid_at,
+                    due_date,
+                    created_at
+                `)
                 .eq('customer_id', currentUser.id)
-                .eq('status', 'unpaid')
+                .in('status', ['unpaid', 'partially_paid'])
                 .order('invoice_period', { ascending: false });
 
             if (unpaidError) {
@@ -251,7 +261,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Fetch paid bills (invoices with status='paid')
             const { data: paidBills, error: paidError } = await supabase
                 .from('invoices')
-                .select('*')
+                .select(`
+                    id,
+                    invoice_period,
+                    amount,
+                    total_due,
+                    amount_paid,
+                    status,
+                    paid_at,
+                    due_date,
+                    created_at
+                `)
                 .eq('customer_id', currentUser.id)
                 .eq('status', 'paid')
                 .order('paid_at', { ascending: false });
@@ -321,7 +341,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         filteredData.forEach(item => {
             if (!item) return;
 
-            const amount = item.amount ? formatter.format(item.amount) : 'N/A';
+            // Determine amount based on tab and data structure
+            let amount = 'N/A';
+            if (currentTab === 'unpaid') {
+                // For unpaid bills, show remaining amount (amount) or total_due
+                amount = item.amount ? formatter.format(item.amount) : 
+                        (item.total_due ? formatter.format(item.total_due) : 'N/A');
+            } else {
+                // For paid bills, show amount_paid (actual payment) or total_due
+                amount = item.amount_paid ? formatter.format(item.amount_paid) : 
+                        (item.total_due ? formatter.format(item.total_due) : 
+                        (item.amount ? formatter.format(item.amount) : 'N/A'));
+            }
+            
             const period = item.invoice_period || 'Periode tidak tersedia';
 
             const itemDiv = document.createElement('div');
@@ -375,10 +407,20 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
                 
                 console.log(`Rendering bill ${item.invoice_period}: due_date = ${dueDate}`);
+                
+                // Show installment info if partially paid
+                let installmentInfo = '';
+                if (item.status === 'partially_paid' && item.amount_paid && item.total_due) {
+                    const paidAmount = formatter.format(item.amount_paid);
+                    const totalAmount = formatter.format(item.total_due);
+                    installmentInfo = `<p class="text-orange-600 text-xs font-medium">Terbayar: ${paidAmount} / ${totalAmount}</p>`;
+                }
+                
                 itemDiv.innerHTML = `
                     <div class="flex flex-col justify-center">
                         <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
                         <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ${dueDate}</p>
+                        ${installmentInfo}
                         <p class="text-red-600 text-sm font-medium">${amount}</p>
                     </div>
                     <div class="shrink-0">

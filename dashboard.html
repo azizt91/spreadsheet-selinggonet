@@ -28,6 +28,8 @@
       href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
     />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Custom gradients and colors */
         .gradient-bg {
@@ -155,6 +157,41 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* Chart container responsive styles */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+            
+            /* Stack charts vertically on mobile */
+            .charts-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Chart loading animation */
+        .chart-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body>
@@ -192,6 +229,72 @@
         <div class="px-6 py-6">
           <div id="cards-container" class="grid grid-cols-2 gap-4">
               <!-- Cards will be dynamically inserted here by dashboard.js -->
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="px-6 py-4">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">📊 Analytics</h3>
+          
+          <!-- Charts Grid -->
+          <div class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Revenue & Profit Chart -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-base font-semibold text-gray-800">Pendapatan & Profit</h4>
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span class="text-xs text-gray-600">6 bulan terakhir</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Payment Status Chart -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-base font-semibold text-gray-800">Status Pembayaran</h4>
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span class="text-xs text-gray-600">Bulan ini</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="paymentStatusChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Customer Growth Chart (New vs Churn) -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-base font-semibold text-gray-800">Akuisisi vs Churn</h4>
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span class="text-xs text-gray-600">Baru vs Berhenti</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="customerGrowthChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Total Active Customers Chart -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-base font-semibold text-gray-800">Total Pelanggan Aktif</h4>
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <span class="text-xs text-gray-600">Kumulatif 6 bulan</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="customerTotalChart"></canvas>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

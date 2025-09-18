@@ -24,7 +24,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initial Setup
     initializeEventListeners();
+    checkURLParameters(); // Check for URL parameters first
     fetchInitialData();
+
+    // URL Parameter Handler
+    function checkURLParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusParam = urlParams.get('status');
+        
+        if (statusParam) {
+            // Map status parameter to filter
+            if (statusParam === 'AKTIF') {
+                currentFilter = 'active';
+                setActiveFilterButton('active');
+            } else if (statusParam === 'NONAKTIF') {
+                currentFilter = 'inactive';
+                setActiveFilterButton('inactive');
+            }
+            
+            // Remove URL parameter after processing (optional)
+            // window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
+    // Helper function to set active filter button
+    function setActiveFilterButton(filterType) {
+        // Reset all buttons first
+        Object.values(filterButtons).forEach(btn => {
+            btn.classList.remove('bg-[#683fe4]');
+            btn.classList.add('bg-[#eae8f3]');
+            const btnText = btn.querySelector('p');
+            if (btnText) {
+                btnText.classList.remove('text-white');
+                btnText.classList.add('text-[#110e1b]');
+            }
+        });
+
+        // Set active button
+        const activeButton = filterButtons[filterType];
+        if (activeButton) {
+            activeButton.classList.remove('bg-[#eae8f3]');
+            activeButton.classList.add('bg-[#683fe4]');
+            const activeButtonText = activeButton.querySelector('p');
+            if (activeButtonText) {
+                activeButtonText.classList.remove('text-[#110e1b]');
+                activeButtonText.classList.add('text-white');
+            }
+        }
+    }
 
     // View Management
     function switchView(viewName) {
@@ -64,17 +111,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Listeners for non-button elements or form submissions
         searchInput.addEventListener('input', () => fetchData());
         customerForm.addEventListener('submit', handleFormSubmit);
+        
+        // Churn Date Logic - Show/Hide based on status
+        document.getElementById('customer-status').addEventListener('change', function() {
+            const churnDateContainer = document.getElementById('churn-date-container');
+            if (this.value === 'NONAKTIF') {
+                churnDateContainer.classList.remove('hidden');
+            } else {
+                churnDateContainer.classList.add('hidden');
+            }
+        });
         document.getElementById('customer-package').addEventListener('change', handlePaketChange);
+
 
         // Filter buttons
         Object.keys(filterButtons).forEach(key => {
             filterButtons[key].addEventListener('click', () => {
-                currentFilter = key;
-                Object.values(filterButtons).forEach(btn => btn.classList.remove('bg-[#501ee6]', 'text-white'));
-                filterButtons[key].classList.add('bg-[#501ee6]', 'text-white');
-                fetchData();
+                currentFilter = key; // Set filter yang sedang aktif
+
+                // Loop ke semua tombol filter untuk mereset tampilannya
+                Object.values(filterButtons).forEach(btn => {
+                    btn.classList.remove('bg-[#683fe4]', 'text-white'); // Hapus kelas aktif
+                    btn.classList.add('bg-[#eae8f3]'); // Kembalikan warna latar non-aktif
+                    
+                    // Ambil elemen <p> di dalam tombol
+                    const textElement = btn.querySelector('p');
+                    if (textElement) {
+                        textElement.classList.remove('text-white'); // Hapus warna teks aktif
+                        textElement.classList.add('text-[#110e1b]'); // Kembalikan warna teks non-aktif
+                    }
+                });
+
+                const activeButton = filterButtons[key];
+                // Terapkan kelas aktif pada tombol yang baru diklik
+                activeButton.classList.remove('bg-[#eae8f3]');
+                activeButton.classList.add('bg-[#683fe4]', 'text-white');
+                
+                // Terapkan warna teks aktif pada elemen <p> di dalamnya
+                const activeText = activeButton.querySelector('p');
+                if (activeText) {
+                    activeText.classList.remove('text-[#110e1b]');
+                    activeText.classList.add('text-white'); // Menggunakan 'text-white' yang lebih standar di Tailwind
+                }
+
+                fetchData(); // Muat ulang data sesuai filter baru
             });
         });
+
     }
 
     // Data Fetching
@@ -82,7 +165,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         showLoading();
         await fetchPackages();
         await fetchData();
-        filterButtons.all.classList.add('bg-[#501ee6]', 'text-white');
+        
+        // Only set "Semua" as active if no URL parameter was processed
+        if (currentFilter === 'all') {
+            setActiveFilterButton('all');
+        }
     }
 
     async function fetchPackages() {
@@ -186,6 +273,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('edit-customer-email').value = userEmail || '';
         document.getElementById('edit-customer-password').value = '';
         
+        // Churn Date Logic - Show/Hide and populate based on status
+        const churnDateContainer = document.getElementById('churn-date-container');
+        const churnDateInput = document.getElementById('customer-churn-date');
+        
+        if (profile.status === 'NONAKTIF') {
+            churnDateContainer.classList.remove('hidden');
+        } else {
+            churnDateContainer.classList.add('hidden');
+        }
+        
+        // Fill churn_date if exists
+        churnDateInput.value = profile.churn_date || '';
+        
         const { data: invoice } = await supabase.from('invoices').select('package_id, amount').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
         if (invoice) {
             document.getElementById('customer-package').value = invoice.package_id;
@@ -282,14 +382,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!confirm('Yakin ingin menyimpan perubahan?')) return;
             setButtonLoading(saveBtn, true, 'Update');
             
+            const statusValue = document.getElementById('customer-status').value;
+            const churnDateValue = document.getElementById('customer-churn-date').value;
+            
             const profileData = {
                 full_name: document.getElementById('customer-name').value,
                 address: document.getElementById('customer-address').value,
                 whatsapp_number: document.getElementById('customer-whatsapp').value,
                 gender: document.getElementById('customer-gender').value,
-                status: document.getElementById('customer-status').value,
+                status: statusValue,
                 device_type: document.getElementById('customer-device').value,
-                ip_static_pppoe: document.getElementById('customer-ip').value
+                ip_static_pppoe: document.getElementById('customer-ip').value,
+                // Churn Date Logic sesuai saran Gemini AI
+                churn_date: statusValue === 'NONAKTIF' ? (churnDateValue || new Date().toISOString().split('T')[0]) : null
             };
 
             // Update profile data
@@ -334,16 +439,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } else {
             // Add Logic
+            const genderElement = document.getElementById('customer-gender');
+            const gender = genderElement.value;
+            let photoUrl = '';
+            
+            // Set photo_url based on gender
+            if (gender === 'Laki-laki') {
+                photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
+            } else if (gender === 'Perempuan') {
+                photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png';
+            }
+            
             const customerData = {
                 email: document.getElementById('customer-email').value,
                 password: document.getElementById('customer-password').value,
                 full_name: document.getElementById('customer-name').value,
                 address: document.getElementById('customer-address').value,
                 whatsapp_number: document.getElementById('customer-whatsapp').value,
-                gender: document.getElementById('customer-gender').value,
+                gender: gender,
                 status: document.getElementById('customer-status').value,
                 device_type: document.getElementById('customer-device').value,
                 ip_static_pppoe: document.getElementById('customer-ip').value,
+                photo_url: photoUrl,
                 idpl: `CST${Date.now()}`,
                 installation_date: new Date().toISOString(),
                 package_id: document.getElementById('customer-package').value,

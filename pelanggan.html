@@ -121,6 +121,13 @@
                   <div><select id="customer-package" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required></select></div>
                   <div><input id="customer-bill" placeholder="Tagihan Bulanan" type="number" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
                   <div><select id="customer-status" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required><option value="">Pilih Status</option><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
+                  
+                  <!-- Churn Date Input (Hidden by default) -->
+                  <div id="churn-date-container" class="hidden">
+                    <label for="customer-churn-date" class="text-sm font-medium text-gray-600 mb-1 block">Tanggal Berhenti (Opsional)</label>
+                    <input id="customer-churn-date" type="date" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
+                  </div>
+                  
                   <div><input id="customer-device" placeholder="Jenis Perangkat (Opsional)" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
                   <div><input id="customer-ip" placeholder="IP STATIC / PPOE (Opsional)" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
               </div>

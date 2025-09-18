@@ -42,9 +42,12 @@
         
         <!-- Tabs -->
         <div class="pb-3">
-          <div class="flex border-b border-[#d6d1e6] px-4 gap-8">
+          <div class="flex border-b border-[#d6d1e6] px-4 gap-4">
             <button id="unpaid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-[#5324e0] text-[#110e1b] pb-[13px] pt-4 tab-button active">
               <p class="text-sm font-bold leading-normal tracking-[0.015em]">Belum Dibayar</p>
+            </button>
+            <button id="installment-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
+              <p class="text-sm font-bold leading-normal tracking-[0.015em]">Cicilan</p>
             </button>
             <button id="paid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
               <p class="text-sm font-bold leading-normal tracking-[0.015em]">Dibayar</p>
@@ -127,7 +130,7 @@
     <style>
         /* Tab Styles */
         .tab-button.active {
-            border-bottom-color: #5324e0 !important;
+            border-bottom-color: #683fe4 !important;
             color: #110e1b !important;
         }
         .tab-button.active p {

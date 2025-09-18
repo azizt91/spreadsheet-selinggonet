@@ -21,12 +21,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // State Management & Global Variables
     // ===============================================
     let allData = [];
+    let filteredData = [];
     let currentEditingId = null;
 
     // ===============================================
     // DOM Element Selectors
     // ===============================================
     const expenseList = document.getElementById('expense-list');
+    const searchInput = document.getElementById('search-input');
     const addExpenseBtn = document.getElementById('add-expense-btn');
     const addExpenseModal = document.getElementById('add-expense-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -46,6 +48,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
+        // Search functionality
+        searchInput.addEventListener('input', handleSearch);
+        
         addExpenseBtn.addEventListener('click', openAddExpenseModal);
         closeModalBtn.addEventListener('click', closeAddExpenseModal);
         saveExpenseBtn.addEventListener('click', handleSaveExpense);
@@ -80,9 +85,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             allData = data || [];
+            filteredData = [...allData]; // Initialize filtered data
             console.log('Loaded expenses:', allData.length, 'items');
             hideLoading();
-            renderList();
+            
+            // Apply current search filter if exists
+            if (searchInput.value.trim()) {
+                handleSearch();
+            } else {
+                renderList();
+            }
 
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -91,11 +103,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // ===============================================
+    // Search Functionality
+    // ===============================================
+    function handleSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        if (searchTerm === '') {
+            filteredData = [...allData];
+        } else {
+            filteredData = allData.filter(expense => {
+                const description = (expense.description || '').toLowerCase();
+                const amount = expense.amount ? expense.amount.toString() : '';
+                const date = expense.expense_date || '';
+                
+                return description.includes(searchTerm) || 
+                       amount.includes(searchTerm) || 
+                       date.includes(searchTerm);
+            });
+        }
+        
+        renderList();
+    }
+
     function renderList() {
         expenseList.innerHTML = '';
 
-        if (allData.length === 0) {
-            expenseList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada data pengeluaran.</p>`;
+        if (filteredData.length === 0) {
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                expenseList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada pengeluaran yang cocok dengan pencarian "${searchTerm}".</p>`;
+            } else {
+                expenseList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada data pengeluaran.</p>`;
+            }
             return;
         }
 
@@ -105,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             minimumFractionDigits: 0
         });
 
-        allData.forEach(item => {
+        filteredData.forEach(item => {
             const amount = item.amount ? formatter.format(item.amount) : 'N/A';
             const date = item.expense_date ? new Date(item.expense_date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A';
             const description = item.description || 'Deskripsi tidak tersedia';
