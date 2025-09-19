@@ -1004,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Get admin name
-            const adminName = await getAdminName();
+            const adminName = await getCurrentAdminName();
             
             // Prepare customer data for notification
             const customerData = {
