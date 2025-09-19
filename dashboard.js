@@ -1,10 +1,45 @@
 // dashboard.js (Supabase version)
 import { supabase } from './supabase-client.js';
-import { requireRole } from './auth.js';
+import { requireRole, initLogout } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Ensure the user is an ADMIN, otherwise redirect.
-    await requireRole('ADMIN');
+    const user = await requireRole('ADMIN');
+    if (!user) return; // Stop execution if not authenticated
+
+    initLogout('dashboard-logout-btn');
+    populateUserInfo(user);
+
+    // New function to populate user info
+    async function populateUserInfo(user) {
+        const userGreeting = document.getElementById('user-greeting');
+        const userEmail = document.getElementById('user-email');
+
+        if (!userGreeting || !userEmail) return;
+
+        // Set email immediately
+        userEmail.textContent = user.email;
+
+        // Fetch full_name from profiles
+        try {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', user.id)
+                .single();
+
+            if (error) throw error;
+
+            if (profile && profile.full_name) {
+                userGreeting.textContent = `Hallo, ${profile.full_name}`;
+            } else {
+                userGreeting.textContent = `Hallo, Admin`;
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            userGreeting.textContent = 'Hallo!';
+        }
+    }
 
     // DOM Selectors
     const filterBulan = document.getElementById('filter-bulan');
@@ -14,6 +49,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initial Setup
     populateFilters();
     initializeEventListeners();
+    
+    // Show loading immediately before any async operations
+    showLoading();
+    showChartsLoading();
+    
     fetchDashboardStats(); // Initial call on page load
 
     function populateFilters() {
@@ -50,7 +90,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         const month_filter = parseInt(filterBulan.value, 10);
         const year_filter = parseInt(filterTahun.value, 10);
         
-        showLoading();
+        // Only show loading if not already showing (to prevent double loading on initial load)
+        if (!document.querySelector('.skeleton-card')) {
+            showLoading();
+        }
         
         try {
             // Call the RPC function in Supabase for stats
@@ -79,13 +122,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (chartsData) {
                 console.log('Charts data received:', chartsData);
                 renderCharts(chartsData);
+                hideChartsLoading();
             } else {
                 console.warn('No charts data received');
+                hideChartsLoading();
             }
 
         } catch (error) {
             console.error('Error fetching dashboard stats:', error);
             hideLoading();
+            hideChartsLoading();
             cardsContainer.innerHTML = `<p class="text-center text-red-500 col-span-full">Gagal memuat data: ${error.message}</p>`;
         }
     }
@@ -173,6 +219,48 @@ document.addEventListener('DOMContentLoaded', async function() {
     function hideLoading() {
         const skeletonCards = document.querySelectorAll('.skeleton-card');
         skeletonCards.forEach(card => card.remove());
+    }
+
+    function showChartsLoading() {
+        const chartContainers = ['revenueChart', 'paymentStatusChart', 'customerGrowthChart', 'customerTotalChart'];
+        
+        chartContainers.forEach(chartId => {
+            const canvas = document.getElementById(chartId);
+            if (canvas) {
+                const container = canvas.parentElement;
+                // Hide canvas and show loading
+                canvas.style.display = 'none';
+                
+                // Create loading element
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'chart-loading-skeleton';
+                loadingDiv.innerHTML = `
+                    <div class="flex items-center justify-center h-full">
+                        <div class="skeleton-line w-32 h-4 rounded"></div>
+                    </div>
+                `;
+                container.appendChild(loadingDiv);
+            }
+        });
+    }
+
+    function hideChartsLoading() {
+        const chartContainers = ['revenueChart', 'paymentStatusChart', 'customerGrowthChart', 'customerTotalChart'];
+        
+        chartContainers.forEach(chartId => {
+            const canvas = document.getElementById(chartId);
+            if (canvas) {
+                const container = canvas.parentElement;
+                // Show canvas and remove loading
+                canvas.style.display = 'block';
+                
+                // Remove loading element
+                const loadingDiv = container.querySelector('.chart-loading-skeleton');
+                if (loadingDiv) {
+                    loadingDiv.remove();
+                }
+            }
+        });
     }
 
     // Chart instances

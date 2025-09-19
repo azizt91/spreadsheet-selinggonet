@@ -21,6 +21,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const addInvoiceBtn = document.getElementById('add-invoice-btn');
 
     // ===============================================
+    // Helper Function for Pill Colors
+    // ===============================================
+    function getMonthPillClass(periodString) {
+        const month = (periodString || '').split(' ')[0];
+        let bgClass = 'bg-gray-100';
+        let textClass = 'text-gray-800';
+
+        switch (month) {
+            case 'Januari':
+                bgClass = 'bg-sky-100'; textClass = 'text-sky-800';
+                break;
+            case 'Februari':
+                bgClass = 'bg-blue-100'; textClass = 'text-blue-800';
+                break;
+            case 'Maret':
+                bgClass = 'bg-emerald-100'; textClass = 'text-emerald-800';
+                break;
+            case 'April':
+                bgClass = 'bg-green-100'; textClass = 'text-green-800';
+                break;
+            case 'Mei':
+                bgClass = 'bg-lime-100'; textClass = 'text-lime-800';
+                break;
+            case 'Juni':
+                bgClass = 'bg-yellow-100'; textClass = 'text-yellow-800';
+                break;
+            case 'Juli':
+                bgClass = 'bg-amber-100'; textClass = 'text-amber-800';
+                break;
+            case 'Agustus':
+                bgClass = 'bg-orange-100'; textClass = 'text-orange-800';
+                break;
+            case 'September':
+                bgClass = 'bg-red-100'; textClass = 'text-red-800';
+                break;
+            case 'Oktober':
+                bgClass = 'bg-rose-100'; textClass = 'text-rose-800';
+                break;
+            case 'November':
+                bgClass = 'bg-violet-100'; textClass = 'text-violet-800';
+                break;
+            case 'Desember':
+                bgClass = 'bg-indigo-100'; textClass = 'text-indigo-800';
+                break;
+        }
+        return { bg: bgClass, text: textClass };
+    }
+
+    // ===============================================
     // Initial Setup
     // ===============================================
     initializeEventListeners();
@@ -298,19 +347,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const period = item.invoice_period || 'Periode tidak tersedia';
             const customerName = item.profiles?.full_name || 'Nama tidak tersedia';
             const invoiceId = item.id;
+            const pillClasses = getMonthPillClass(period);
             const invoiceDiv = document.createElement('div');
             invoiceDiv.id = `invoice-item-${invoiceId}`;
             invoiceDiv.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
 
             if (currentTab === 'unpaid') {
                 invoiceDiv.innerHTML = `
-                    <div class="flex flex-col justify-center">
+                    <div class="flex flex-col justify-center gap-1">
                         <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${customerName}</p>
-                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${period}</p>
+                        <span class="${pillClasses.bg} ${pillClasses.text} text-xs font-medium w-fit px-2.5 py-0.5 rounded-full">
+                            ${period}
+                        </span>
                     </div>
                     <div class="shrink-0 flex gap-2">
                         <button class="whatsapp-btn flex items-center justify-center w-8 h-8 bg-green-500 hover:bg-green-600 rounded-lg transition-colors" title="Kirim WhatsApp" data-invoice-id="${invoiceId}">
-                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" /></svg>
                         </button>
                         <button class="installment-btn flex items-center justify-center h-8 px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors" title="Bayar Cicilan" data-invoice-id="${invoiceId}" data-remaining-amount="${item.amount}" data-customer-name="${customerName}">
                             Cicil
@@ -324,9 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const progressPercentage = ((item.amount_paid || 0) / (item.total_due || 1)) * 100;
                 
                 invoiceDiv.innerHTML = `
-                    <div class="flex flex-col justify-center flex-1">
+                    <div class="flex flex-col justify-center flex-1 gap-1">
                         <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${customerName}</p>
-                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${period}</p>
+                        <span class="${pillClasses.bg} ${pillClasses.text} text-xs font-medium w-fit px-2.5 py-0.5 rounded-full">
+                            ${period}
+                        </span>
                         <div class="mt-2">
                             <div class="flex justify-between text-xs mb-1">
                                 <span class="text-orange-600 font-medium">Terbayar: ${formatter.format(item.amount_paid || 0)}</span>
@@ -340,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="shrink-0 flex gap-2 ml-4">
                         <button class="whatsapp-btn flex items-center justify-center w-8 h-8 bg-green-500 hover:bg-green-600 rounded-lg transition-colors" title="Kirim WhatsApp" data-invoice-id="${invoiceId}">
-                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" /></svg>
                         </button>
                         <button class="installment-btn flex items-center justify-center h-8 px-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm transition-colors" title="Bayar Cicilan Lagi" data-invoice-id="${invoiceId}" data-remaining-amount="${item.amount}" data-customer-name="${customerName}">
                             Cicil Lagi
@@ -350,17 +404,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     </div>
                 `;
-            } else {
-                invoiceDiv.innerHTML = `
-                    <div class="flex flex-col justify-center">
-                        <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${customerName}</p>
-                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">${period}</p>
-                    </div>
-                    <div class="shrink-0">
-                        <p class="text-green-600 text-base font-bold leading-normal">LUNAS</p>
-                    </div>
-                `;
-            }
+            } else { // Tab 'paid'
+    // Siapkan variabel untuk tanggal pembayaran
+    let paymentDateHtml = '<div class="w-12 shrink-0"></div>'; // Placeholder jika tanggal tidak ada
+
+    // Cek apakah ada data paid_at
+    if (item.paid_at) {
+        const paidDate = new Date(item.paid_at);
+        const day = paidDate.getDate().toString().padStart(2, '0');
+        const month = paidDate.toLocaleString('id-ID', { month: 'short' });
+        const year = paidDate.getFullYear();
+        
+        paymentDateHtml = `
+            <div class="flex flex-col items-center justify-center w-12 shrink-0 text-center">
+                <p class="text-lg font-bold text-gray-800">${day}</p>
+                <p class="text-xs text-gray-500">${month}</p>
+                <p class="text-xs text-gray-500">${year}</p>
+            </div>
+        `;
+    }
+
+    // Gabungkan semua bagian menjadi satu
+    invoiceDiv.innerHTML = `
+        ${paymentDateHtml}
+        <div class="flex flex-col justify-center gap-1 flex-1">
+            <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${customerName}</p>
+            <span class="${pillClasses.bg} ${pillClasses.text} text-xs font-medium w-fit px-2.5 py-0.5 rounded-full">
+                ${period}
+            </span>
+        </div>
+        <div class="shrink-0">
+            <p class="text-green-600 text-base font-bold leading-normal">LUNAS</p>
+        </div>
+    `;
+}
             invoiceList.appendChild(invoiceDiv);
         });
     }
@@ -806,7 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ambil data customer dari invoice untuk notifikasi
                 const { data: invoiceWithCustomer, error: customerError } = await supabase
                     .from('invoices')
-                    .select(`
+                    .select(
+                        `
                         customer_id,
                         profiles!inner (
                             id, full_name, idpl, whatsapp_number
@@ -820,6 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (invoiceWithCustomer && invoiceWithCustomer.profiles && invoiceWithCustomer.profiles.whatsapp_number) {
                     sendInstallmentWhatsAppNotification({
                         customer: invoiceWithCustomer.profiles,
+                        invoiceId: invoiceData.invoiceId,
                         paymentAmount: paymentAmount,
                         remainingAfterPayment: data.data.remaining_amount,
                         totalDue: invoiceData.totalDue,
@@ -877,7 +956,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ambil data customer dari invoice untuk notifikasi
                 const { data: invoiceWithCustomer, error: customerError } = await supabase
                     .from('invoices')
-                    .select(`
+                    .select(
+                        `
                         customer_id,
                         profiles!inner (
                             id, full_name, idpl, whatsapp_number
@@ -891,6 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (invoiceWithCustomer && invoiceWithCustomer.profiles && invoiceWithCustomer.profiles.whatsapp_number) {
                     sendInstallmentWhatsAppNotification({
                         customer: invoiceWithCustomer.profiles,
+                        invoiceId: invoiceData.invoiceId,
                         paymentAmount: paymentAmount,
                         remainingAfterPayment: 0, // Lunas, sisa 0
                         totalDue: invoiceData.totalDue,
@@ -913,43 +994,108 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function sendInstallmentWhatsAppNotification(paymentData) {
+    async function sendInstallmentWhatsAppNotification(paymentData) {
         const { customer, paymentAmount, remainingAfterPayment, totalDue, invoicePeriod, paymentMethod, isFullyPaid } = paymentData;
         
         if (!customer.whatsapp_number) {
-            console.log('No WhatsApp number available for customer');
+            console.warn('Customer WhatsApp number not available');
             return;
         }
 
-        const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
-        const customerName = customer.full_name || 'Pelanggan';
-        const customerId = customer.idpl || '';
-        
-        let message;
-        
-        if (isFullyPaid) {
-            // Pesan untuk pembayaran lunas via cicilan
-            message = `Konfirmasi Pembayaran LUNAS\n\nHai Bapak/Ibu ${customerName},\nID Pelanggan: ${customerId}\n\n✅ TAGIHAN TELAH LUNAS!\n\nDetail Pembayaran:\n• Periode: ${invoicePeriod}\n• Total Tagihan: ${formatter.format(totalDue)}\n• Pembayaran Terakhir: ${formatter.format(paymentAmount)}\n• Metode: ${getPaymentMethodText(paymentMethod)}\n• Status: LUNAS\n\nTerima kasih atas pembayaran Anda. Layanan internet Anda akan terus aktif.\n\n_____________________________\n*Pesan otomatis dari Selinggonet*`;
-        } else {
-            // Pesan untuk pembayaran cicilan
-            message = `Konfirmasi Pembayaran Cicilan\n\nHai Bapak/Ibu ${customerName},\nID Pelanggan: ${customerId}\n\n✅ Pembayaran cicilan diterima!\n\nDetail Pembayaran:\n• Periode: ${invoicePeriod}\n• Jumlah Dibayar: ${formatter.format(paymentAmount)}\n• Metode: ${getPaymentMethodText(paymentMethod)}\n• Sisa Tagihan: ${formatter.format(remainingAfterPayment)}\n\nSisa tagihan dapat dibayar kapan saja. Terima kasih atas kepercayaan Anda.\n\nRekening Pembayaran:\n• Seabank 901307925714 An. TAUFIQ AZIZ\n• BCA 3621053653 An. TAUFIQ AZIZ\n• BSI 7211806138 An. TAUFIQ AZIZ\n• Dana 089609497390 An. TAUFIQ AZIZ\n\n_____________________________\n*Pesan otomatis dari Selinggonet*`;
+        try {
+            // Get admin name
+            const adminName = await getAdminName();
+            
+            // Prepare customer data for notification
+            const customerData = {
+                id: customer.id,
+                full_name: customer.full_name,
+                idpl: customer.idpl,
+                whatsapp_number: customer.whatsapp_number
+            };
+            
+            // Prepare invoice data for notification
+            const invoiceData = {
+                id: paymentData.invoiceId || 'unknown',
+                invoice_period: invoicePeriod,
+                amount: isFullyPaid ? totalDue : paymentAmount,
+                paid_at: new Date().toISOString(),
+                payment_method: paymentMethod,
+                remaining_amount: remainingAfterPayment,
+                is_fully_paid: isFullyPaid
+            };
+            
+            // Send automatic WhatsApp notification to customer
+            const customerNotificationResult = await sendCustomerPaymentNotification(customerData, invoiceData, paymentMethod);
+            
+            // Send notification to admin about payment received
+            const adminNotificationResult = await sendPaymentNotification(customerData, invoiceData, adminName);
+            
+            // Show results
+            if (customerNotificationResult.success) {
+                const statusText = isFullyPaid ? 'LUNAS' : 'CICILAN';
+                showSuccessNotification(`✅ Notifikasi WhatsApp ${statusText} berhasil dikirim ke ${customer.full_name}`);
+            } else {
+                showErrorNotification(`⚠️ Gagal mengirim notifikasi ke pelanggan: ${customerNotificationResult.message}`);
+            }
+            
+            if (adminNotificationResult.success) {
+                showSuccessNotification(`✅ Notifikasi pembayaran berhasil dikirim ke admin`);
+            } else {
+                console.warn('Admin notification failed:', adminNotificationResult.message);
+            }
+            
+        } catch (error) {
+            console.error('Error sending WhatsApp notifications:', error);
+            showErrorNotification(`⚠️ Error mengirim notifikasi: ${error.message}`);
         }
+    }
 
-        // Format nomor WhatsApp
-        let cleanedNumber = String(customer.whatsapp_number).replace(/[^0-9+]/g, '');
-        if (!cleanedNumber.startsWith('+') && !cleanedNumber.startsWith('62')) {
-            cleanedNumber = cleanedNumber.startsWith('0') ? '62' + cleanedNumber.substring(1) : '62' + cleanedNumber;
+    async function sendCustomerPaymentNotification(customerData, invoiceData, paymentMethod) {
+        try {
+            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
+            
+            // Format customer WhatsApp number
+            let cleanedNumber = String(customerData.whatsapp_number).replace(/[^0-9+]/g, '');
+            if (!cleanedNumber.startsWith('+') && !cleanedNumber.startsWith('62')) {
+                cleanedNumber = cleanedNumber.startsWith('0') ? '62' + cleanedNumber.substring(1) : '62' + cleanedNumber;
+            }
+            
+            // Prepare message based on payment type
+            let message;
+            if (invoiceData.is_fully_paid) {
+                message = `Konfirmasi Pembayaran LUNAS\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n✅ TAGIHAN TELAH LUNAS!\n\nDetail Pembayaran:\n• Periode: ${invoiceData.invoice_period}\n• Total Tagihan: ${formatter.format(invoiceData.amount)}\n• Metode: ${getPaymentMethodText(paymentMethod)}\n• Status: LUNAS\n\nTerima kasih atas pembayaran Anda. Layanan internet Anda akan terus aktif.\n\n_____________________________\n*Pesan otomatis dari Selinggonet*`;
+            } else {
+                message = `Konfirmasi Pembayaran Cicilan\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n✅ Pembayaran cicilan diterima!\n\nDetail Pembayaran:\n• Periode: ${invoiceData.invoice_period}\n• Jumlah Dibayar: ${formatter.format(invoiceData.amount)}\n• Metode: ${getPaymentMethodText(paymentMethod)}\n• Sisa Tagihan: ${formatter.format(invoiceData.remaining_amount)}\n\nSisa tagihan dapat dibayar kapan saja. Terima kasih atas kepercayaan Anda.\n\nRekening Pembayaran:\n• Seabank 901307925714 An. TAUFIQ AZIZ\n• BCA 3621053653 An. TAUFIQ AZIZ\n• BSI 7211806138 An. TAUFIQ AZIZ\n• Dana 089609497390 An. TAUFIQ AZIZ\n\n_____________________________\n*Pesan otomatis dari Selinggonet*`;
+            }
+            
+            // Send via Fonnte API
+            const response = await fetch('whatsapp-notification-handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    target: cleanedNumber,
+                    message: message,
+                    customer_name: customerData.full_name,
+                    customer_idpl: customerData.idpl,
+                    invoice_period: invoiceData.invoice_period,
+                    amount: invoiceData.amount,
+                    admin_name: 'System'
+                })
+            });
+            
+            const result = await response.json();
+            return result;
+            
+        } catch (error) {
+            console.error('Error sending customer notification:', error);
+            return {
+                success: false,
+                message: error.message
+            };
         }
-
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${cleanedNumber}?text=${encodedMessage}`;
-        
-        // Buka WhatsApp
-        window.open(whatsappUrl, '_blank');
-        
-        // Show notification
-        const statusText = isFullyPaid ? 'LUNAS' : 'CICILAN';
-        showSuccessNotification(`Notifikasi WhatsApp ${statusText} untuk ${customerName} telah dibuka!`);
     }
 
     function getPaymentMethodText(method) {

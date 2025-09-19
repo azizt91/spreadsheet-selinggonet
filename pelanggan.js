@@ -205,7 +205,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         data.forEach(profile => {
             const statusColor = profile.status === 'AKTIF' ? 'bg-green-500' : 'bg-red-500';
-            const installDate = profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
+            
+            // Untuk pelanggan nonaktif, tampilkan tanggal cabut. Untuk aktif, tampilkan tanggal terdaftar
+            let dateInfo;
+            if (profile.status === 'NONAKTIF') {
+                const churnDate = profile.churn_date 
+                    ? new Date(profile.churn_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'Belum diatur'; // Teks pengganti jika tanggal kosong
+                dateInfo = `Cabut: ${churnDate}`;
+            } else {
+                const installDate = profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
+                dateInfo = `Terdaftar: ${installDate}`;
+            }
+            
             const customerItem = document.createElement('div');
             customerItem.className = "flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50";
             customerItem.innerHTML = `
@@ -213,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" style="background-image: url('${profile.photo_url || 'assets/login_illustration.svg'}');"></div>
                     <div class="flex flex-col justify-center overflow-hidden">
                         <p class="text-[#110e1b] text-base font-medium truncate">${profile.full_name}</p>
-                        <p class="text-[#625095] text-sm">Terdaftar: ${installDate}</p>
+                        <p class="text-[#625095] text-sm">${dateInfo}</p>
                     </div>
                     <div class="shrink-0 ml-auto"><div class="flex size-7 items-center justify-center"><div class="size-3 rounded-full ${statusColor}"></div></div></div>
                 </div>`;
@@ -286,10 +298,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Fill churn_date if exists
         churnDateInput.value = profile.churn_date || '';
         
-        const { data: invoice } = await supabase.from('invoices').select('package_id, amount').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
+        const { data: invoice } = await supabase.from('invoices').select('package_id, packages(price)').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
         if (invoice) {
             document.getElementById('customer-package').value = invoice.package_id;
-            document.getElementById('customer-bill').value = invoice.amount;
+            document.getElementById('customer-bill').value = invoice.packages ? invoice.packages.price : '0';
         }
 
         lastView = 'detail';
@@ -334,7 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (customerId) customerId.textContent = profile.idpl || '-';
 
         // Get latest invoice data
-        const { data: latest_invoice } = await supabase.from('invoices').select('*, packages(*)').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
+        const { data: latest_invoice, error: invoiceError } = await supabase.from('invoices').select('*, packages(*)').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
 
         // Panggil database function 'get_user_email' untuk mendapatkan email
         const { data: userEmail, error: emailError } = await supabase.rpc('get_user_email', { user_id: profile.id });
@@ -349,9 +361,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             'detail-whatsapp': profile.whatsapp_number,
             'detail-email': userEmail || '-',
             'detail-paket': latest_invoice && latest_invoice.packages ? latest_invoice.packages.package_name : '-',
-            'detail-tagihan': latest_invoice ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(latest_invoice.amount) : '-',
+            'detail-tagihan': latest_invoice && latest_invoice.packages && latest_invoice.packages.price ? 
+                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(latest_invoice.packages.price) : 
+                (latest_invoice && latest_invoice.amount ? 
+                    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(latest_invoice.amount) : 
+                    'Belum ada tagihan'),
             'detail-status': profile.status,
-            'detail-tanggal-pasang': profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID') : '-',
+            'detail-tanggal-pasang': (() => {
+                if (profile.status === 'NONAKTIF') {
+                    if (profile.churn_date) {
+                        return new Date(profile.churn_date).toLocaleDateString('id-ID');
+                    } else {
+                        return 'Belum diset';
+                    }
+                } else {
+                    return profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID') : '-';
+                }
+            })(),
             'detail-jenis-perangkat': profile.device_type,
             'detail-ip-static': profile.ip_static_pppoe
         };
@@ -363,6 +389,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 element.textContent = value || '-';
             }
         });
+        
+        // Update label for tanggal pasang based on status
+        const tanggalPasangLabel = document.evaluate("//p[contains(text(), 'TANGGAL PASANG') or contains(text(), 'TANGGAL CABUT')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (tanggalPasangLabel) {
+            if (profile.status === 'NONAKTIF') {
+                tanggalPasangLabel.textContent = 'TANGGAL CABUT';
+            } else {
+                tanggalPasangLabel.textContent = 'TANGGAL PASANG';
+            }
+        }
 
         // Show unpaid bills section and load bills
         const unpaidBillsSection = document.getElementById('unpaid-bills-section');
@@ -500,7 +536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Memuat tagihan...</p>';
         
         // const { data, error } = await supabase.from('invoices').select('*').eq('customer_id', profileId).eq('status', 'unpaid');
-        const { data, error } = await supabase.from('invoices').select('*, profiles!inner(*)').eq('customer_id', profileId).eq('status', 'unpaid');
+        const { data, error } = await supabase.from('invoices').select('*, profiles!inner(*), packages(price)').eq('customer_id', profileId).eq('status', 'unpaid');
 
         if (error) {
             unpaidBillsList.innerHTML = `<p class="text-sm text-red-500 px-4">Gagal memuat tagihan.</p>`;
@@ -516,7 +552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <p class="text-[#110e1b] text-base font-medium">${bill.profiles.full_name || '-'}</p>
                             <p class="text-[#625095] text-sm">${bill.invoice_period || '-'}</p>
                         </div>
-                        <div class="shrink-0"><p class="text-yellow-600 text-sm font-bold">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(bill.amount)}</p></div>
+                        <div class="shrink-0"><p class="text-yellow-600 text-sm font-bold">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(bill.packages ? bill.packages.price : bill.amount)}</p></div>
                     </div>`;
             });
         } else {

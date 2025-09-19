@@ -32,11 +32,14 @@
     >
       <div class="flex-1">
         <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
+          <div class="w-10"></div> <!-- Spacer -->
           <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pengeluaran</h2>
+          <button id="filter-btn" class="text-[#110e1b] flex items-center justify-center w-10 h-10">
+            <svg fill="#000000" viewBox="0 -0.08 20 20" data-name="Capa 1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M14.32,6.87H5.68a.38.38,0,0,0-.38.38.37.37,0,0,0,.38.37h8.64a.37.37,0,0,0,.38-.37A.38.38,0,0,0,14.32,6.87Z"></path><path d="M12.32,9.56H7.68a.38.38,0,1,0,0,.75h4.64a.38.38,0,1,0,0-.75Z"></path><path d="M11.32,12.22H8.68a.38.38,0,1,0,0,.75h2.64a.38.38,0,1,0,0-.75Z"></path></g></svg>
         </header>
 
-        <!-- Search Input -->
-        <div class="px-4 py-3">
+        <!-- Search and Total -->
+        <div class="px-4 py-3 space-y-3">
           <label class="flex flex-col min-w-40 h-12 w-full">
             <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
               <div class="text-[#625095] flex border-none bg-[#eae8f3] items-center justify-center pl-4 rounded-l-lg border-r-0">
@@ -45,10 +48,16 @@
               <input id="search-input" placeholder="Cari pengeluaran..." class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] h-full placeholder:text-[#625095] px-4 rounded-l-none pl-2 text-base"/>
             </div>
           </label>
+          <div id="total-expense-container" class="bg-white p-4 rounded-lg shadow hidden">
+             <p class="text-sm text-gray-600">Total Pengeluaran</p>
+             <p id="total-expense-display" class="text-2xl font-bold text-red-600">Rp 0</p>
+             <p id="filter-info" class="text-xs text-gray-500 mt-1"></p>
+          </div>
         </div>
 
         <div id="expense-list">
-            </div>
+            <!-- Expense items will be rendered here -->
+        </div>
       </div>
       
       <button id="add-expense-btn" class="fixed bottom-28 right-5 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#683fe4] text-[#f9f8fb] shadow-lg">
@@ -85,6 +94,7 @@
       </footer>
     </div>
 
+    <!-- Add Expense Modal -->
     <div id="add-expense-modal" class="fixed inset-0 z-[60] hidden bg-black bg-opacity-50">
       <div class="flex items-start justify-center min-h-screen p-4 pt-8">
         <div class="bg-[#f9f8fb] rounded-lg w-full max-w-md max-h-[85vh] overflow-y-auto">
@@ -146,10 +156,35 @@
       </div>
     </div>
 
+    <!-- Filter Modal -->
+    <div id="filter-modal" class="fixed inset-0 z-[60] hidden bg-black bg-opacity-50">
+      <div class="flex items-start justify-center min-h-screen p-4 pt-20">
+        <div class="bg-[#f9f8fb] rounded-lg w-full max-w-md max-h-[85vh] overflow-y-auto shadow-xl">
+          <div class="flex items-center p-4 justify-between border-b border-[#eae8f3]">
+            <h2 class="text-[#110e1b] text-lg font-bold">Filter Pengeluaran</h2>
+            <button id="close-filter-modal-btn" class="text-2xl font-bold">&times;</button>
+          </div>
+          <div class="p-4 space-y-4">
+            <label class="flex flex-col">
+              <p class="text-[#110e1b] text-base font-medium pb-2">Dari Tanggal</p>
+              <input id="start-date-input" type="date" class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
+            </label>
+            <label class="flex flex-col">
+              <p class="text-[#110e1b] text-base font-medium pb-2">Sampai Tanggal</p>
+              <input id="end-date-input" type="date" class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
+            </label>
+          </div>
+          <div class="flex justify-end p-4 gap-3 border-t border-[#eae8f3]">
+            <button id="reset-filter-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">Reset</button>
+            <button id="apply-filter-btn" class="px-4 py-2 bg-[#5324e0] text-white rounded-md hover:bg-opacity-90">Terapkan Filter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="supabase-client.js"></script>
     <script type="module" src="auth.js"></script>
     <script type="module" src="pengeluaran.js"></script>
     <script src="pwa-installer.js"></script>
 </body>
 </html>
-

@@ -10,6 +10,32 @@ class WhatsAppNotification {
     private $notificationNumber = '6281914170701';
     
     /**
+     * Send direct WhatsApp message
+     */
+    public function sendDirectMessage($target, $message) {
+        try {
+            // Send WhatsApp message
+            $response = $this->sendWhatsAppMessage($target, $message);
+            
+            // Log the direct message
+            $this->logDirectMessage($target, $message, $response);
+            
+            return [
+                'success' => true,
+                'message' => 'Pesan WhatsApp berhasil dikirim',
+                'response' => $response
+            ];
+            
+        } catch (Exception $e) {
+            error_log('WhatsApp Direct Message Error: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Gagal mengirim pesan WhatsApp: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
      * Send payment confirmation notification
      */
     public function sendPaymentNotification($customerData, $invoiceData, $adminName) {
@@ -124,6 +150,28 @@ class WhatsAppNotification {
             'invoice_period' => $invoiceData['invoice_period'] ?? 'Unknown',
             'amount' => $invoiceData['amount'] ?? 0,
             'admin_name' => $adminName,
+            'response' => $response
+        ];
+        
+        $logFile = __DIR__ . '/logs/whatsapp_notifications.log';
+        
+        // Create logs directory if it doesn't exist
+        if (!file_exists(dirname($logFile))) {
+            mkdir(dirname($logFile), 0755, true);
+        }
+        
+        file_put_contents($logFile, json_encode($logData) . "\n", FILE_APPEND | LOCK_EX);
+    }
+    
+    /**
+     * Log direct message for debugging
+     */
+    private function logDirectMessage($target, $message, $response) {
+        $logData = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'type' => 'direct_message',
+            'target' => $target,
+            'message_preview' => substr($message, 0, 100) . '...',
             'response' => $response
         ];
         

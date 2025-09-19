@@ -1,6 +1,6 @@
 // pelanggan_dashboard.js - Customer Dashboard with 4 Cards and Loading Indicators
 import { supabase } from './supabase-client.js';
-import { checkAuth, requireRole } from './auth.js';
+import { checkAuth, requireRole, initLogout } from './auth.js';
 
 let currentUser = null;
 let currentProfile = null;
@@ -10,8 +10,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     currentUser = await requireRole('USER');
     if (!currentUser) return; // Stop if not authenticated or not USER role
 
+    initLogout('customer-logout-btn');
+
     // DOM Elements
     const welcomeText = document.getElementById('welcome-text');
+    const customerEmail = document.getElementById('customer-email');
     const cardsContainer = document.getElementById('cards-container');
 
     // Initialize dashboard
@@ -149,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     function displayCustomerDashboard(profile, unpaidBills, paidBills) {
         // Update welcome message
         welcomeText.textContent = `Hallo, ${profile.full_name || 'Pelanggan'}`;
+        customerEmail.textContent = currentUser.email;
 
         // Clear cards container
         cardsContainer.innerHTML = '';

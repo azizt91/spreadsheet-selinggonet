@@ -63,14 +63,15 @@ export function initLogout(buttonId) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error logging out:', error.message);
-                alert('Gagal untuk logout. Silakan coba lagi.');
-            } else {
-                alert('Anda berhasil logout.');
-                sessionStorage.clear(); // Clear any remaining session data
-                window.location.href = 'index.html';
+            if (confirm('Yakin ingin logout?')) {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('Error logging out:', error.message);
+                    alert('Gagal untuk logout. Silakan coba lagi.');
+                } else {
+                    sessionStorage.clear(); // Clear any remaining session data
+                    window.location.href = 'index.html';
+                }
             }
         });
     }

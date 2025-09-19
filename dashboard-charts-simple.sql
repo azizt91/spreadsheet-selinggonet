@@ -255,7 +255,7 @@ BEGIN
                     'borderRadius', 4
                 ),
                 jsonb_build_object(
-                    'label', 'Pelanggan Churn',
+                    'label', 'Pelanggan Cabut',
                     'data', customer_net_data,
                     'backgroundColor', '#EF4444',
                     'borderColor', '#DC2626',

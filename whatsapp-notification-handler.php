@@ -41,6 +41,15 @@ try {
         }
     }
     
+    // Check if this is a direct message send (has target and message)
+    if (isset($data['target']) && isset($data['message'])) {
+        // Direct message sending
+        $whatsapp = new WhatsAppNotification();
+        $result = $whatsapp->sendDirectMessage($data['target'], $data['message']);
+        echo json_encode($result);
+        exit;
+    }
+    
     // Prepare customer data
     $customerData = [
         'full_name' => $data['customer_name'],
