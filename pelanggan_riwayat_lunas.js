@@ -31,6 +31,36 @@ document.addEventListener('DOMContentLoaded', async function() {
         searchInput.addEventListener('input', renderList);
         unpaidTab.addEventListener('click', () => switchTab('unpaid'));
         paidTab.addEventListener('click', () => switchTab('paid'));
+
+        // Modal Listeners
+        const paymentModal = document.getElementById('payment-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const qrisTab = document.getElementById('qris-tab');
+        const transferTab = document.getElementById('transfer-tab');
+        const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
+
+        closeModalBtn.addEventListener('click', hidePaymentModal);
+        paymentModal.addEventListener('click', (e) => {
+            if (e.target === paymentModal) {
+                hidePaymentModal();
+            }
+        });
+
+        qrisTab.addEventListener('click', () => switchPaymentTab('qris'));
+        transferTab.addEventListener('click', () => switchPaymentTab('transfer'));
+
+        // Use event delegation for dynamically created pay buttons
+        contentList.addEventListener('click', function(event) {
+            const payButton = event.target.closest('.pay-button');
+            if (payButton) {
+                const period = payButton.dataset.period;
+                const amount = payButton.dataset.amount;
+                const amountFormatted = payButton.dataset.amountFormatted;
+                showPaymentModal(period, amount, amountFormatted);
+            }
+        });
+
+        confirmPaymentBtn.addEventListener('click', handlePaymentConfirmation);
     }
 
     async function initializePage() {
@@ -416,6 +446,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     installmentInfo = `<p class="text-orange-600 text-xs font-medium">Terbayar: ${paidAmount} / ${totalAmount}</p>`;
                 }
                 
+                const rawAmount = item.amount || item.total_due || 0;
                 itemDiv.innerHTML = `
                     <div class="flex flex-col justify-center">
                         <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
@@ -424,7 +455,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                         <p class="text-red-600 text-sm font-medium">${amount}</p>
                     </div>
                     <div class="shrink-0">
-                        <button onclick="window.location.href='pelanggan_info.html'" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]">
+                        <button 
+                            class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]"
+                            data-period="${period}"
+                            data-amount="${rawAmount}"
+                            data-amount-formatted="${amount}"
+                        >
                             <span class="truncate">Bayar</span>
                         </button>
                     </div>
@@ -448,8 +484,131 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // ===============================================
+    // Payment Modal Functions
+    // ===============================================
+    function showPaymentModal(period, amount, amountFormatted) {
+        const modal = document.getElementById('payment-modal');
+        const modalContent = document.getElementById('modal-content');
+        document.getElementById('modal-invoice-period').textContent = period;
+        document.getElementById('modal-invoice-amount').textContent = amountFormatted;
+
+        // Store data for confirmation button
+        const confirmBtn = document.getElementById('confirm-payment-btn');
+        confirmBtn.dataset.period = period;
+        confirmBtn.dataset.amountFormatted = amountFormatted;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('opacity-100');
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function hidePaymentModal() {
+        const modal = document.getElementById('payment-modal');
+        const modalContent = document.getElementById('modal-content');
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('opacity-100');
+        }, 300);
+    }
+
+    function switchPaymentTab(tab) {
+        const qrisTab = document.getElementById('qris-tab');
+        const transferTab = document.getElementById('transfer-tab');
+        const qrisContent = document.getElementById('qris-content');
+        const transferContent = document.getElementById('transfer-content');
+
+        if (tab === 'qris') {
+            qrisTab.classList.add('active', 'text-indigo-600', 'border-indigo-600');
+            qrisTab.classList.remove('text-gray-500');
+            transferTab.classList.remove('active', 'text-indigo-600', 'border-indigo-600');
+            transferTab.classList.add('text-gray-500');
+            qrisContent.classList.remove('hidden');
+            transferContent.classList.add('hidden');
+        } else {
+            transferTab.classList.add('active', 'text-indigo-600', 'border-indigo-600');
+            transferTab.classList.remove('text-gray-500');
+            qrisTab.classList.remove('active', 'text-indigo-600', 'border-indigo-600');
+            qrisTab.classList.add('text-gray-500');
+            transferContent.classList.remove('hidden');
+            qrisContent.classList.add('hidden');
+        }
+    }
+
+    async function handlePaymentConfirmation() {
+        const confirmBtn = document.getElementById('confirm-payment-btn');
+        const period = confirmBtn.dataset.period;
+        const amount = confirmBtn.dataset.amountFormatted;
+        
+        const customerName = currentProfile ? currentProfile.full_name : currentUser.email;
+        const customerIdpl = currentProfile ? currentProfile.idpl : 'N/A';
+
+        const message = `Halo Admin Selinggonet, saya ingin mengkonfirmasi pembayaran tagihan:
+
+- *Nama:* ${customerName}
+- *ID Pelanggan:* ${customerIdpl}
+- *Periode:* ${period}
+- *Jumlah:* ${amount}
+
+Saya sudah melakukan pembayaran. Mohon untuk diverifikasi. Terima kasih.`;
+
+        const whatsappNumber = '6281914170701'; // Ganti dengan nomor WhatsApp Admin
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+        window.open(whatsappUrl, '_blank');
+    }
+
+    // ===============================================
     // Utility Functions
     // ===============================================
+    window.copyToClipboard = function(elementId, buttonElement) {
+        const textElement = document.getElementById(elementId);
+        if (!textElement) return;
+
+        const textToCopy = textElement.textContent.trim();
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showToast(`Nomor rekening ${textToCopy} berhasil disalin!`);
+            
+            // Optional: Change button icon to checkmark
+            const originalIcon = buttonElement.innerHTML;
+            buttonElement.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>`;
+            setTimeout(() => {
+                buttonElement.innerHTML = originalIcon;
+            }, 2000);
+
+        }).catch(err => {
+            console.error('Gagal menyalin:', err);
+            showToast('Gagal menyalin nomor rekening.', 'error');
+        });
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        if (!toast || !toastMessage) return;
+
+        toastMessage.textContent = message;
+        toast.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 ease-in-out z-[150]`;
+        if (type === 'success') {
+            toast.classList.add('bg-green-500');
+        } else {
+            toast.classList.add('bg-red-500');
+        }
+
+        toast.classList.remove('translate-x-[120%]');
+        toast.classList.add('translate-x-0');
+
+        setTimeout(() => {
+            toast.classList.remove('translate-x-0');
+            toast.classList.add('translate-x-[120%]');
+        }, 3000);
+    }
+
     function formatDate(dateString) {
         if (!dateString) return 'Tidak tersedia';
         
