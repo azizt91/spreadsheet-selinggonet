@@ -1,25 +1,51 @@
 import { supabase } from './supabase-client.js';
 
 // Fungsi ini sekarang akan memanggil Supabase Edge Function
+// async function invokeWhatsappFunction(target, message) {
+//     const { data, error } = await supabase.functions.invoke('send-whatsapp-notification', {
+//         body: { target, message },
+//     });
+
+//     if (error) {
+//         console.error('Error invoking Supabase function:', error);
+//         return { success: false, message: error.message };
+//     }
+    
+//     // Periksa apakah data yang dikembalikan adalah error dari dalam function
+//     if (data && data.success === false) {
+//         console.error('Error from Supabase function:', data.message);
+//         return { success: false, message: data.message };
+//     }
+
+//     console.log('WhatsApp notification sent successfully via Supabase:', data);
+//     return { success: true, message: 'Notifikasi WhatsApp berhasil dikirim', response: data };
+// }
+
 async function invokeWhatsappFunction(target, message) {
+    console.log(`Attempting to invoke Supabase function 'send-whatsapp-notification' for target: ${target}`);
+
     const { data, error } = await supabase.functions.invoke('send-whatsapp-notification', {
         body: { target, message },
     });
 
     if (error) {
-        console.error('Error invoking Supabase function:', error);
-        return { success: false, message: error.message };
+        // Ini adalah error jaringan atau error Supabase
+        console.error('Supabase function invocation failed:', error);
+        return { success: false, message: `Error memanggil fungsi: ${error.message}` };
     }
     
-    // Periksa apakah data yang dikembalikan adalah error dari dalam function
+    // Ini adalah log untuk melihat respons dari dalam fungsi
+    console.log('Response from Supabase function:', data);
+    
     if (data && data.success === false) {
-        console.error('Error from Supabase function:', data.message);
-        return { success: false, message: data.message };
+        // Ini adalah error yang ditangkap di dalam Edge Function (misalnya dari API Fonnte)
+        console.error('Error returned from inside the function:', data.message);
+        return { success: false, message: `API Error: ${data.message}` };
     }
 
-    console.log('WhatsApp notification sent successfully via Supabase:', data);
-    return { success: true, message: 'Notifikasi WhatsApp berhasil dikirim', response: data };
+    return { success: true, message: 'Notifikasi WhatsApp berhasil diproses', response: data };
 }
+
 
 // Fungsi untuk mengirim notifikasi pembayaran ke NOMOR ADMIN
 export async function sendPaymentNotification(customerData, invoiceData, adminName) {
