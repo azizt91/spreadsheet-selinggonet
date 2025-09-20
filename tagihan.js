@@ -1,5 +1,5 @@
 import { supabase } from './supabase-client.js';
-import { sendPaymentNotification, getCurrentAdminName, showNotificationResult } from './whatsapp-notification.js';
+import { sendPaymentNotification, getCurrentAdminName, showNotificationResult, sendCustomerPaymentNotification } from './whatsapp-notification.js'; // Pastikan `sendCustomerPaymentNotification` ada di sini
 
 document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
@@ -1049,62 +1049,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error sending WhatsApp notifications:', error);
             showErrorNotification(`⚠️ Error mengirim notifikasi: ${error.message}`);
         }
-    }
-
-    async function sendCustomerPaymentNotification(customerData, invoiceData, paymentMethod) {
-        try {
-            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
-            
-            // Format customer WhatsApp number
-            let cleanedNumber = String(customerData.whatsapp_number).replace(/[^0-9+]/g, '');
-            if (!cleanedNumber.startsWith('+') && !cleanedNumber.startsWith('62')) {
-                cleanedNumber = cleanedNumber.startsWith('0') ? '62' + cleanedNumber.substring(1) : '62' + cleanedNumber;
-            }
-            
-            // Prepare message based on payment type
-            let message;
-            if (invoiceData.is_fully_paid) {
-                message = `Konfirmasi Pembayaran LUNAS\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n✅ TAGIHAN TELAH LUNAS!\n\nDetail Pembayaran:\n• Periode: ${invoiceData.invoice_period}\n• Total Tagihan: ${formatter.format(invoiceData.amount)}\n• Metode: ${getPaymentMethodText(paymentMethod)}\n• Status: LUNAS\n\nTerima kasih atas pembayaran Anda. Layanan internet Anda akan terus aktif.\n\n_____________________________\n*Pesan otomatis dari Selinggonet*`;
-            } else {
-                message = `Konfirmasi Pembayaran Cicilan\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n✅ Pembayaran cicilan diterima!\n\nDetail Pembayaran:\n• Periode: ${invoiceData.invoice_period}\n• Jumlah Dibayar: ${formatter.format(invoiceData.amount)}\n• Metode: ${getPaymentMethodText(paymentMethod)}\n• Sisa Tagihan: ${formatter.format(invoiceData.remaining_amount)}\n\nSisa tagihan dapat dibayar kapan saja. Terima kasih atas kepercayaan Anda.\n\nRekening Pembayaran:\n• Seabank 901307925714 An. TAUFIQ AZIZ\n• BCA 3621053653 An. TAUFIQ AZIZ\n• BSI 7211806138 An. TAUFIQ AZIZ\n• Dana 089609497390 An. TAUFIQ AZIZ\n\n_____________________________\n*Pesan otomatis dari Selinggonet*`;
-            }
-            
-            // Send via Fonnte API
-            const response = await fetch('whatsapp-notification-handler.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    target: cleanedNumber,
-                    message: message,
-                    customer_name: customerData.full_name,
-                    customer_idpl: customerData.idpl,
-                    invoice_period: invoiceData.invoice_period,
-                    amount: invoiceData.amount,
-                    admin_name: 'System'
-                })
-            });
-            
-            const result = await response.json();
-            return result;
-            
-        } catch (error) {
-            console.error('Error sending customer notification:', error);
-            return {
-                success: false,
-                message: error.message
-            };
-        }
-    }
-
-    function getPaymentMethodText(method) {
-        const methods = {
-            'cash': 'Tunai',
-            'transfer': 'Transfer Bank',
-            'ewallet': 'E-Wallet'
-        };
-        return methods[method] || 'Tunai';
     }
 
     function showNotification(message, bgColor, icon) {
