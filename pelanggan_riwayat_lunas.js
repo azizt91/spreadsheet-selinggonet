@@ -593,19 +593,24 @@ Saya sudah melakukan pembayaran. Mohon untuk diverifikasi. Terima kasih.`;
         if (!toast || !toastMessage) return;
 
         toastMessage.textContent = message;
-        toast.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 ease-in-out z-[150]`;
+        
+        // Reset classes
+        toast.classList.remove('bg-green-500', 'bg-red-500', 'opacity-0', 'invisible');
+        
+        // Set color based on type
         if (type === 'success') {
             toast.classList.add('bg-green-500');
         } else {
             toast.classList.add('bg-red-500');
         }
 
-        toast.classList.remove('translate-x-[120%]');
-        toast.classList.add('translate-x-0');
+        // Show toast
+        toast.classList.add('opacity-100', 'visible');
 
+        // Hide after 3 seconds
         setTimeout(() => {
-            toast.classList.remove('translate-x-0');
-            toast.classList.add('translate-x-[120%]');
+            toast.classList.remove('opacity-100', 'visible');
+            toast.classList.add('opacity-0', 'invisible');
         }, 3000);
     }
 

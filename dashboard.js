@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const filterBulan = document.getElementById('filter-bulan');
     const filterTahun = document.getElementById('filter-tahun');
     const cardsContainer = document.getElementById('cards-container');
+    // ... (setelah const cardsContainer)
+    const chartsWrapper = document.getElementById('charts-wrapper');
+    const chartsSkeletonContainer = document.getElementById('charts-skeleton-container');
 
     // Initial Setup
     populateFilters();
@@ -221,46 +224,69 @@ document.addEventListener('DOMContentLoaded', async function() {
         skeletonCards.forEach(card => card.remove());
     }
 
-    function showChartsLoading() {
-        const chartContainers = ['revenueChart', 'paymentStatusChart', 'customerGrowthChart', 'customerTotalChart'];
+    // function showChartsLoading() {
+    //     const chartContainers = ['revenueChart', 'paymentStatusChart', 'customerGrowthChart', 'customerTotalChart'];
         
-        chartContainers.forEach(chartId => {
-            const canvas = document.getElementById(chartId);
-            if (canvas) {
-                const container = canvas.parentElement;
-                // Hide canvas and show loading
-                canvas.style.display = 'none';
+    //     chartContainers.forEach(chartId => {
+    //         const canvas = document.getElementById(chartId);
+    //         if (canvas) {
+    //             const container = canvas.parentElement;
+    //             // Hide canvas and show loading
+    //             canvas.style.display = 'none';
                 
-                // Create loading element
-                const loadingDiv = document.createElement('div');
-                loadingDiv.className = 'chart-loading-skeleton';
-                loadingDiv.innerHTML = `
-                    <div class="flex items-center justify-center h-full">
-                        <div class="skeleton-line w-32 h-4 rounded"></div>
-                    </div>
-                `;
-                container.appendChild(loadingDiv);
-            }
-        });
+    //             // Create loading element
+    //             const loadingDiv = document.createElement('div');
+    //             loadingDiv.className = 'chart-loading-skeleton';
+    //             loadingDiv.innerHTML = `
+    //                 <div class="flex items-center justify-center h-full">
+    //                     <div class="skeleton-line w-32 h-4 rounded"></div>
+    //                 </div>
+    //             `;
+    //             container.appendChild(loadingDiv);
+    //         }
+    //     });
+    // }
+
+    function showChartsLoading() {
+        // Kosongkan container skeleton
+        chartsSkeletonContainer.innerHTML = '';
+        // Pastikan container chart asli tersembunyi dan skeleton terlihat
+        chartsWrapper.style.display = 'none';
+        chartsSkeletonContainer.style.display = 'grid';
+
+        // Buat 4 skeleton card untuk chart
+        for (let i = 0; i < 4; i++) {
+            const skeleton = document.createElement('div');
+            skeleton.className = 'bg-white rounded-2xl shadow-lg p-6 chart-loading'; // Gunakan class .chart-loading
+            skeleton.innerHTML = `<div class="w-full h-full skeleton-line"></div>`;
+            chartsSkeletonContainer.appendChild(skeleton);
+        }
     }
 
-    function hideChartsLoading() {
-        const chartContainers = ['revenueChart', 'paymentStatusChart', 'customerGrowthChart', 'customerTotalChart'];
+    // function hideChartsLoading() {
+    //     const chartContainers = ['revenueChart', 'paymentStatusChart', 'customerGrowthChart', 'customerTotalChart'];
         
-        chartContainers.forEach(chartId => {
-            const canvas = document.getElementById(chartId);
-            if (canvas) {
-                const container = canvas.parentElement;
-                // Show canvas and remove loading
-                canvas.style.display = 'block';
+    //     chartContainers.forEach(chartId => {
+    //         const canvas = document.getElementById(chartId);
+    //         if (canvas) {
+    //             const container = canvas.parentElement;
+    //             // Show canvas and remove loading
+    //             canvas.style.display = 'block';
                 
-                // Remove loading element
-                const loadingDiv = container.querySelector('.chart-loading-skeleton');
-                if (loadingDiv) {
-                    loadingDiv.remove();
-                }
-            }
-        });
+    //             // Remove loading element
+    //             const loadingDiv = container.querySelector('.chart-loading-skeleton');
+    //             if (loadingDiv) {
+    //                 loadingDiv.remove();
+    //             }
+    //         }
+    //     });
+    // }
+
+    function hideChartsLoading() {
+        // Sembunyikan container skeleton
+        chartsSkeletonContainer.style.display = 'none';
+        // Tampilkan kembali container chart yang asli
+        chartsWrapper.style.display = 'grid';
     }
 
     // Chart instances

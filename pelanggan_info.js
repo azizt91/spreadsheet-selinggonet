@@ -33,6 +33,28 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (contactLocationBtn) {
             contactLocationBtn.addEventListener('click', handleLocationRequest);
         }
+
+        // QRIS Modal Listeners
+        const qrisImage = document.getElementById('qris-image');
+        const qrisModal = document.getElementById('qris-modal');
+        const closeQrisModalBtn = document.getElementById('close-qris-modal');
+
+        if (qrisImage && qrisModal && closeQrisModalBtn) {
+            qrisImage.addEventListener('click', () => {
+                qrisModal.classList.remove('hidden');
+            });
+
+            closeQrisModalBtn.addEventListener('click', () => {
+                qrisModal.classList.add('hidden');
+            });
+
+            // Hide modal if backdrop is clicked
+            qrisModal.addEventListener('click', (e) => {
+                if (e.target === qrisModal) {
+                    qrisModal.classList.add('hidden');
+                }
+            });
+        }
     }
 
     // ===============================================
