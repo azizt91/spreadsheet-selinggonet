@@ -103,6 +103,7 @@ BEGIN
         status = new_status::invoice_status,     -- Status baru
         payment_history = current_history,       -- Riwayat lengkap
         last_payment_date = NOW(),               -- Tanggal pembayaran terakhir
+        payment_method = p_payment_method,       -- <-- PERBAIKAN DI SINI
         paid_at = CASE 
             WHEN new_status = 'paid' THEN NOW() 
             ELSE paid_at 

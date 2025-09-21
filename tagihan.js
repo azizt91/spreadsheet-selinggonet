@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let unpaidData = [];
     let installmentData = [];
     let paidData = [];
+    let allPaidData = []; // Store all paid data for filtering
+    let filteredPaidData = []; // Store filtered paid data
     let currentTab = 'unpaid'; // Default tab
     let currentDetailData = null; // For storing detail view data
 
@@ -23,6 +25,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const installmentTab = document.getElementById('installment-tab');
     const paidTab = document.getElementById('paid-tab');
     const addInvoiceBtn = document.getElementById('add-invoice-btn');
+    
+    // Filter Elements
+    const filterBtn = document.getElementById('filter-btn');
+    const filterModal = document.getElementById('filter-modal');
+    const closeFilterModalBtn = document.getElementById('close-filter-modal-btn');
+    const customerNameInput = document.getElementById('customer-name-input');
+    const paymentMethodInput = document.getElementById('payment-method-input');
+    const startDateInput = document.getElementById('start-date-input');
+    const endDateInput = document.getElementById('end-date-input');
+    const applyFilterBtn = document.getElementById('apply-filter-btn');
+    const resetFilterBtn = document.getElementById('reset-filter-btn');
+    const totalContainer = document.getElementById('total-container');
+    const totalDisplay = document.getElementById('total-display');
+    const filterInfo = document.getElementById('filter-info');
     
     // Detail view elements - akan diinisialisasi saat dibutuhkan
     let detailCustomerName, detailCustomerId, detailCustomerWhatsapp, 
@@ -169,6 +185,124 @@ document.addEventListener('DOMContentLoaded', () => {
                 switchView('list');
             });
         }
+
+        // Filter Event Listeners
+        if (filterBtn) {
+            filterBtn.addEventListener('click', () => filterModal.classList.remove('hidden'));
+        }
+        if (closeFilterModalBtn) {
+            closeFilterModalBtn.addEventListener('click', () => filterModal.classList.add('hidden'));
+        }
+        if (filterModal) {
+            filterModal.addEventListener('click', (e) => {
+                if (e.target === filterModal) filterModal.classList.add('hidden');
+            });
+        }
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', handleApplyFilter);
+        }
+        if (resetFilterBtn) {
+            resetFilterBtn.addEventListener('click', handleResetFilter);
+        }
+    }
+
+    // ===============================================
+    // Filter Functions
+    // ===============================================
+    function handleApplyFilter() {
+        const customerName = customerNameInput.value.trim();
+        const paymentMethod = paymentMethodInput.value;
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+        
+        // Apply filter only to paid tab
+        if (currentTab === 'paid') {
+            applyPaidFilter(customerName, paymentMethod, startDate, endDate);
+            updateFilterInfo(customerName, paymentMethod, startDate, endDate);
+            totalContainer.classList.remove('hidden');
+            updateTotal();
+        }
+        
+        filterModal.classList.add('hidden');
+    }
+
+    function handleResetFilter() {
+        customerNameInput.value = '';
+        paymentMethodInput.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        
+        if (currentTab === 'paid') {
+            filteredPaidData = [...allPaidData];
+            renderList();
+            updateTotal();
+        }
+        
+        totalContainer.classList.add('hidden');
+        filterInfo.textContent = '';
+        filterModal.classList.add('hidden');
+    }
+
+    function applyPaidFilter(customerName, paymentMethod, startDate, endDate) {
+        filteredPaidData = allPaidData.filter(invoice => {
+            // Filter by customer name
+            if (customerName && !invoice.profiles?.full_name?.toLowerCase().includes(customerName.toLowerCase())) {
+                return false;
+            }
+            
+            // Filter by payment method
+            if (paymentMethod && invoice.payment_method !== paymentMethod) {
+                return false;
+            }
+            
+            // Filter by date range
+            if (startDate || endDate) {
+                const paidDate = new Date(invoice.paid_at);
+                if (startDate && paidDate < new Date(startDate + 'T00:00:00')) {
+                    return false;
+                }
+                if (endDate && paidDate > new Date(endDate + 'T23:59:59')) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        renderList();
+    }
+
+    function updateFilterInfo(customerName, paymentMethod, startDate, endDate) {
+        const filters = [];
+        
+        if (customerName) filters.push(`Nama: ${customerName}`);
+        if (paymentMethod) filters.push(`Metode: ${paymentMethod}`);
+        if (startDate || endDate) {
+            const start = startDate ? new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '...';
+            const end = endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '...';
+            filters.push(`${start} - ${end}`);
+        }
+        
+        if (filters.length > 0) {
+            filterInfo.textContent = `Filter aktif: ${filters.join(', ')}`;
+        } else {
+            filterInfo.textContent = '';
+        }
+    }
+
+    function updateTotal() {
+        const dataToCalculate = currentTab === 'paid' ? filteredPaidData : [];
+        const total = dataToCalculate.reduce((sum, invoice) => {
+            // Use total_due for paid invoices as it represents the full amount
+            return sum + (invoice.total_due || invoice.amount_paid || invoice.amount || 0);
+        }, 0);
+        
+        const formatter = new Intl.NumberFormat('id-ID', { 
+            style: 'currency', 
+            currency: 'IDR', 
+            minimumFractionDigits: 0 
+        });
+        totalDisplay.textContent = formatter.format(total);
     }
 
     // ===============================================
@@ -255,6 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     page++;
                 }
                 paidData = allPaid;
+                allPaidData = [...allPaid]; // Store for filtering
+                filteredPaidData = [...allPaid]; // Initialize filtered data
 
             } else {
                 // --- LOGIKA FETCH NORMAL (TANPA FILTER) ---
@@ -309,6 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     page++;
                 }
                 paidData = allPaid;
+                allPaidData = [...allPaid]; // Store for filtering
+                filteredPaidData = [...allPaid]; // Initialize filtered data
             }
 
             // Render berdasarkan tab yang sudah ditentukan
@@ -361,6 +499,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (tab === 'paid') {
             paidTab.classList.add('active');
             if (addInvoiceBtn) addInvoiceBtn.style.display = 'none';
+            // Show filter button only on paid tab
+            if (filterBtn) filterBtn.style.display = 'flex';
+        }
+        
+        // Hide filter button on other tabs
+        if (tab !== 'paid' && filterBtn) {
+            filterBtn.style.display = 'none';
+            // Hide total container when switching away from paid tab
+            if (totalContainer) totalContainer.classList.add('hidden');
         }
         
         renderList();
@@ -376,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentTab === 'installment') {
             data = installmentData;
         } else {
-            data = paidData;
+            data = filteredPaidData; // Use filtered data for paid tab
         }
 
         if (!Array.isArray(data)) {

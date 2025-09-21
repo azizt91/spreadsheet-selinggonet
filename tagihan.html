@@ -40,7 +40,11 @@
         <!-- List View (Default) -->
         <div id="list-view">
           <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
+            <div class="w-10"></div> <!-- Spacer -->
             <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tagihan</h2>
+            <button id="filter-btn" class="text-[#110e1b] flex items-center justify-center w-10 h-10">
+              <svg fill="#000000" viewBox="0 -0.08 20 20" data-name="Capa 1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M14.32,6.87H5.68a.38.38,0,0,0-.38.38.37.37,0,0,0,.38.37h8.64a.37.37,0,0,0,.38-.37A.38.38,0,0,0,14.32,6.87Z"></path><path d="M12.32,9.56H7.68a.38.38,0,1,0,0,.75h4.64a.38.38,0,1,0,0-.75Z"></path><path d="M11.32,12.22H8.68a.38.38,0,1,0,0,.75h2.64a.38.38,0,1,0,0-.75Z"></path></g></svg>
+            </button>
           </header>
         
         <!-- Tabs -->
@@ -80,6 +84,16 @@
               />
             </div>
           </label>
+          
+          <!-- Filter Info and Total (Hidden by default) -->
+          <div id="total-container" class="hidden bg-white rounded-lg p-4 shadow-sm mt-4">
+            <div class="text-center">
+              <p id="filter-info" class="text-sm text-gray-600 mb-2"></p>
+              <div class="text-lg font-bold text-[#110e1b]">
+                Total: <span id="total-display" class="text-green-600">Rp 0</span>
+              </div>
+            </div>
+          </div>
         </div>
         
         <!-- Invoice List Container with proper scrolling -->
@@ -241,6 +255,46 @@
           </a>
         </div>
       </footer>
+    </div>
+
+    <!-- Filter Modal -->
+    <div id="filter-modal" class="fixed inset-0 z-[60] hidden bg-black bg-opacity-50">
+      <div class="flex items-start justify-center min-h-screen p-4 pt-20">
+        <div class="bg-[#f9f8fb] rounded-lg w-full max-w-md max-h-[85vh] overflow-y-auto shadow-xl">
+          <div class="flex items-center p-4 justify-between border-b border-[#eae8f3]">
+            <h2 class="text-[#110e1b] text-lg font-bold">Filter Tagihan Lunas</h2>
+            <button id="close-filter-modal-btn" class="text-2xl font-bold">&times;</button>
+          </div>
+          <div class="p-4 space-y-4">
+            <label class="flex flex-col">
+              <p class="text-[#110e1b] text-base font-medium pb-2">Nama Pelanggan</p>
+              <input id="customer-name-input" type="text" placeholder="Cari nama pelanggan..." class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
+            </label>
+            <label class="flex flex-col">
+              <p class="text-[#110e1b] text-base font-medium pb-2">Metode Pembayaran</p>
+              <select id="payment-method-input" class="form-select w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="">Semua Metode</option>
+                <option value="cash">Cash</option>
+                <option value="transfer">Transfer</option>
+                <option value="qris">QRIS</option>
+                <option value="e-wallet">E-Wallet</option>
+              </select>
+            </label>
+            <label class="flex flex-col">
+              <p class="text-[#110e1b] text-base font-medium pb-2">Dari Tanggal</p>
+              <input id="start-date-input" type="date" class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
+            </label>
+            <label class="flex flex-col">
+              <p class="text-[#110e1b] text-base font-medium pb-2">Sampai Tanggal</p>
+              <input id="end-date-input" type="date" class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
+            </label>
+          </div>
+          <div class="flex justify-end p-4 gap-3 border-t border-[#eae8f3]">
+            <button id="reset-filter-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">Reset</button>
+            <button id="apply-filter-btn" class="px-4 py-2 bg-[#5324e0] text-white rounded-md hover:bg-opacity-90">Terapkan Filter</button>
+          </div>
+        </div>
+      </div>
     </div>
 
         <script src="config.js"></script>
