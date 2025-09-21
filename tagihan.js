@@ -500,12 +500,12 @@ document.addEventListener('DOMContentLoaded', () => {
             paidTab.classList.add('active');
             if (addInvoiceBtn) addInvoiceBtn.style.display = 'none';
             // Show filter button only on paid tab
-            if (filterBtn) filterBtn.style.display = 'flex';
+            if (filterBtn) filterBtn.classList.remove('hidden');
         }
         
         // Hide filter button on other tabs
         if (tab !== 'paid' && filterBtn) {
-            filterBtn.style.display = 'none';
+            filterBtn.classList.add('hidden');
             // Hide total container when switching away from paid tab
             if (totalContainer) totalContainer.classList.add('hidden');
         }

@@ -40,11 +40,13 @@
         <!-- List View (Default) -->
         <div id="list-view">
           <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
-            <div class="w-10"></div> <!-- Spacer -->
+            <div class="w-10"></div> <!-- Left Spacer -->
             <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tagihan</h2>
-            <button id="filter-btn" class="text-[#110e1b] flex items-center justify-center w-10 h-10">
-              <svg fill="#000000" viewBox="0 -0.08 20 20" data-name="Capa 1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M14.32,6.87H5.68a.38.38,0,0,0-.38.38.37.37,0,0,0,.38.37h8.64a.37.37,0,0,0,.38-.37A.38.38,0,0,0,14.32,6.87Z"></path><path d="M12.32,9.56H7.68a.38.38,0,1,0,0,.75h4.64a.38.38,0,1,0,0-.75Z"></path><path d="M11.32,12.22H8.68a.38.38,0,1,0,0,.75h2.64a.38.38,0,1,0,0-.75Z"></path></g></svg>
-            </button>
+            <div class="w-10 flex justify-center"> <!-- Right Container -->
+              <button id="filter-btn" class="text-[#110e1b] flex items-center justify-center w-10 h-10 hidden">
+                <svg fill="#000000" viewBox="0 -0.08 20 20" data-name="Capa 1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M14.32,6.87H5.68a.38.38,0,0,0-.38.38.37.37,0,0,0,.38.37h8.64a.37.37,0,0,0,.38-.37A.38.38,0,0,0,14.32,6.87Z"></path><path d="M12.32,9.56H7.68a.38.38,0,1,0,0,.75h4.64a.38.38,0,1,0,0-.75Z"></path><path d="M11.32,12.22H8.68a.38.38,0,1,0,0,.75h2.64a.38.38,0,1,0,0-.75Z"></path></g></svg>
+              </button>
+            </div>
           </header>
         
         <!-- Tabs -->
@@ -299,7 +301,7 @@
 
         <script src="config.js"></script>
     <script src="auth.js"></script>
-    <script type="module" src="tagihan.js?v=1.2"></script>
+    <script type="module" src="tagihan.js"></script>
     <script src="logo-navigation.js"></script>
     <script src="datetime-display.js"></script>
     <script src="pwa-installer.js"></script>
