@@ -58,7 +58,7 @@ export async function sendCustomerPaymentNotification(customerData, invoiceData,
     }
     
     let message;
-    const paymentMethodText = { 'cash': 'Tunai', 'transfer': 'Transfer Bank', 'ewallet': 'E-Wallet' }[paymentMethod] || 'Tunai';
+    const paymentMethodText = { 'cash': 'Tunai', 'transfer': 'Transfer Bank', 'ewallet': 'E-Wallet', 'qris': 'QRIS' }[paymentMethod] || 'Tunai';
 
     if (invoiceData.is_fully_paid) {
         message = `Konfirmasi Pembayaran LUNAS\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n` +

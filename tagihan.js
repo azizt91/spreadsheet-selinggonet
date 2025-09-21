@@ -2,6 +2,7 @@ import { supabase } from './supabase-client.js';
 import { sendPaymentNotification, getCurrentAdminName, showNotificationResult, sendCustomerPaymentNotification } from './whatsapp-notification.js'; // Pastikan `sendCustomerPaymentNotification` ada di sini
 
 document.addEventListener('DOMContentLoaded', () => {
+    
     // ===============================================
     // State Management & Global Variables
     // ===============================================
@@ -9,16 +10,66 @@ document.addEventListener('DOMContentLoaded', () => {
     let installmentData = [];
     let paidData = [];
     let currentTab = 'unpaid'; // Default tab
+    let currentDetailData = null; // For storing detail view data
 
     // ===============================================
     // DOM Element Selectors
     // ===============================================
+    // Views will be initialized when needed
+    let views = {};
     const invoiceList = document.getElementById('invoice-list');
     const searchInput = document.getElementById('search-input');
     const unpaidTab = document.getElementById('unpaid-tab');
     const installmentTab = document.getElementById('installment-tab');
     const paidTab = document.getElementById('paid-tab');
     const addInvoiceBtn = document.getElementById('add-invoice-btn');
+    
+    // Detail view elements - akan diinisialisasi saat dibutuhkan
+    let detailCustomerName, detailCustomerId, detailCustomerWhatsapp, 
+        detailInvoicePeriod, detailInvoiceAmount, detailPaidDate, 
+        detailPaymentMethod, detailAdminName;
+
+    // ===============================================
+    // View Management
+    // ===============================================
+    function initializeViews() {
+        views = { 
+            list: document.getElementById('list-view'), 
+            detail: document.getElementById('detail-view') 
+        };
+        
+    }
+
+    function switchView(viewName) {
+        // Initialize views if not already done
+        if (!views.list || !views.detail) {
+            initializeViews();
+        }
+        
+        // Add null safety
+        Object.values(views).forEach(view => {
+            if (view) view.classList.add('hidden');
+        });
+        
+        if (views[viewName]) {
+            views[viewName].classList.remove('hidden');
+        }
+        
+        window.scrollTo(0, 0);
+    }
+
+    // Initialize detail view elements
+    function initializeDetailElements() {
+        detailCustomerName = document.getElementById('detail-customer-name');
+        detailCustomerId = document.getElementById('detail-customer-id');
+        detailCustomerWhatsapp = document.getElementById('detail-customer-whatsapp');
+        detailInvoicePeriod = document.getElementById('detail-invoice-period');
+        detailInvoiceAmount = document.getElementById('detail-invoice-amount');
+        detailPaidDate = document.getElementById('detail-paid-date');
+        detailPaymentMethod = document.getElementById('detail-payment-method');
+        detailAdminName = document.getElementById('detail-admin-name');
+        
+    }
 
     // ===============================================
     // Helper Function for Pill Colors
@@ -110,6 +161,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (addInvoiceBtn) {
             addInvoiceBtn.addEventListener('click', handleCreateInvoices);
         }
+
+        // Back button from detail view
+        const backFromDetailBtn = document.getElementById('back-from-detail');
+        if (backFromDetailBtn) {
+            backFromDetailBtn.addEventListener('click', () => {
+                switchView('list');
+            });
+        }
     }
 
     // ===============================================
@@ -147,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ambil data Unpaid dengan filter (hanya unpaid, tidak termasuk partially_paid)
                 const { data: unpaid, error: unpaidErr } = await supabase
                     .from('invoices')
-                    .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                    .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                     .eq('status', 'unpaid')
                     .eq('invoice_period', targetPeriode)
                     .order('created_at', { ascending: false });
@@ -158,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const { data: installment, error: installmentErr } = await supabase
                         .from('invoices')
-                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                         .eq('status', 'partially_paid')
                         .eq('invoice_period', targetPeriode)
                         .order('created_at', { ascending: false });
@@ -169,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Fallback: ambil data berdasarkan kondisi amount_paid > 0 dan status != 'paid'
                     const { data: installmentFallback, error: fallbackErr } = await supabase
                         .from('invoices')
-                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                         .neq('status', 'paid')
                         .gt('amount_paid', 0)
                         .eq('invoice_period', targetPeriode)
@@ -185,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 while (true) {
                     const { data: paidChunk, error: paidErrChunk } = await supabase
                         .from('invoices')
-                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                         .eq('status', 'paid')
                         .eq('invoice_period', targetPeriode)
                         .order('paid_at', { ascending: false })
@@ -205,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ambil data Unpaid tanpa filter (hanya unpaid, tidak termasuk partially_paid)
                 const { data: unpaid, error: unpaidErr } = await supabase
                     .from('invoices')
-                    .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                    .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                     .eq('status', 'unpaid')
                     .order('created_at', { ascending: false });
                 if (unpaidErr) throw unpaidErr;
@@ -215,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const { data: installment, error: installmentErr } = await supabase
                         .from('invoices')
-                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                         .eq('status', 'partially_paid')
                         .order('created_at', { ascending: false });
                     if (installmentErr) throw installmentErr;
@@ -225,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Fallback: ambil data berdasarkan kondisi amount_paid > 0 dan status != 'paid'
                     const { data: installmentFallback, error: fallbackErr } = await supabase
                         .from('invoices')
-                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                         .neq('status', 'paid')
                         .gt('amount_paid', 0)
                         .order('created_at', { ascending: false });
@@ -240,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 while (true) {
                     const { data: paidChunk, error: paidErrChunk } = await supabase
                         .from('invoices')
-                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, profiles (full_name, idpl, whatsapp_number)`)
+                        .select(`id, invoice_period, amount, total_due, amount_paid, status, paid_at, payment_method, profiles (full_name, idpl, whatsapp_number)`)
                         .eq('status', 'paid')
                         .order('paid_at', { ascending: false })
                         .range(page * CHUNK_SIZE, (page + 1) * CHUNK_SIZE - 1);
@@ -433,8 +492,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${period}
             </span>
         </div>
-        <div class="shrink-0">
-            <p class="text-green-600 text-base font-bold leading-normal">LUNAS</p>
+        <div class="shrink-0 flex items-center gap-3">
+            <div class="flex flex-col items-end">
+                <p class="text-green-600 text-base font-bold leading-normal">LUNAS</p>
+                <p class="text-gray-500 text-xs font-medium leading-normal">${item.payment_method || 'Tidak diketahui'}</p>
+            </div>
+            <button class="detail-btn flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 transition-colors" data-invoice-id="${invoiceId}" title="Lihat Detail">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>
+                </svg>
+            </button>
         </div>
     `;
 }
@@ -469,7 +536,72 @@ document.addEventListener('DOMContentLoaded', () => {
             sendWhatsAppMessage(targetItem);
         } else if (button.classList.contains('installment-btn')) {
             handleInstallmentPayment(targetItem);
+        } else if (button.classList.contains('detail-btn')) {
+            navigateToPaymentDetail(targetItem);
         }
+    }
+    
+    async function navigateToPaymentDetail(invoice) {
+        if (!invoice || !invoice.id) {
+            showErrorNotification('Error: Data tagihan tidak lengkap.');
+            return;
+        }
+        
+        // Store current detail data
+        currentDetailData = invoice;
+        
+        // Ensure DOM is ready with a small delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Populate detail view
+        await displayPaymentDetail(invoice);
+        
+        // Switch to detail view
+        switchView('detail');
+    }
+    
+    async function displayPaymentDetail(invoiceData) {
+        // Initialize detail elements first
+        initializeDetailElements();
+        
+        // Format currency
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+
+        // Format date
+        let formattedDate = 'Tidak tersedia';
+        if (invoiceData.paid_at) {
+            const date = new Date(invoiceData.paid_at);
+            formattedDate = date.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Get current admin name
+        const currentAdmin = await getCurrentAdminName();
+
+
+        // Populate data with null safety
+        if (detailCustomerName) detailCustomerName.textContent = invoiceData.profiles?.full_name || 'Tidak tersedia';
+        if (detailCustomerId) detailCustomerId.textContent = invoiceData.profiles?.idpl || 'Tidak tersedia';
+        if (detailCustomerWhatsapp) detailCustomerWhatsapp.textContent = invoiceData.profiles?.whatsapp_number || 'Tidak tersedia';
+        if (detailInvoicePeriod) detailInvoicePeriod.textContent = invoiceData.invoice_period || 'Tidak tersedia';
+        // For paid invoices, use total_due or amount_paid instead of amount (which is remaining)
+        const displayAmount = invoiceData.status === 'paid' 
+            ? (invoiceData.total_due || invoiceData.amount_paid || invoiceData.amount)
+            : invoiceData.amount;
+        if (detailInvoiceAmount) detailInvoiceAmount.textContent = formatter.format(displayAmount || 0);
+        if (detailPaidDate) detailPaidDate.textContent = formattedDate;
+        if (detailPaymentMethod) detailPaymentMethod.textContent = invoiceData.payment_method || 'Tidak diketahui';
+        if (detailAdminName) detailAdminName.textContent = currentAdmin || 'Admin';
     }
     
     async function handleInstallmentPayment(invoice) {
@@ -691,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <option value="cash">Tunai</option>
                             <option value="transfer">Transfer Bank</option>
                             <option value="ewallet">E-Wallet</option>
+                            <option value="qris">QRIS</option> </select>
                         </select>
                     </div>
                     
@@ -798,6 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <option value="cash">Tunai</option>
                             <option value="transfer">Transfer Bank</option>
                             <option value="ewallet">E-Wallet</option>
+                            <option value="qris">QRIS</option> </select>
                         </select>
                     </div>
                     

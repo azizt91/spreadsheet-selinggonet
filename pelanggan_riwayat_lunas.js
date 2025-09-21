@@ -4,17 +4,39 @@ import { checkAuth, requireRole } from './auth.js';
 
 let currentUser = null;
 let currentProfile = null;
+let currentDetailData = null; // For storing detail view data
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Check authentication and require USER role
     currentUser = await requireRole('USER');
     if (!currentUser) return; // Stop if not authenticated or not USER role
 
+    // Get current user profile
+    try {
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+        
+        if (!profileError && profile) {
+            currentProfile = profile;
+        }
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+    }
+
     // DOM Elements
+    let views = {};
     const contentList = document.getElementById('content-list');
     const searchInput = document.getElementById('search-input');
     const unpaidTab = document.getElementById('unpaidTab');
     const paidTab = document.getElementById('paidTab');
+    
+    // Detail view elements - akan diinisialisasi saat dibutuhkan
+    let detailCustomerName, detailCustomerId, detailCustomerWhatsapp, 
+        detailInvoicePeriod, detailInvoiceAmount, detailPaidDate, 
+        detailPaymentMethod;
     
     // State management
     let unpaidData = [];
@@ -25,12 +47,118 @@ document.addEventListener('DOMContentLoaded', async function() {
     await initializePage();
 
     // ===============================================
+    // View Management
+    // ===============================================
+    function initializeViews() {
+        views = { 
+            list: document.getElementById('list-view'), 
+            detail: document.getElementById('detail-view') 
+        };
+    }
+
+    function switchView(viewName) {
+        // Initialize views if not already done
+        if (!views.list || !views.detail) {
+            initializeViews();
+        }
+        
+        // Add null safety
+        Object.values(views).forEach(view => {
+            if (view) view.classList.add('hidden');
+        });
+        
+        if (views[viewName]) {
+            views[viewName].classList.remove('hidden');
+        }
+        
+        window.scrollTo(0, 0);
+    }
+
+    // Initialize detail view elements
+    function initializeDetailElements() {
+        detailCustomerName = document.getElementById('detail-customer-name');
+        detailCustomerId = document.getElementById('detail-customer-id');
+        detailCustomerWhatsapp = document.getElementById('detail-customer-whatsapp');
+        detailInvoicePeriod = document.getElementById('detail-invoice-period');
+        detailInvoiceAmount = document.getElementById('detail-invoice-amount');
+        detailPaidDate = document.getElementById('detail-paid-date');
+        detailPaymentMethod = document.getElementById('detail-payment-method');
+    }
+
+    async function navigateToPaymentDetail(invoice) {
+        if (!invoice || !invoice.id) {
+            showToast('Error: Data tagihan tidak lengkap.', 'error');
+            return;
+        }
+        
+        // Store current detail data
+        currentDetailData = invoice;
+        
+        // Ensure DOM is ready with a small delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Populate detail view
+        await displayPaymentDetail(invoice);
+        
+        // Switch to detail view
+        switchView('detail');
+    }
+    
+    async function displayPaymentDetail(invoiceData) {
+        // Initialize detail elements first
+        initializeDetailElements();
+        
+        // Format currency
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+
+        // Format date
+        let formattedDate = 'Tidak tersedia';
+        if (invoiceData.paid_at) {
+            const date = new Date(invoiceData.paid_at);
+            formattedDate = date.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // For paid invoices, use total_due or amount_paid instead of amount (which is remaining)
+        const displayAmount = invoiceData.status === 'paid' 
+            ? (invoiceData.total_due || invoiceData.amount_paid || invoiceData.amount)
+            : invoiceData.amount;
+
+        // Populate data with null safety
+        if (detailCustomerName) detailCustomerName.textContent = invoiceData.profiles?.full_name || 'Tidak tersedia';
+        if (detailCustomerId) detailCustomerId.textContent = invoiceData.profiles?.idpl || 'Tidak tersedia';
+        if (detailCustomerWhatsapp) detailCustomerWhatsapp.textContent = invoiceData.profiles?.whatsapp_number || 'Tidak tersedia';
+        if (detailInvoicePeriod) detailInvoicePeriod.textContent = invoiceData.invoice_period || 'Tidak tersedia';
+        if (detailInvoiceAmount) detailInvoiceAmount.textContent = formatter.format(displayAmount || 0);
+        if (detailPaidDate) detailPaidDate.textContent = formattedDate;
+        if (detailPaymentMethod) detailPaymentMethod.textContent = invoiceData.payment_method || 'Tidak diketahui';
+    }
+
+    // ===============================================
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
         searchInput.addEventListener('input', renderList);
         unpaidTab.addEventListener('click', () => switchTab('unpaid'));
         paidTab.addEventListener('click', () => switchTab('paid'));
+
+        // Back button from detail view
+        const backFromDetailBtn = document.getElementById('back-from-detail');
+        if (backFromDetailBtn) {
+            backFromDetailBtn.addEventListener('click', () => {
+                switchView('list');
+            });
+        }
 
         // Modal Listeners
         const paymentModal = document.getElementById('payment-modal');
@@ -61,6 +189,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
 
         confirmPaymentBtn.addEventListener('click', handlePaymentConfirmation);
+
+        // Add event listener for detail buttons
+        contentList.addEventListener('click', (event) => {
+            const detailBtn = event.target.closest('.detail-btn');
+            if (detailBtn) {
+                const invoiceId = detailBtn.dataset.invoiceId;
+                const invoice = paidData.find(item => item.id === invoiceId);
+                if (invoice) {
+                    navigateToPaymentDetail(invoice);
+                }
+            }
+        });
     }
 
     async function initializePage() {
@@ -239,6 +379,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         try {
             console.log('Fetching payment history for user:', currentUser.id);
+            console.log('Current profile:', currentProfile);
             
             // First, get customer profile to get installation_date
             const { data: profile, error: profileError } = await supabase
@@ -299,8 +440,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                     amount_paid,
                     status,
                     paid_at,
+                    payment_method,
                     due_date,
-                    created_at
+                    created_at,
+                    profiles (
+                        full_name,
+                        idpl,
+                        whatsapp_number
+                    )
                 `)
                 .eq('customer_id', currentUser.id)
                 .eq('status', 'paid')
@@ -311,10 +458,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             console.log('Paid bills loaded:', paidBills);
+            console.log('Unpaid bills loaded:', unpaidBillsWithDueDate);
 
-            // Store data globally
             unpaidData = unpaidBillsWithDueDate || [];
             paidData = paidBills || [];
+
+            console.log('Final data - unpaidData:', unpaidData.length, 'paidData:', paidData.length);
+            console.log('Current tab:', currentTab);
 
             renderList();
 
@@ -345,7 +495,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = currentTab === 'unpaid' ? unpaidData : paidData;
 
         if (!Array.isArray(data)) {
-            contentList.innerHTML = `<p class="text-center text-red-500 p-4">Error: Format data tidak valid</p>`;
+            contentList.innerHTML = '<p class="text-center text-red-500 p-4">Error: Format data tidak valid</p>';
             return;
         }
 
@@ -358,7 +508,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (filteredData.length === 0) {
             const emptyMessage = currentTab === 'unpaid' ? 
                 'Tidak ada tagihan belum dibayar' : 'Belum ada riwayat pembayaran';
-            contentList.innerHTML = `<p class="text-center text-gray-500 p-4">${emptyMessage}</p>`;
+            contentList.innerHTML = '<p class="text-center text-gray-500 p-4">' + emptyMessage + '</p>';
             return;
         }
 
@@ -397,87 +547,39 @@ document.addEventListener('DOMContentLoaded', async function() {
                     dueDate = formatDate(item.calculated_due_date);
                 } else if (item.due_date) {
                     dueDate = formatDate(item.due_date);
-                } else {
-                    // If no installation_date, use default: 1st of the month
-                    // Handle both "YYYY-MM" and "Month YYYY" formats
-                    const period = item.invoice_period || '';
-                    let year, month;
-                    
-                    if (period.includes('-')) {
-                        [year, month] = period.split('-');
-                        month = parseInt(month);
-                    } else {
-                        const monthNames = {
-                            'January': 1, 'Januari': 1,
-                            'February': 2, 'Februari': 2,
-                            'March': 3, 'Maret': 3,
-                            'April': 4,
-                            'May': 5, 'Mei': 5,
-                            'June': 6, 'Juni': 6,
-                            'July': 7, 'Juli': 7,
-                            'August': 8, 'Agustus': 8,
-                            'September': 9,
-                            'October': 10, 'Oktober': 10,
-                            'November': 11,
-                            'December': 12, 'Desember': 12
-                        };
-                        
-                        const parts = period.trim().split(' ');
-                        if (parts.length >= 2) {
-                            const monthName = parts[0];
-                            year = parts[1];
-                            month = monthNames[monthName];
-                        }
-                    }
-                    
-                    if (year && month) {
-                        const defaultDueDate = new Date(parseInt(year), month - 1, 1);
-                        dueDate = formatDate(defaultDueDate.toISOString().split('T')[0]);
-                    }
-                }
-                
-                console.log(`Rendering bill ${item.invoice_period}: due_date = ${dueDate}`);
-                
-                // Show installment info if partially paid
-                let installmentInfo = '';
-                if (item.status === 'partially_paid' && item.amount_paid && item.total_due) {
-                    const paidAmount = formatter.format(item.amount_paid);
-                    const totalAmount = formatter.format(item.total_due);
-                    installmentInfo = `<p class="text-orange-600 text-xs font-medium">Terbayar: ${paidAmount} / ${totalAmount}</p>`;
                 }
                 
                 const rawAmount = item.amount || item.total_due || 0;
-                itemDiv.innerHTML = `
-                    <div class="flex flex-col justify-center">
-                        <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
-                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ${dueDate}</p>
-                        ${installmentInfo}
-                        <p class="text-red-600 text-sm font-medium">${amount}</p>
-                    </div>
-                    <div class="shrink-0">
-                        <button 
-                            class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]"
-                            data-period="${period}"
-                            data-amount="${rawAmount}"
-                            data-amount-formatted="${amount}"
-                        >
-                            <span class="truncate">Bayar</span>
-                        </button>
-                    </div>
-                `;
+                itemDiv.innerHTML = 
+                    '<div class="flex flex-col justify-center">' +
+                        '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
+                        '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ' + dueDate + '</p>' +
+                        '<p class="text-red-600 text-sm font-medium">' + amount + '</p>' +
+                    '</div>' +
+                    '<div class="shrink-0">' +
+                        '<button class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]" data-period="' + period + '" data-amount="' + rawAmount + '" data-amount-formatted="' + amount + '">' +
+                            '<span class="truncate">Bayar</span>' +
+                        '</button>' +
+                    '</div>';
             } else {
                 const paymentDate = item.paid_at ? 
                     formatDate(item.paid_at) : 'Tanggal tidak tersedia';
-                itemDiv.innerHTML = `
-                    <div class="flex flex-col justify-center">
-                        <p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">${period}</p>
-                        <p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Dibayar: ${paymentDate}</p>
-                    </div>
-                    <div class="shrink-0 text-right">
-                        <p class="text-[#110e1b] text-base font-medium leading-normal">${amount}</p>
-                        <p class="text-green-600 text-xs font-medium">✓ Lunas</p>
-                    </div>
-                `;
+                itemDiv.innerHTML = 
+                    '<div class="flex flex-col justify-center flex-1">' +
+                        '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
+                        '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Dibayar: ' + paymentDate + '</p>' +
+                    '</div>' +
+                    '<div class="shrink-0 flex items-center gap-3">' +
+                        '<div class="text-right">' +
+                            '<p class="text-[#110e1b] text-base font-medium leading-normal">' + amount + '</p>' +
+                            '<p class="text-green-600 text-xs font-medium">✓ Lunas</p>' +
+                        '</div>' +
+                        '<button class="detail-btn flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 transition-colors" data-invoice-id="' + item.id + '" title="Lihat Detail">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">' +
+                                '<path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>' +
+                            '</svg>' +
+                        '</button>' +
+                    '</div>';
             }
             contentList.appendChild(itemDiv);
         });
