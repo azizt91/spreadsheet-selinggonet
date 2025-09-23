@@ -132,8 +132,11 @@ self.addEventListener('push', (event) => {
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked, opening notification center.');
   event.notification.close();
+  
+  // Arahkan ke HALAMAN NOTIFIKASI BARU
   event.waitUntil(
-    clients.openWindow('/dashboard.html')
+    clients.openWindow('/notifikasi.html')
   );
 });

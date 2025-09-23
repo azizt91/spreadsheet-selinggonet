@@ -24,24 +24,75 @@ async function invokeWhatsappFunction(target, message) {
     return { success: true, message: 'Notifikasi WhatsApp berhasil diproses', response: data };
 }
 
-// Fungsi untuk mengirim notifikasi pembayaran ke NOMOR ADMIN
+/**
+ * MENGIRIM NOTIFIKASI PWA DAN MENYIMPANNYA KE LOCALSTORAGE.
+ */
 export async function sendPaymentNotification(customerData, invoiceData, adminName) {
-    const notificationNumber = '6281914170701'; // Nomor admin
     const amount = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(invoiceData.amount || 0);
-    const paidDate = new Date(invoiceData.paid_at || Date.now()).toLocaleString('id-ID');
 
-    const message = `🔔 *PEMBAYARAN LUNAS* 🔔\n\n` +
-                    `*Detail Pembayaran:*\n` +
-                    `• Nama: ${customerData.full_name}\n` +
-                    `• ID Pelanggan: ${customerData.idpl}\n` +
-                    `• Periode: ${invoiceData.invoice_period}\n` +
-                    `• Jumlah: ${amount}\n` +
-                    `• Tanggal Bayar: ${paidDate}\n\n` +
-                    `*Diproses oleh:* ${adminName}\n\n` +
-                    `✅ Status tagihan telah diubah menjadi LUNAS\n\n` +
-                    `_Selinggonet Management System_`;
+    const title = '🔔 Pembayaran Lunas Diterima';
+    const body = `Dari ${customerData.full_name} (${amount}) untuk periode ${invoiceData.invoice_period}. Diproses oleh ${adminName}.`;
+    const options = {
+        body: body,
+        icon: 'assets/logo_192x192.png',
+        badge: 'assets/logo_192x192.png',
+        vibrate: [200, 100, 200],
+        tag: `payment-${invoiceData.id}`
+    };
 
-    return await invokeWhatsappFunction(notificationNumber, message);
+    // === KODE BARU UNTUK MENYIMPAN NOTIFIKASI ===
+    try {
+        const notificationsJSON = localStorage.getItem('selinggonet_notifications');
+        const notifications = notificationsJSON ? JSON.parse(notificationsJSON) : [];
+
+        const newNotification = {
+            title: title,
+            body: body,
+            timestamp: new Date().toISOString(),
+            url: '/tagihan.html?status=paid', // URL tujuan saat notif di-klik dari halaman notifikasi
+            read: false // Status "belum dibaca"
+        };
+
+        // Tambahkan notifikasi baru di paling atas
+        notifications.unshift(newNotification);
+
+        // Batasi hanya menyimpan 50 notifikasi terakhir
+        if (notifications.length > 50) {
+            notifications.pop();
+        }
+
+        localStorage.setItem('selinggonet_notifications', JSON.stringify(notifications));
+    } catch (e) {
+        console.error("Gagal menyimpan notifikasi ke localStorage:", e);
+    }
+    // ===========================================
+
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+        console.warn('PWA notifications not supported.');
+        return { success: false, message: 'Browser tidak mendukung notifikasi PWA.' };
+    }
+
+    if (Notification.permission === 'denied') {
+        console.warn('Notification permission was denied.');
+        return { success: false, message: 'Izin notifikasi telah ditolak.' };
+    }
+    
+    // Minta izin jika belum ditentukan
+    if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            return { success: false, message: 'Izin notifikasi tidak diberikan.' };
+        }
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.showNotification(title, options);
+        return { success: true, message: 'Notifikasi PWA berhasil ditampilkan.' };
+    } catch (err) {
+        console.error('Error displaying PWA notification:', err);
+        return { success: false, message: `Gagal menampilkan notifikasi: ${err.message}` };
+    }
 }
 
 // Fungsi untuk mengirim notifikasi pembayaran ke PELANGGAN

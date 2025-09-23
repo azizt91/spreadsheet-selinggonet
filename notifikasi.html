@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifikasi - Selinggonet</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="assets/logo_192x192.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        .notification-item:hover {
+            transform: translateX(4px);
+            background-color: #f0f5ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+        <div class="flex-1 pb-24">
+            <header class="flex items-center bg-white p-4 justify-between shadow-sm sticky top-0 z-10">
+                <a href="dashboard.html" class="text-gray-600 hover:text-gray-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                </a>
+                <h2 class="text-lg font-bold text-center flex-1">Pusat Notifikasi</h2>
+                <div class="w-6"></div> </header>
+
+            <main class="p-4">
+                <div id="notification-list" class="space-y-3">
+                    </div>
+                <button id="clear-notifications" class="mt-6 w-full text-center text-sm text-red-500 hover:text-red-700 font-semibold py-2 px-4 rounded-lg border border-red-200 hover:bg-red-50 transition-colors">
+                    Bersihkan Semua Notifikasi
+                </button>
+            </main>
+        </div>
+        
+        <footer class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t">
+             </footer>
+    </div>
+    <script type="module" src="notifikasi.js"></script>
+</body>
+</html>
