@@ -40,24 +40,35 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function populateUserInfo(user) {
         const userGreeting = document.getElementById('user-greeting');
         const userEmail = document.getElementById('user-email');
+        const userAvatar = document.getElementById('user-avatar'); // Get the avatar element
 
         if (!userGreeting || !userEmail) return;
 
         // Set email immediately
         userEmail.textContent = user.email;
 
-        // Fetch full_name from profiles
+        // Fetch full_name and photo_url from profiles
         try {
             const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('full_name')
+                .select('full_name, photo_url') // Fetch photo_url as well
                 .eq('id', user.id)
                 .single();
 
             if (error) throw error;
 
-            if (profile && profile.full_name) {
-                userGreeting.textContent = `Hallo, ${profile.full_name}`;
+            if (profile) {
+                userGreeting.textContent = `Hallo, ${profile.full_name || 'Admin'}`;
+                
+                // Set the avatar image
+                if (profile.photo_url && userAvatar) {
+                    userAvatar.style.backgroundImage = `url('${profile.photo_url}')`;
+                } else if (userAvatar) {
+                    // Optional: Fallback to initials if no photo
+                    const initials = (profile.full_name || 'A').charAt(0).toUpperCase();
+                    userAvatar.innerHTML = `<span class="text-white text-xl font-bold flex items-center justify-center h-full">${initials}</span>`;
+                    userAvatar.style.backgroundColor = 'rgba(255,255,255,0.3)';
+                }
             } else {
                 userGreeting.textContent = `Hallo, Admin`;
             }
@@ -506,4 +517,3 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 });
-

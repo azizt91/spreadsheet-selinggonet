@@ -15,7 +15,6 @@ const urlsToCache = [
   '/style.css',
   '/login.js',
   '/auth.js',
-  '/logo-navigation.js',
   '/datetime-display.js',
   '/dashboard.js',
   '/pelanggan.js',

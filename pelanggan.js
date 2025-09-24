@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            if (id === 'edit-customer-detail-btn') {
+            if (id === 'edit-customer-icon-btn') {
                 handleEditFromDetailView();
                 return;
             }

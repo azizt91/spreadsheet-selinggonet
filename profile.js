@@ -5,81 +5,57 @@ import { requireRole, checkAuth } from './auth.js';
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Profile page loaded, checking authentication...');
     
-    try {
-        const user = await requireRole('ADMIN');
-        if (!user) {
-            console.log('Authentication failed, user will be redirected');
-            return;
-        }
-        console.log('Authentication successful for user:', user.id);
-    } catch (error) {
-        console.error('Authentication error:', error);
-        return;
-    }
-
-    // --- Global variable to hold current admin data ---
+    // --- Global Variables ---
     let currentAdminData = null;
     let currentUser = null;
 
     // --- DOM Element Selectors ---
     const profileView = document.getElementById('profile-view');
     const editView = document.getElementById('edit-view');
-
-    // View Mode Elements
     const profileAvatar = document.getElementById('profileAvatar');
     const adminName = document.getElementById('adminName');
     const adminEmail = document.getElementById('adminEmail');
     const editInfoCard = document.getElementById('edit-info-card');
-
-    // Edit Mode Elements
     const editBackBtn = document.getElementById('edit-back-btn');
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const editNama = document.getElementById('edit-nama');
     const editUser = document.getElementById('edit-user');
     const editPassword = document.getElementById('edit-password');
+    const logoutBtn = document.getElementById('logout-btn');
 
-    // --- Toggle between view and edit mode ---
-    function toggleMode(showEdit) {
-        if (showEdit) {
-            profileView.classList.add('hidden');
-            editView.classList.remove('hidden');
-        } else {
-            profileView.classList.remove('hidden');
-            editView.classList.add('hidden');
+    // --- Authentication Check ---
+    try {
+        const user = await requireRole('ADMIN');
+        if (!user) {
+            console.log('Authentication failed, user will be redirected');
+            return;
         }
+        currentUser = user; // Inisialisasi currentUser di sini
+        console.log('Authentication successful for user:', currentUser.id);
+    } catch (error) {
+        console.error('Authentication error:', error);
+        return;
     }
 
-    // --- Fetch and display profile data ---
+    // --- Core Functions ---
+
+    /**
+     * Fetches the complete user profile and populates the UI.
+     */
     async function loadUserProfile() {
         showSkeletonLoading();
         try {
-            console.log('Fetching user profile...');
-            
-            // Get current authenticated user
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !session) {
-                throw new Error('Sesi tidak valid');
-            }
-            
-            currentUser = session.user;
-            
-            // Fetch profile data from profiles table
+            if (!currentUser) throw new Error('User not authenticated.');
+
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', currentUser.id)
                 .single();
 
-            console.log('Profile data:', { profile, error });
-
-            if (error) {
-                throw new Error(error.message);
-            }
-
-            if (!profile) {
-                throw new Error('Profil tidak ditemukan');
-            }
+            if (error) throw new Error(error.message);
+            if (!profile) throw new Error('Profil tidak ditemukan');
 
             currentAdminData = profile;
             populateViewMode(currentAdminData);
@@ -94,32 +70,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- Populate view mode with data ---
-    function populateViewMode(data) {
-        adminName.textContent = data.full_name || 'Nama Admin';
-        adminEmail.textContent = currentUser?.email || 'email@example.com';
-        
-        const photoUrl = data.photo_url;
-        if (photoUrl && photoUrl.startsWith('http')) {
-            profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
-            profileAvatar.innerHTML = '';
-        } else {
-            const initials = (data.full_name || 'A').charAt(0).toUpperCase();
-            profileAvatar.style.backgroundImage = `none`;
-            profileAvatar.style.backgroundColor = '#6a5acd';
-            profileAvatar.innerHTML = `<span class="text-white text-4xl font-bold">${initials}</span>`;
+    /**
+     * Handles the file selection and upload process for the avatar.
+     * @param {Event} event - The file input change event.
+     */
+    async function handlePhotoUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !currentUser) return;
+
+        alert('Mengunggah foto...'); // Notifikasi loading sederhana
+
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            // 1. Upload file to Supabase Storage
+            let { error: uploadError } = await supabase.storage
+                .from('avatars') // Pastikan nama bucket ini benar
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: true // Overwrite existing file
+                });
+            if (uploadError) throw uploadError;
+
+            // 2. Get the public URL for the uploaded file
+            const { data } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+            if (!data.publicUrl) throw new Error("Tidak bisa mendapatkan URL publik.");
+            
+            // 3. Update the photo_url in the profiles table
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ photo_url: data.publicUrl })
+                .eq('id', currentUser.id);
+            if (updateError) throw updateError;
+
+            // 4. Reload the profile to show the new photo
+            alert('Foto profil berhasil diperbarui!');
+            await loadUserProfile();
+
+        } catch (error) {
+            console.error('Error uploading photo:', error);
+            alert(`Gagal mengunggah foto: ${error.message}`);
         }
     }
 
-    // --- Populate edit form with data ---
-    function populateEditMode(data) {
-        editNama.value = data.full_name || '';
-        editUser.value = currentUser?.email || '';
-        editPassword.value = ''; // Selalu kosongkan password
-    }
-
-
-    // --- Save changes ---
+    /**
+     * Saves changes made in the edit profile form.
+     */
     async function saveChanges() {
         if (!currentAdminData || !currentUser) {
             alert('Error: Data admin tidak lengkap untuk disimpan.');
@@ -128,9 +128,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const newNama = editNama.value.trim();
         const newPassword = editPassword.value.trim();
+        const newEmail = editUser.value.trim();
 
-        if (!newNama) {
-            alert('Nama Lengkap tidak boleh kosong.');
+        if (!newNama || !newEmail) {
+            alert('Nama Lengkap dan Email tidak boleh kosong.');
             return;
         }
 
@@ -143,29 +144,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveBtn.disabled = true;
 
         try {
-            // Update profile data in profiles table
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({ full_name: newNama })
                 .eq('id', currentUser.id);
+            if (profileError) throw profileError;
 
-            if (profileError) {
-                throw new Error(profileError.message);
+            const authUpdateData = {};
+            if (newEmail && newEmail !== currentUser.email) {
+                authUpdateData.email = newEmail;
+            }
+            if (newPassword) {
+                authUpdateData.password = newPassword;
             }
 
-            // Update password if provided
-            if (newPassword) {
-                const { error: passwordError } = await supabase.auth.updateUser({
-                    password: newPassword
-                });
-
-                if (passwordError) {
-                    throw new Error(`Gagal mengubah password: ${passwordError.message}`);
+            if (Object.keys(authUpdateData).length > 0) {
+                const { data: { user }, error: authError } = await supabase.auth.updateUser(authUpdateData);
+                if (authError) {
+                    // Jika gagal, kembalikan data profil yang gagal diupdate
+                    await supabase.from('profiles').update({ full_name: currentAdminData.full_name }).eq('id', currentUser.id);
+                    throw new Error(`Gagal memperbarui email/password: ${authError.message}`);
                 }
             }
 
             alert('Profil berhasil diperbarui!');
-            await loadUserProfile(); // Muat ulang data
+            await loadUserProfile();
             toggleMode(false);
 
         } catch (error) {
@@ -176,8 +179,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             saveBtn.disabled = false;
         }
     }
+    
+    // --- UI Helper Functions ---
+    
+    function toggleMode(showEdit) {
+        profileView.classList.toggle('hidden', showEdit);
+        editView.classList.toggle('hidden', !showEdit);
+    }
 
-    // --- Skeleton Loading Functions ---
+    function populateViewMode(data) {
+        adminName.textContent = data.full_name || 'Nama Admin';
+        adminEmail.textContent = currentUser?.email || 'email@example.com';
+        
+        const photoUrl = data.photo_url;
+        if (photoUrl && photoUrl.startsWith('http')) {
+            profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
+            profileAvatar.innerHTML = ''; 
+        } else {
+            const initials = (data.full_name || 'A').charAt(0).toUpperCase();
+            profileAvatar.style.backgroundImage = `none`;
+            profileAvatar.style.backgroundColor = '#6a5acd';
+            profileAvatar.innerHTML = `<span class="text-white text-4xl font-bold">${initials}</span>`;
+        }
+    }
+
+    function populateEditMode(data) {
+        editNama.value = data.full_name || '';
+        editUser.value = currentUser?.email || '';
+        editPassword.value = '';
+    }
+
     function showSkeletonLoading() {
         adminName.className = 'h-7 bg-gray-200 rounded animate-pulse w-48 mb-2';
         adminName.textContent = '';
@@ -194,7 +225,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         profileAvatar.classList.remove('animate-pulse');
     }
 
-    // --- Logout function ---
     async function handleLogout() {
         if (confirm('Yakin ingin logout?')) {
             try {
@@ -210,32 +240,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- Event Listeners ---
+    // --- Initialize Event Listeners ---
     editInfoCard.addEventListener('click', () => toggleMode(true));
-    
-    // Back button event listener
     editBackBtn.addEventListener('click', () => {
         if (confirm('Yakin ingin kembali? Perubahan yang belum disimpan akan hilang.')) {
-            populateEditMode(currentAdminData); // Reset form data
+            populateEditMode(currentAdminData);
             toggleMode(false);
         }
     });
-    
     cancelBtn.addEventListener('click', () => {
         if (confirm('Yakin ingin membatalkan perubahan?')) {
-            populateEditMode(currentAdminData); // Kembalikan data form
+            populateEditMode(currentAdminData);
             toggleMode(false);
         }
     });
-    
     saveBtn.addEventListener('click', saveChanges);
-    
-    // Logout button
-    const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
     }
-
-    // Initial load
+    
+    // Event listeners untuk upload foto
+    const avatarContainer = document.getElementById('avatarContainer');
+    const avatarUploadInput = document.getElementById('avatarUpload');
+    if (avatarContainer && avatarUploadInput) {
+        avatarContainer.addEventListener('click', () => {
+            avatarUploadInput.click();
+        });
+        avatarUploadInput.addEventListener('change', handlePhotoUpload);
+    }
+    
+    // --- Initial Load ---
     await loadUserProfile();
 });

@@ -79,6 +79,53 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
+    /**
+     * Handles the file selection and upload process for the avatar.
+     * @param {Event} event - The file input change event.
+     */
+    async function handlePhotoUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !currentUser) return;
+
+        alert('Mengunggah foto...'); // Simple loading notification
+
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            // 1. Upload file to Supabase Storage
+            let { error: uploadError } = await supabase.storage
+                .from('avatars') // Ensure this bucket name is correct
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: true // Overwrite existing file
+                });
+            if (uploadError) throw uploadError;
+
+            // 2. Get the public URL for the uploaded file
+            const { data } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+            if (!data.publicUrl) throw new Error("Could not get public URL.");
+            
+            // 3. Update the photo_url in the profiles table
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ photo_url: data.publicUrl })
+                .eq('id', currentUser.id);
+            if (updateError) throw updateError;
+
+            // 4. Reload the profile to show the new photo
+            alert('Foto profil berhasil diperbarui!');
+            await loadUserProfile();
+
+        } catch (error) {
+            console.error('Error uploading photo:', error);
+            alert(`Gagal mengunggah foto: ${error.message}`);
+        }
+    }
+
     // --- Populate view mode with data ---
     function populateViewMode(data) {
         customerName.textContent = data.full_name || 'Nama Pelanggan';
@@ -87,6 +134,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const photoUrl = data.photo_url;
         if (photoUrl && photoUrl.startsWith('http')) {
             profileAvatar.style.backgroundImage = `url("${photoUrl}")`;
+            profileAvatar.innerHTML = '';
         } else {
             const initials = (data.full_name || 'P').charAt(0).toUpperCase();
             profileAvatar.style.backgroundImage = `none`;
@@ -213,6 +261,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
     });
+
+    // Photo upload event listeners
+    const avatarContainer = document.getElementById('avatarContainer');
+    const avatarUploadInput = document.getElementById('avatarUpload');
+    if (avatarContainer && avatarUploadInput) {
+        avatarContainer.addEventListener('click', () => {
+            avatarUploadInput.click();
+        });
+        avatarUploadInput.addEventListener('change', handlePhotoUpload);
+    }
 
     // Initial load
     loadUserProfile();

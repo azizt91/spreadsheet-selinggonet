@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const welcomeText = document.getElementById('welcome-text');
     const customerEmail = document.getElementById('customer-email');
     const cardsContainer = document.getElementById('cards-container');
+    const userAvatar = document.getElementById('user-avatar'); // Get the avatar element
 
     // Initialize dashboard
     await fetchCustomerData();
@@ -153,6 +154,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Update welcome message
         welcomeText.textContent = `Hallo, ${profile.full_name || 'Pelanggan'}`;
         customerEmail.textContent = currentUser.email;
+
+        // Set the avatar image
+        if (profile.photo_url && userAvatar) {
+            userAvatar.style.backgroundImage = `url('${profile.photo_url}')`;
+        } else if (userAvatar) {
+            // Optional: Fallback to initials if no photo
+            const initials = (profile.full_name || 'P').charAt(0).toUpperCase();
+            userAvatar.innerHTML = `<span class="text-white text-xl font-bold flex items-center justify-center h-full">${initials}</span>`;
+            userAvatar.style.backgroundColor = 'rgba(255,255,255,0.3)';
+        }
 
         // Clear cards container
         cardsContainer.innerHTML = '';

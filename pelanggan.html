@@ -70,7 +70,9 @@
               </div>
               <h2 class="text-[#110e1b] text-lg font-bold flex-1 text-center">Detail Pelanggan</h2>
               <div class="w-12 flex justify-end">
-                  <!-- Placeholder untuk symmetry -->
+                  <button id="edit-customer-icon-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z"></path></svg>
+                  </button>
               </div>
             </header>
             <div class="flex p-4"><div class="flex w-full flex-col gap-4 items-center"><div class="flex gap-4 flex-col items-center"><div id="detail-profile-image" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 bg-gray-300"></div><div class="flex flex-col items-center justify-center"><p id="detail-customer-name" class="text-[#110e1b] text-[22px] font-bold text-center">-</p><p id="detail-customer-id" class="text-[#625095] text-base text-center">-</p></div></div></div></div>
@@ -89,7 +91,7 @@
                 <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">IP STATIC/PPOE</p><p id="detail-ip-static" class="text-[#110e1b] text-sm">-</p></div>
             </div>
             <div id="unpaid-bills-section" class="hidden"><h2 class="text-[#110e1b] text-xl font-bold px-4 pb-3 pt-5">Tagihan Belum Dibayar</h2><div id="unpaid-bills-list"></div></div>
-            <div class="p-4"><button id="edit-customer-detail-btn" class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 bg-[#683fe4] text-[#f9f8fb] text-base font-bold">Edit Pelanggan</button></div>
+            
         </div>
 
         <div id="form-view" class="hidden">
