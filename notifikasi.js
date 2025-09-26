@@ -1,5 +1,5 @@
 import { supabase } from './supabase-client.js';
-import { requireRole } from './auth.js'; // Asumsi Anda punya file ini
+import { requireRole } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Pastikan hanya admin yang bisa mengakses halaman ini
@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         notificationList.appendChild(loadingSpinner);
 
         try {
-            // Panggil fungsi SQL yang sudah kita buat
-            const { data: notifications, error } = await supabase.rpc('get_user_notifications');
+            // Panggil fungsi SQL dengan parameter user ID yang jelas
+            const { data: notifications, error } = await supabase.rpc('get_user_notifications', {
+                user_id_param: user.id
+            });
 
             if (error) throw error;
             
@@ -96,18 +98,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     clearButton.addEventListener('click', async () => {
-        if (confirm('Ini akan menghapus semua notifikasi dari daftar Anda. Lanjutkan?')) {
-            // NOTE: This is a simplified clear. A more robust implementation
-            // might mark all as read instead of deleting. For simplicity, we delete.
+        if (confirm('Ini akan menandai semua notifikasi sebagai sudah dibaca. Lanjutkan?')) {
             try {
-                 const { error } = await supabase
-                    .from('notifications')
-                    .delete()
-                    .or(`recipient_role.eq.ADMIN,recipient_user_id.eq.${user.id}`); // Hapus yang relevan
+                // Ambil semua notifikasi yang belum dibaca untuk user ini
+                const { data: unreadNotifications, error: fetchError } = await supabase.rpc('get_user_notifications', {
+                    user_id_param: user.id
+                });
                 
-                if (error) throw error;
+                if (fetchError) throw fetchError;
+                
+                // Filter hanya yang belum dibaca
+                const unreadIds = unreadNotifications
+                    .filter(notif => !notif.is_read)
+                    .map(notif => notif.id);
+                
+                if (unreadIds.length > 0) {
+                    // Tandai semua sebagai sudah dibaca
+                    const readRecords = unreadIds.map(notificationId => ({
+                        notification_id: notificationId,
+                        user_id: user.id
+                    }));
+                    
+                    const { error: insertError } = await supabase
+                        .from('notification_reads')
+                        .upsert(readRecords, { 
+                            onConflict: 'notification_id,user_id',
+                            ignoreDuplicates: true 
+                        });
+                    
+                    if (insertError) throw insertError;
+                }
+                
                 renderNotifications();
+                alert('Semua notifikasi telah ditandai sebagai sudah dibaca.');
             } catch (error) {
+                console.error('Error clearing notifications:', error);
                 alert('Gagal membersihkan notifikasi: ' + error.message);
             }
         }

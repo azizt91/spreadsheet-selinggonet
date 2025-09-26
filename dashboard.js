@@ -1,6 +1,8 @@
 // dashboard.js (Supabase version)
 import { supabase } from './supabase-client.js';
 import { requireRole, initLogout } from './auth.js';
+import { getUnreadNotificationCount } from './notification-service.js';
+import { addNotificationIconToHeader, initNotificationBadge } from './notification-badge.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Ensure the user is an ADMIN, otherwise redirect.
@@ -10,31 +12,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     initLogout('dashboard-logout-btn');
     populateUserInfo(user);
 
-    function checkUnreadNotifications() {
-        const badge = document.getElementById('notification-badge');
-        if (!badge) return;
-
-        try {
-            const notificationsJSON = localStorage.getItem('selinggonet_notifications');
-            const notifications = notificationsJSON ? JSON.parse(notificationsJSON) : [];
-            
-            // Cek apakah ada notifikasi dengan status read: false
-            const hasUnread = notifications.some(n => !n.read);
-
-            if (hasUnread) {
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        } catch (e) {
-            console.error("Gagal memeriksa notifikasi:", e);
-            badge.classList.add('hidden');
-        }
-    }
-
-    // Panggil fungsi ini saat dashboard dimuat dan setiap beberapa detik
-    checkUnreadNotifications();
-    setInterval(checkUnreadNotifications, 5000); // Cek setiap 5 detik
+    // Inisialisasi ikon notifikasi dan badge
+    addNotificationIconToHeader();
+    initNotificationBadge(user.id);
 
     // New function to populate user info
     async function populateUserInfo(user) {
