@@ -1,6 +1,28 @@
 import { supabase } from './supabase-client.js';
 import { sendPaymentNotification, getCurrentAdminName, showNotificationResult, sendCustomerPaymentNotification } from './whatsapp-notification.js'; // Pastikan `sendCustomerPaymentNotification` ada di sini
 
+// --- FUNGSI BARU UNTUK MEMBUAT NOTIFIKASI ADMIN ---
+// Fungsi ini bisa Anda panggil dari mana saja untuk mengirim notifikasi ke semua admin
+async function createAdminNotification(title, body, url = null) {
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert({
+      title: title,
+      body: body,
+      url: url,
+      recipient_role: 'ADMIN' // Kirim ke semua pengguna dengan peran 'ADMIN'
+    });
+
+  if (error) {
+    console.error('Gagal mengirim notifikasi terpusat:', error);
+    return false;
+  }
+  console.log('Notifikasi terpusat untuk admin berhasil dikirim.');
+  return true;
+}
+// --- AKHIR FUNGSI BARU ---
+
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // ===============================================
@@ -1229,6 +1251,17 @@ document.addEventListener('DOMContentLoaded', () => {
             hidePaymentLoading();
             modal.remove();
             showSuccessNotification(data.message);
+
+            // --- PANGGIL FUNGSI NOTIFIKASI DI SINI ---
+            // Membuat notifikasi setelah pembayaran lunas berhasil
+            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
+            const amountFormatted = formatter.format(paymentAmount);
+
+            const notifTitle = `🔔 Pembayaran Lunas Diterima`;
+            const notifBody = `Dari ${invoiceData.customerName} (${amountFormatted}) untuk periode ${invoiceData.invoicePeriod}. Diproses oleh ${adminName}.`;
+            const notifUrl = `tagihan.html?status=paid`; // Arahkan ke halaman tagihan dengan tab Lunas aktif
+            await createAdminNotification(notifTitle, notifBody, notifUrl);
+            // --- AKHIR DARI PEMANGGILAN FUNGSI ---
             
             // Send WhatsApp notification untuk pembayaran lunas
             try {
