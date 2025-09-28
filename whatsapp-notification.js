@@ -1,5 +1,4 @@
 import { supabase } from './supabase-client.js';
-import { sendPaymentNotification as sendPaymentNotificationToDatabase } from './notification-service.js';
 
 // Fungsi PENTING yang memanggil Supabase Function, bukan lagi PHP
 async function invokeWhatsappFunction(target, message) {
@@ -143,22 +142,3 @@ function showNotification(message, bgColor, icon) {
     }, 3000);
 }
 
-// Fungsi untuk mengirim notifikasi pembayaran ke ADMIN
-// Menggantikan fungsi WhatsApp notification dengan notifikasi database Supabase
-export async function sendPaymentNotification(customerData, invoiceData, adminName) {
-    try {
-        // Kirim notifikasi ke database Supabase
-        const result = await sendPaymentNotificationToDatabase(customerData, invoiceData, adminName);
-        
-        if (result.success) {
-            console.log('Payment notification sent to database successfully');
-        } else {
-            console.error('Failed to send payment notification to database:', result.message);
-        }
-        
-        return result;
-    } catch (error) {
-        console.error('Error in sendPaymentNotification:', error);
-        return { success: false, message: `Error: ${error.message}` };
-    }
-}

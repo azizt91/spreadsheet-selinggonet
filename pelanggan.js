@@ -420,15 +420,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const statusValue = document.getElementById('customer-status').value;
             const churnDateValue = document.getElementById('customer-churn-date').value;
-            
+            const gender = document.getElementById('customer-gender').value;
+
+            // Set photo_url based on gender (same logic as create)
+            let photoUrl = null;
+            if (gender === 'LAKI-LAKI') {
+                photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
+            } else if (gender === 'PEREMPUAN') {
+                photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png';
+            }
+
             const profileData = {
                 full_name: document.getElementById('customer-name').value,
                 address: document.getElementById('customer-address').value,
                 whatsapp_number: document.getElementById('customer-whatsapp').value,
-                gender: document.getElementById('customer-gender').value,
+                gender: gender,
                 status: statusValue,
                 device_type: document.getElementById('customer-device').value,
                 ip_static_pppoe: document.getElementById('customer-ip').value,
+                photo_url: photoUrl,
                 // Churn Date Logic sesuai saran Gemini AI
                 churn_date: statusValue === 'NONAKTIF' ? (churnDateValue || new Date().toISOString().split('T')[0]) : null
             };
@@ -440,6 +450,58 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showErrorNotification(profileError.message);
                 setButtonLoading(saveBtn, false, 'Update');
                 return;
+            }
+
+            // Update package if changed
+            const newPackageId = document.getElementById('customer-package').value;
+            const newAmount = document.getElementById('customer-bill').value;
+
+            if (newPackageId && newAmount) {
+                // Get current month invoice period
+                const now = new Date();
+                const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
+                const currentYear = now.getFullYear();
+                const currentPeriod = `${currentMonthName} ${currentYear}`;
+
+                // Update current month invoice if exists, or create new one
+                const { data: existingInvoice } = await supabase
+                    .from('invoices')
+                    .select('id')
+                    .eq('customer_id', currentEditingProfileId)
+                    .eq('invoice_period', currentPeriod)
+                    .single();
+
+                if (existingInvoice) {
+                    // Update existing invoice
+                    const { error: invoiceUpdateError } = await supabase
+                        .from('invoices')
+                        .update({
+                            package_id: parseInt(newPackageId),
+                            amount: parseFloat(newAmount),
+                            total_due: parseFloat(newAmount) // TAMBAHAN: total_due sama dengan amount
+                        })
+                        .eq('id', existingInvoice.id);
+
+                    if (invoiceUpdateError) {
+                        console.error('Error updating invoice:', invoiceUpdateError);
+                    }
+                } else {
+                    // Create new invoice for current month
+                    const { error: invoiceCreateError } = await supabase
+                        .from('invoices')
+                        .insert({
+                            customer_id: currentEditingProfileId,
+                            package_id: parseInt(newPackageId),
+                            invoice_period: currentPeriod,
+                            amount: parseFloat(newAmount),
+                            total_due: parseFloat(newAmount), // TAMBAHAN: total_due sama dengan amount
+                            status: 'unpaid'
+                        });
+
+                    if (invoiceCreateError) {
+                        console.error('Error creating invoice:', invoiceCreateError);
+                    }
+                }
             }
 
             // Update email and password if provided
@@ -480,12 +542,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             let photoUrl = '';
             
             // Set photo_url based on gender
-            if (gender === 'Laki-laki') {
+            if (gender === 'LAKI-LAKI') {
                 photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
-            } else if (gender === 'Perempuan') {
+            } else if (gender === 'PEREMPUAN') {
                 photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png';
             }
             
+            // Generate IDPL berurut
+            let idpl = 'CST001'; // Default jika belum ada data
+
+            try {
+                // Ambil semua IDPL yang dimulai dengan CST
+                const { data: customers, error: customersError } = await supabase
+                    .from('profiles')
+                    .select('idpl')
+                    .like('idpl', 'CST%');
+
+                if (!customersError && customers && customers.length > 0) {
+                    // Extract semua nomor dan cari yang tertinggi
+                    const numbers = customers
+                        .map(customer => {
+                            const match = customer.idpl.match(/^CST(\d+)$/);
+                            return match ? parseInt(match[1], 10) : 0;
+                        })
+                        .filter(num => !isNaN(num));
+
+                    if (numbers.length > 0) {
+                        const highestNumber = Math.max(...numbers);
+                        const nextNumber = highestNumber + 1;
+                        // Format ke 3 digit dengan leading zeros
+                        idpl = `CST${nextNumber.toString().padStart(3, '0')}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error getting last IDPL:', error);
+                // Jika error, gunakan default CST001
+            }
+
+            console.log('Generated IDPL:', idpl);
+
             const customerData = {
                 email: document.getElementById('customer-email').value,
                 password: document.getElementById('customer-password').value,
@@ -497,14 +592,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 device_type: document.getElementById('customer-device').value,
                 ip_static_pppoe: document.getElementById('customer-ip').value,
                 photo_url: photoUrl,
-                idpl: `CST${Date.now()}`,
+                idpl: idpl,
                 installation_date: new Date().toISOString(),
-                package_id: document.getElementById('customer-package').value,
-                amount: document.getElementById('customer-bill').value
+                package_id: parseInt(document.getElementById('customer-package').value),
+                amount: parseFloat(document.getElementById('customer-bill').value)
             };
 
             if (!customerData.email || !customerData.password || !customerData.package_id) {
                 showErrorNotification("Email, Password, dan Paket harus diisi.");
+                return;
+            }
+            if (isNaN(customerData.package_id) || customerData.package_id <= 0) {
+                showErrorNotification("Paket harus dipilih dengan benar.");
+                return;
+            }
+            if (isNaN(customerData.amount) || customerData.amount <= 0) {
+                showErrorNotification("Tagihan bulanan harus berupa angka yang valid.");
                 return;
             }
             if (customerData.password.length < 6) {
@@ -513,12 +616,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             setButtonLoading(saveBtn, true, 'Simpan');
+
+            // Debug: Log data yang akan dikirim
+            console.log('Customer data to be sent:', customerData);
+
             const { data, error } = await supabase.functions.invoke('create-customer', { body: customerData });
 
+            // Debug: Log response
+            console.log('Supabase function response:', { data, error });
+
             if (error) {
-                showErrorNotification(error.message);
+                console.error('Supabase function error:', error);
+                showErrorNotification(`Error: ${error.message}`);
+            } else if (data && data.error) {
+                console.error('Function returned error:', data.error);
+                showErrorNotification(`Error: ${data.error}`);
             } else {
-                showSuccessNotification(data.message || 'Pelanggan berhasil ditambahkan!');
+                showSuccessNotification(data?.message || 'Pelanggan berhasil ditambahkan!');
                 await fetchData();
                 switchView('list');
             }

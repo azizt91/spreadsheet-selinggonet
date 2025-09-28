@@ -1309,22 +1309,36 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Send automatic WhatsApp notification to customer
             const customerNotificationResult = await sendCustomerPaymentNotification(customerData, invoiceData, paymentMethod);
-            
-            // Send notification to admin about payment received
-            const adminNotificationResult = await sendPaymentNotification(customerData, invoiceData, adminName);
-            
-            // Show results
+
+            // Send notification to all admins using the existing system
+            try {
+                const adminName = await getCurrentAdminName();
+                const { error: notifError } = await supabase.rpc('add_payment_notification', {
+                    customer_name: customer.full_name,
+                    customer_idpl: customer.idpl,
+                    invoice_period: invoicePeriod,
+                    amount: isFullyPaid ? totalDue : paymentAmount,
+                    admin_name: adminName
+                });
+
+                if (notifError) {
+                    console.error('Error sending admin payment notification:', notifError);
+                    showErrorNotification('⚠️ Gagal mengirim notifikasi ke admin: ' + notifError.message);
+                } else {
+                    console.log('✅ Payment notification sent to all admins');
+                    showSuccessNotification(`✅ Notifikasi pembayaran berhasil dikirim ke admin`);
+                }
+            } catch (notifError) {
+                console.error('Failed to send admin notification:', notifError);
+                showErrorNotification('⚠️ Error mengirim notifikasi ke admin: ' + notifError.message);
+            }
+
+            // Show results for customer notification
             if (customerNotificationResult.success) {
                 const statusText = isFullyPaid ? 'LUNAS' : 'CICILAN';
                 showSuccessNotification(`✅ Notifikasi WhatsApp ${statusText} berhasil dikirim ke ${customer.full_name}`);
             } else {
                 showErrorNotification(`⚠️ Gagal mengirim notifikasi ke pelanggan: ${customerNotificationResult.message}`);
-            }
-            
-            if (adminNotificationResult.success) {
-                showSuccessNotification(`✅ Notifikasi pembayaran berhasil dikirim ke admin`);
-            } else {
-                console.warn('Admin notification failed:', adminNotificationResult.message);
             }
             
         } catch (error) {

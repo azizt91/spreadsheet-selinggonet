@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ===============================================
     function showLoading() {
         expenseList.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 10; i++) {
             const skeletonItem = document.createElement('div');
             skeletonItem.className = 'skeleton-item flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
             skeletonItem.innerHTML = `

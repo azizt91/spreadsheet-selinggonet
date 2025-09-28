@@ -26,9 +26,10 @@ Deno.serve(async (req) => {
     // Panggil fungsi admin untuk mengupdate user
     const { data, error } = await supabaseAdmin.auth.admin.updateUserById(
       user_id,
-      { 
+      {
         email: update_data.email, // Akan diabaikan jika null
         password: update_data.password, // Akan diabaikan jika null
+        email_confirm: true, // AUTO CONFIRM jika email berubah
         // Anda juga bisa mengupdate data lain di sini jika perlu
       }
     );
