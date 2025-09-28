@@ -77,6 +77,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
           device_type: customerData.device_type,
           ip_static_pppoe: customerData.ip_static_pppoe,
           photo_url: customerData.photo_url,
+          package_id: customerData.package_id,
         });
       console.log('Profile insert result:', { profileError });
       if (profileError) throw profileError;
