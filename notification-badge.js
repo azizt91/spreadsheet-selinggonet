@@ -32,9 +32,11 @@ async function updateNotificationBadge(userId) {
         const unreadCount = await getUnreadNotificationCount(userId);
         
         if (unreadCount > 0) {
+            badge.textContent = unreadCount;
             badge.classList.remove('hidden');
-            // Hapus angka, hanya tampilkan dot merah
-            badge.textContent = '';
+            // Adjust badge style for number display
+            badge.classList.remove('w-3', 'h-3');
+            badge.classList.add('min-w-[1.25rem]', 'h-5', 'px-1', 'text-xs', 'flex', 'items-center', 'justify-center', 'top-0', 'right-0');
         } else {
             badge.classList.add('hidden');
         }

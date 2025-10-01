@@ -165,7 +165,7 @@ BEGIN
     -- Insert notifikasi untuk semua ADMIN
     INSERT INTO public.notifications (title, body, recipient_role, url)
     VALUES (
-        '🔔 Pembayaran Lunas Diterima',
+        'Pembayaran Lunas Diterima',
         'Dari ' || customer_name || ' (' || customer_idpl || ') sebesar ' || formatted_amount || ' untuk periode ' || invoice_period || '. Diproses oleh ' || admin_name || '.',
         'ADMIN',
         '/tagihan.html?status=paid'
@@ -388,7 +388,7 @@ BEGIN
     -- Insert notifikasi untuk semua ADMIN
     INSERT INTO public.notifications (title, body, recipient_role, url)
     VALUES (
-        '🔔 Pembayaran Lunas Diterima',
+        'Pembayaran Lunas Diterima',
         'Dari ' || customer_name || ' (' || customer_idpl || ') sebesar ' || formatted_amount || ' untuk periode ' || invoice_period || '. Diproses oleh ' || admin_name || '.',
         'ADMIN',
         '/tagihan.html?status=paid'
