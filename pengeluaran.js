@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ===============================================
     const expenseList = document.getElementById('expense-list');
     const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
     const addExpenseBtn = document.getElementById('add-expense-btn');
     const addExpenseModal = document.getElementById('add-expense-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -62,6 +63,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     function initializeEventListeners() {
         searchInput.addEventListener('input', handleSearch);
         
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = ''; // Kosongkan input
+            handleSearch();         // Panggil ulang fungsi search untuk mereset daftar
+            searchInput.focus();    // (Opsional) Fokuskan kembali ke input
+        });
+
         addExpenseBtn.addEventListener('click', openAddExpenseModal);
         closeModalBtn.addEventListener('click', closeAddExpenseModal);
         saveExpenseBtn.addEventListener('click', handleSaveExpense);
@@ -155,6 +162,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ===============================================
     function handleSearch() {
         const searchTerm = searchInput.value.toLowerCase().trim();
+
+        // Tampilkan atau sembunyikan tombol close
+        if (searchTerm.length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
         
         if (searchTerm === '') {
             filteredData = [...allData];

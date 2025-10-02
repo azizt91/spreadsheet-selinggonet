@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let views = {};
     const invoiceList = document.getElementById('invoice-list');
     const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
     const unpaidTab = document.getElementById('unpaid-tab');
     const installmentTab = document.getElementById('installment-tab');
     const paidTab = document.getElementById('paid-tab');
@@ -148,6 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     function initializeEventListeners() {
         searchInput.addEventListener('input', renderList);
+        // Tambahkan ini di dalam fungsi initializeEventListeners()
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = ''; // Kosongkan input
+            renderList();           // Panggil ulang renderList untuk mereset daftar
+            searchInput.focus();    // (Opsional) Fokuskan kembali ke input
+        });
+
         unpaidTab.addEventListener('click', () => {
             if (new URLSearchParams(window.location.search).has('bulan')) {
                 window.history.pushState({}, document.title, window.location.pathname);
@@ -518,6 +526,13 @@ document.addEventListener('DOMContentLoaded', () => {
         invoiceList.innerHTML = '';
         const searchTerm = searchInput.value.toLowerCase();
         let data;
+
+        // Logika untuk menampilkan/menyembunyikan tombol close
+        if (searchTerm.length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
         
         if (currentTab === 'unpaid') {
             data = unpaidData;

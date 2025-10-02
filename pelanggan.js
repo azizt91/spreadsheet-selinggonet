@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const views = { list: document.getElementById('list-view'), detail: document.getElementById('detail-view'), form: document.getElementById('form-view') };
     const customerList = document.getElementById('customer-list');
     const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
     const filterButtons = { all: document.getElementById('filter-all'), active: document.getElementById('filter-active'), inactive: document.getElementById('filter-inactive') };
     const customerForm = document.getElementById('customer-form');
     const modalTitle = document.getElementById('modal-title');
@@ -110,6 +111,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Listeners for non-button elements or form submissions
         searchInput.addEventListener('input', () => fetchData());
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = ''; // Kosongkan input
+            fetchData();            // Panggil ulang fetchData untuk mereset daftar
+            searchInput.focus();    // (Opsional) Fokuskan kembali ke input
+        });
         customerForm.addEventListener('submit', handleFormSubmit);
         
         // Churn Date Logic - Show/Hide based on status
@@ -184,6 +190,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchData() {
         showLoading();
+
+        // Tambahkan logika ini di awal fungsi fetchData
+        if (searchInput.value.length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
+
         const { data, error } = await supabase.rpc('get_all_customers', {
             p_filter: currentFilter,
             p_search_term: searchInput.value
