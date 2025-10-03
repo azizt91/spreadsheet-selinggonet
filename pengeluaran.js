@@ -403,9 +403,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // function hidePaymentLoading() {
+    //     const loadingOverlay = document.getElementById('payment-loading-overlay');
+    //     if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    // }
+
     function hidePaymentLoading() {
-        const loadingOverlay = document.getElementById('payment-loading-overlay');
-        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    const loadingOverlay = document.getElementById('payment-loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove(); // Ganti menjadi .remove()
+        }
     }
     
     function showSuccessNotification(message) {
