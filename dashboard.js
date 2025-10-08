@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     addNotificationIconToHeader();
     initNotificationBadge(user.id);
 
+
     // New function to populate user info
     async function populateUserInfo(user) {
         const userGreeting = document.getElementById('user-greeting');
@@ -66,9 +67,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     const chartsWrapper = document.getElementById('charts-wrapper');
     const chartsSkeletonContainer = document.getElementById('charts-skeleton-container');
 
+    // State untuk visibility nominal (gunakan localStorage)
+    let nominalVisibility = {
+        profit: localStorage.getItem('visibility_profit') !== 'false',
+        pendapatan: localStorage.getItem('visibility_pendapatan') !== 'false',
+        pengeluaran: localStorage.getItem('visibility_pengeluaran') !== 'false'
+    };
+
     // Initial Setup
     populateFilters();
     initializeEventListeners();
+    initializeStickyHeader(); // Initialize sticky header behavior
     
     // Show loading immediately before any async operations
     showLoading();
@@ -99,6 +108,25 @@ document.addEventListener('DOMContentLoaded', async function() {
             option.textContent = tahun;
             filterTahun.appendChild(option);
         }
+    }
+
+    // Sticky Header Management
+    function initializeStickyHeader() {
+        const stickyElement = document.querySelector('.header-sticky');
+        if (!stickyElement) return;
+        
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.intersectionRatio < 1) {
+                    stickyElement.classList.add('is-sticky');
+                } else {
+                    stickyElement.classList.remove('is-sticky');
+                }
+            },
+            { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
+        );
+        
+        observer.observe(stickyElement);
     }
 
     function initializeEventListeners() {
@@ -156,38 +184,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // Toggle visibility functions
-    function initToggleVisibility() {
-        // Load visibility states from localStorage
-        const profitVisible = localStorage.getItem('profitVisible') !== 'false';
-        const revenueVisible = localStorage.getItem('revenueVisible') !== 'false';
-        const expensesVisible = localStorage.getItem('expensesVisible') !== 'false';
-
-        return {
-            profit: profitVisible,
-            revenue: revenueVisible,
-            expenses: expensesVisible
-        };
-    }
-
-    function toggleVisibility(cardType) {
-        const currentState = localStorage.getItem(`${cardType}Visible`) !== 'false';
-        localStorage.setItem(`${cardType}Visible`, !currentState);
+    // Fungsi untuk toggle visibility nominal
+    function toggleNominalVisibility(cardType) {
+        nominalVisibility[cardType] = !nominalVisibility[cardType];
+        localStorage.setItem(`visibility_${cardType}`, nominalVisibility[cardType]);
         
-        // Update the display immediately
-        const valueElement = document.getElementById(`${cardType}-value`);
-        const eyeIcon = document.getElementById(`${cardType}-eye-icon`);
+        // Update tampilan card
+        const valueElement = document.getElementById(`value-${cardType}`);
+        const eyeIcon = document.getElementById(`eye-icon-${cardType}`);
         
         if (valueElement && eyeIcon) {
-            if (!currentState) {
-                // Show value - restore original value from data attribute
-                const originalValue = valueElement.getAttribute('data-original-value');
-                valueElement.textContent = originalValue;
-                valueElement.classList.remove('value-hidden');
+            if (nominalVisibility[cardType]) {
+                valueElement.textContent = valueElement.dataset.originalValue;
                 eyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path></svg>`;
             } else {
-                // Hide value - replace with dots
-                valueElement.classList.add('value-hidden');
                 valueElement.textContent = 'Rp ...';
                 eyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"></path></svg>`;
             }
@@ -212,13 +222,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         const activeCustomersLink = `pelanggan.html?status=AKTIF`;
         const inactiveCustomersLink = `pelanggan.html?status=NONAKTIF`;
 
-        // Get visibility states
-        const visibilityStates = initToggleVisibility();
-
         const statsCards = [
-            { label: 'Profit', value: formatter.format(stats.profit || 0), gradient: 'gradient-card-1', icon: '💰', hasToggle: true, toggleType: 'profit', isVisible: visibilityStates.profit },
-            { label: 'Pendapatan', value: formatter.format(stats.total_revenue || 0), gradient: 'gradient-card-2', icon: '📈', hasToggle: true, toggleType: 'revenue', isVisible: visibilityStates.revenue },
-            { label: 'Pengeluaran', value: formatter.format(stats.total_expenses || 0), gradient: 'gradient-card-3', icon: '💸', hasToggle: true, toggleType: 'expenses', isVisible: visibilityStates.expenses },
+            { label: 'Profit', value: formatter.format(stats.profit || 0), gradient: 'gradient-card-1', icon: '💰', hideToggle: true, cardType: 'profit' },
+            { label: 'Pendapatan', value: formatter.format(stats.total_revenue || 0), gradient: 'gradient-card-2', icon: '📈', hideToggle: true, cardType: 'pendapatan' },
+            { label: 'Pengeluaran', value: formatter.format(stats.total_expenses || 0), gradient: 'gradient-card-3', icon: '💸', hideToggle: true, cardType: 'pengeluaran' },
             { label: 'Pelanggan Aktif', value: stats.active_customers || 0, gradient: 'gradient-card-4', icon: '👥', link: activeCustomersLink },
             { label: 'Pelanggan Tdk Aktif', value: stats.inactive_customers || 0, gradient: 'gradient-card-5', icon: '😴', link: inactiveCustomersLink },
             { label: 'Belum Dibayar', value: stats.unpaid_invoices_count || 0, gradient: 'gradient-card-6', icon: '⏳', link: unpaidLink },
@@ -235,37 +242,32 @@ document.addEventListener('DOMContentLoaded', async function() {
             cardElement.className = `${card.gradient} ${cardClasses}`;
             cardElement.style.animationDelay = `${index * 0.1}s`;
             
-            // Icon mata untuk toggle visibility
-            const eyeIcon = card.hasToggle ? (card.isVisible 
-                ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path></svg>`
-                : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"></path></svg>`) 
-                : '';
+            // Tentukan apakah nilai harus disembunyikan
+            const isVisible = card.hideToggle ? nominalVisibility[card.cardType] : true;
+            const displayValue = isVisible ? card.value : 'Rp ...';
             
-            // Determine display value and class
-            const displayValue = card.hasToggle ? (card.isVisible ? card.value : 'Rp ...') : card.value;
-            const visibilityClass = card.hasToggle && !card.isVisible ? 'value-hidden' : '';
+            // Icon mata
+            const eyeIconSVG = isVisible 
+                ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"></path></svg>`;
             
             cardElement.innerHTML = `
                 <div class="flex items-start justify-between mb-4">
                     <div class="text-3xl">${card.icon}</div>
-                    ${card.hasToggle ? `
-                        <button id="${card.toggleType}-eye-icon" class="toggle-visibility-btn text-white p-1 rounded-full hover:bg-white/20" onclick="event.stopPropagation();">
-                            ${eyeIcon}
-                        </button>
-                    ` : ''}
+                    ${card.hideToggle ? `<button class="eye-toggle-btn" id="eye-btn-${card.cardType}" aria-label="Toggle visibility"><span id="eye-icon-${card.cardType}">${eyeIconSVG}</span></button>` : ''}
                 </div>
                 <p class="text-white/90 text-sm font-medium mb-2">${card.label}</p>
-                <p id="${card.hasToggle ? card.toggleType + '-value' : ''}" class="text-white text-xl font-bold leading-tight ${visibilityClass}" ${card.hasToggle ? `data-original-value="${card.value}"` : ''}>${displayValue}</p>
+                <p class="text-white text-xl font-bold leading-tight value-transition" id="value-${card.cardType}" data-original-value="${card.value}">${displayValue}</p>
                 ${card.link ? '<div class="mt-4 text-white/80 text-xs">👆 Ketuk untuk detail</div>' : ''}
             `;
 
-            // Add toggle event listener
-            if (card.hasToggle) {
-                const toggleBtn = cardElement.querySelector(`#${card.toggleType}-eye-icon`);
-                if (toggleBtn) {
-                    toggleBtn.addEventListener('click', (e) => {
+            // Add event listener untuk toggle eye
+            if (card.hideToggle) {
+                const eyeBtn = cardElement.querySelector(`#eye-btn-${card.cardType}`);
+                if (eyeBtn) {
+                    eyeBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleVisibility(card.toggleType);
+                        toggleNominalVisibility(card.cardType);
                     });
                 }
             }

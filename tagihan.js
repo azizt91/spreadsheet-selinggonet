@@ -139,9 +139,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===============================================
+    // Sticky Search Setup
+    // ===============================================
+    function initializeStickySearch() {
+        const stickySearch = document.querySelector('.sticky-search');
+        const searchSpacer = document.querySelector('.search-spacer');
+        
+        if (stickySearch && searchSpacer) {
+            // Set spacer height to match sticky search height
+            const updateSpacerHeight = () => {
+                const stickyHeight = stickySearch.offsetHeight;
+                searchSpacer.style.height = `${stickyHeight}px`;
+            };
+            
+            // Initial update
+            updateSpacerHeight();
+            
+            // Update on window resize
+            window.addEventListener('resize', updateSpacerHeight);
+            
+            // Update after a short delay to ensure all content is loaded
+            setTimeout(updateSpacerHeight, 100);
+        }
+    }
+
+    // ===============================================
     // Initial Setup
     // ===============================================
     initializeEventListeners();
+    initializeStickySearch();
     fetchData();
 
     // ===============================================
@@ -354,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('invoice_period', targetPeriode)
                     .order('created_at', { ascending: false });
                 if (unpaidErr) throw unpaidErr;
-                unpaidData = unpaid;
+                unpaidData = unpaid || [];
 
                 // Ambil data Installment dengan filter (dengan error handling untuk enum)
                 try {
@@ -365,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .eq('invoice_period', targetPeriode)
                         .order('created_at', { ascending: false });
                     if (installmentErr) throw installmentErr;
-                    installmentData = installment;
+                    installmentData = installment || [];
                 } catch (enumError) {
                     console.warn('Enum partially_paid belum ada, menggunakan fallback query');
                     // Fallback: ambil data berdasarkan kondisi amount_paid > 0 dan status != 'paid'
@@ -413,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('status', 'unpaid')
                     .order('created_at', { ascending: false });
                 if (unpaidErr) throw unpaidErr;
-                unpaidData = unpaid;
+                unpaidData = unpaid || [];
 
                 // Ambil data Installment tanpa filter (dengan error handling untuk enum)
                 try {
@@ -423,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .eq('status', 'partially_paid')
                         .order('created_at', { ascending: false });
                     if (installmentErr) throw installmentErr;
-                    installmentData = installment;
+                    installmentData = installment || [];
                 } catch (enumError) {
                     console.warn('Enum partially_paid belum ada, menggunakan fallback query');
                     // Fallback: ambil data berdasarkan kondisi amount_paid > 0 dan status != 'paid'
@@ -520,6 +546,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         renderList();
+        
+        // Update spacer height after tab switch
+        setTimeout(() => {
+            const stickySearch = document.querySelector('.sticky-search');
+            const searchSpacer = document.querySelector('.search-spacer');
+            if (stickySearch && searchSpacer) {
+                searchSpacer.style.height = `${stickySearch.offsetHeight}px`;
+            }
+        }, 50);
     }
 
     function renderList() {
@@ -555,7 +590,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (filteredData.length === 0) {
-            invoiceList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada tagihan ditemukan.</p>`;
+            let mainMessage = 'Tidak ada tagihan ditemukan';
+            let subMessage = 'Coba ubah filter atau kata kunci pencarian';
+            
+            // Customize message based on current tab
+            if (currentTab === 'installment') {
+                mainMessage = 'Tidak ada tagihan cicilan';
+                subMessage = 'Belum ada pelanggan yang membayar dengan cicilan';
+            } else if (currentTab === 'unpaid' && !searchTerm) {
+                mainMessage = 'Tidak ada tagihan belum dibayar';
+                subMessage = 'Semua tagihan sudah lunas';
+            } else if (currentTab === 'paid' && !searchTerm) {
+                mainMessage = 'Tidak ada tagihan lunas';
+                subMessage = 'Belum ada pembayaran yang tercatat';
+            }
+            
+            invoiceList.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 px-4">
+                    <img src="assets/no_data.png" alt="No Data" class="w-48 h-48 mb-4 opacity-50">
+                    <p class="text-center text-gray-500 text-lg font-medium">${mainMessage}</p>
+                    <p class="text-center text-gray-400 text-sm mt-2">${subMessage}</p>
+                </div>
+            `;
             return;
         }
 

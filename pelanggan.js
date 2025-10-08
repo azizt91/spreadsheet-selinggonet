@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentEditingProfileId = null;
     let lastView = 'list';
     let currentFilter = 'all';
+    let updateStickySpacerFn = null;
 
     // DOM Selectors
     const views = { list: document.getElementById('list-view'), detail: document.getElementById('detail-view'), form: document.getElementById('form-view') };
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initial Setup
     initializeEventListeners();
     checkURLParameters(); // Check for URL parameters first
+    updateStickySpacerFn = setupStickyHeader();
     fetchInitialData();
 
     // URL Parameter Handler
@@ -214,11 +216,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderCustomerList(data) {
         customerList.innerHTML = '';
         if (!data || data.length === 0) {
-            customerList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada pelanggan ditemukan.</p>`;
+            customerList.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 px-4">
+                    <img src="assets/no_data.png" alt="No Data" class="w-48 h-48 mb-4 opacity-50">
+                    <p class="text-center text-gray-500 text-lg font-medium">Tidak ada pelanggan ditemukan</p>
+                    <p class="text-center text-gray-400 text-sm mt-2">Coba ubah filter atau kata kunci pencarian</p>
+                </div>
+            `;
             return;
         }
         data.forEach(profile => {
-            const statusColor = profile.status === 'AKTIF' ? 'bg-green-500' : 'bg-red-500';
+            // Status pill styling
+            const statusPill = profile.status === 'AKTIF' 
+                ? '<span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full">Aktif</span>'
+                : '<span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full">Cabut</span>';
             
             // Untuk pelanggan nonaktif, tampilkan tanggal cabut. Untuk aktif, tampilkan tanggal terdaftar
             let dateInfo;
@@ -237,15 +248,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             customerItem.innerHTML = `
                 <div class="flex items-center gap-4 w-full">
                     <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" style="background-image: url('${profile.photo_url || 'assets/login_illustration.svg'}');"></div>
-                    <div class="flex flex-col justify-center overflow-hidden">
+                    <div class="flex flex-col justify-center overflow-hidden flex-1">
                         <p class="text-[#110e1b] text-base font-medium truncate">${profile.full_name}</p>
                         <p class="text-[#625095] text-sm">${dateInfo}</p>
                     </div>
-                    <div class="shrink-0 ml-auto"><div class="flex size-7 items-center justify-center"><div class="size-3 rounded-full ${statusColor}"></div></div></div>
+                    <div class="shrink-0">${statusPill}</div>
                 </div>`;
             customerItem.addEventListener('click', () => openDetailView(profile.id));
             customerList.appendChild(customerItem);
         });
+        
+        // Update spacer height after rendering list
+        if (updateStickySpacerFn) {
+            setTimeout(updateStickySpacerFn, 100);
+        }
     }
 
     // Form & Detail View Logic
@@ -838,4 +854,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showSuccessNotification(message) { alert(message); }
     function showErrorNotification(message) { alert(message); }
+
+    // Sticky Header Effect
+    function setupStickyHeader() {
+        const stickySearch = document.querySelector('.sticky-search');
+        const searchSpacer = document.querySelector('.search-spacer');
+        
+        if (!stickySearch || !searchSpacer) return;
+
+        // Set spacer height to match sticky header height
+        const updateSpacerHeight = () => {
+            const height = stickySearch.offsetHeight;
+            searchSpacer.style.height = height + 'px';
+        };
+
+        // Initial height set with delay to ensure DOM is fully rendered
+        setTimeout(updateSpacerHeight, 100);
+
+        // Update on window resize
+        window.addEventListener('resize', updateSpacerHeight);
+        
+        // Return function to update spacer (useful after data load)
+        return updateSpacerHeight;
+    }
 });

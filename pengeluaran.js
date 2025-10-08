@@ -55,20 +55,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ===============================================
     console.log('Initializing event listeners and fetching data...');
     initializeEventListeners();
+    initializeStickyHeader(); // Initialize sticky header behavior
     await fetchData();
+
+    // ===============================================
+    // Sticky Header Management
+    // ===============================================
+    function initializeStickyHeader() {
+        const stickyElement = document.querySelector('.search-filter-sticky');
+        if (!stickyElement) return;
+        
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.intersectionRatio < 1) {
+                    stickyElement.classList.add('is-sticky');
+                } else {
+                    stickyElement.classList.remove('is-sticky');
+                }
+            },
+            { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
+        );
+        
+        observer.observe(stickyElement);
+    }
 
     // ===============================================
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
         searchInput.addEventListener('input', handleSearch);
-        
+
         clearSearchBtn.addEventListener('click', () => {
             searchInput.value = ''; // Kosongkan input
             handleSearch();         // Panggil ulang fungsi search untuk mereset daftar
             searchInput.focus();    // (Opsional) Fokuskan kembali ke input
         });
-
+        
         addExpenseBtn.addEventListener('click', openAddExpenseModal);
         closeModalBtn.addEventListener('click', closeAddExpenseModal);
         saveExpenseBtn.addEventListener('click', handleSaveExpense);
@@ -195,11 +217,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (filteredData.length === 0) {
             const searchTerm = searchInput.value.trim();
+            let message = 'Tidak ada data pengeluaran';
+            let submessage = 'Tambahkan pengeluaran baru dengan tombol + di bawah';
+            
             if (searchTerm) {
-                expenseList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada pengeluaran yang cocok dengan pencarian "${searchTerm}".</p>`;
-            } else {
-                expenseList.innerHTML = `<p class="text-center text-gray-500 p-4">Tidak ada data pengeluaran untuk filter ini.</p>`;
+                message = 'Tidak ada pengeluaran ditemukan';
+                submessage = 'Coba ubah filter atau kata kunci pencarian';
             }
+            
+            expenseList.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 px-4">
+                    <img src="assets/no_data.png" alt="No Data" class="w-48 h-48 mb-4 opacity-50">
+                    <p class="text-center text-gray-500 text-lg font-medium">${message}</p>
+                    <p class="text-center text-gray-400 text-sm mt-2">${submessage}</p>
+                </div>
+            `;
         } else {
             filteredData.forEach(item => {
                 const expenseItem = createExpenseItem(item);
@@ -402,11 +434,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadingOverlay.classList.remove('hidden');
         }
     }
-
-    // function hidePaymentLoading() {
-    //     const loadingOverlay = document.getElementById('payment-loading-overlay');
-    //     if (loadingOverlay) loadingOverlay.classList.add('hidden');
-    // }
 
     function hidePaymentLoading() {
     const loadingOverlay = document.getElementById('payment-loading-overlay');
