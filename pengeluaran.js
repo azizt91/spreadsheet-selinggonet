@@ -396,8 +396,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="skeleton-line h-4 bg-gray-200 rounded w-3/4"></div>
                     <div class="skeleton-line h-3 bg-gray-200 rounded w-1/2"></div>
                 </div>
-                <div class="shrink-0">
+                <div class="flex items-center gap-2 shrink-0">
                     <div class="skeleton-line h-5 bg-gray-200 rounded w-20"></div>
+                    <div class="flex gap-1">
+                        <div class="skeleton-line h-6 w-6 bg-gray-200 rounded"></div>
+                        <div class="skeleton-line h-6 w-6 bg-gray-200 rounded"></div>
+                    </div>
                 </div>
             `;
             expenseList.appendChild(skeletonItem);
