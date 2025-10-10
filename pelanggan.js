@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentEditingProfileId = null;
     let lastView = 'list';
     let currentFilter = 'all';
-    let updateStickySpacerFn = null;
 
     // DOM Selectors
     const views = { list: document.getElementById('list-view'), detail: document.getElementById('detail-view'), form: document.getElementById('form-view') };
@@ -26,8 +25,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initial Setup
     initializeEventListeners();
+    initializeStickyHeader(); // Initialize sticky header behavior
     checkURLParameters(); // Check for URL parameters first
-    updateStickySpacerFn = setupStickyHeader();
     fetchInitialData();
 
     // URL Parameter Handler
@@ -74,6 +73,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 activeButtonText.classList.add('text-white');
             }
         }
+    }
+
+    // Sticky Header Management
+    function initializeStickyHeader() {
+        const stickyElement = document.querySelector('.search-filter-sticky');
+        if (!stickyElement) return;
+        
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.intersectionRatio < 1) {
+                    stickyElement.classList.add('is-sticky');
+                } else {
+                    stickyElement.classList.remove('is-sticky');
+                }
+            },
+            { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
+        );
+        
+        observer.observe(stickyElement);
     }
 
     // View Management
@@ -200,17 +218,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearSearchBtn.classList.add('hidden');
         }
 
-        const { data, error } = await supabase.rpc('get_all_customers', {
-            p_filter: currentFilter,
-            p_search_term: searchInput.value
-        });
+        try {
+            // Langkah 1: Ambil data pelanggan
+            const { data: customerData, error: customerError } = await supabase.rpc('get_all_customers', {
+                p_filter: currentFilter,
+                p_search_term: searchInput.value
+            });
 
-        if (error) {
-            console.error('Error fetching profiles:', error);
+            if (customerError) throw customerError;
+
+            // Langkah 2: Panggil Netlify Function untuk mendapatkan status Netwatch
+            let netwatchStatus = null;
+            try {
+                const response = await fetch('/.netlify/functions/mikrotik-status');
+                if (response.ok) {
+                    netwatchStatus = await response.json();
+                    console.log('Netwatch status berhasil diambil:', Object.keys(netwatchStatus).length, 'IP');
+                } else {
+                    const errorText = await response.text();
+                    console.warn('Gagal mengambil status Netwatch:', response.status, errorText);
+                }
+            } catch (error) {
+                console.warn('Error saat mengambil status Netwatch:', error.message);
+            }
+            
+            // Langkah 3: Gabungkan data pelanggan dengan status Netwatch
+            const combinedData = customerData.map(customer => {
+                const ip = customer.ip_static_pppoe;
+                const defaultStatus = { status: 'unknown', since: null };
+                
+                return {
+                    ...customer,
+                    netwatch_info: ip && netwatchStatus && netwatchStatus[ip] ? netwatchStatus[ip] : defaultStatus
+                };
+            });
+
+            renderCustomerList(combinedData);
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
             customerList.innerHTML = `<p class="text-center text-red-500 p-4">Gagal memuat data: ${error.message}</p>`;
-            return;
         }
-        renderCustomerList(data);
     }
 
     function renderCustomerList(data) {
@@ -218,25 +266,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!data || data.length === 0) {
             customerList.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 px-4">
-                    <img src="assets/no_data.png" alt="No Data" class="w-48 h-48 mb-4 opacity-50">
-                    <p class="text-center text-gray-500 text-lg font-medium">Tidak ada pelanggan ditemukan</p>
+                    <img src="assets/no_data.png" alt="No Data" class="w-64 h-64 mb-4 opacity-80">
+                    <p class="text-center text-gray-500 text-base font-medium">Tidak ada pelanggan ditemukan</p>
                     <p class="text-center text-gray-400 text-sm mt-2">Coba ubah filter atau kata kunci pencarian</p>
                 </div>
             `;
             return;
         }
         data.forEach(profile => {
-            // Status pill styling
-            const statusPill = profile.status === 'AKTIF' 
-                ? '<span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full">Aktif</span>'
-                : '<span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full">Cabut</span>';
+            // Tentukan warna lingkaran status
+            let ringColorClass = 'ring-gray-300';
+            let statusTextColor = 'text-gray-500';
+            let statusText = 'Unknown';
+            
+            if (profile.netwatch_info && profile.netwatch_info.status === 'up') {
+                ringColorClass = 'ring-green-500';
+                statusTextColor = 'text-green-600';
+                statusText = 'Up';
+            } else if (profile.netwatch_info && profile.netwatch_info.status === 'down') {
+                ringColorClass = 'ring-red-500';
+                statusTextColor = 'text-red-600';
+                statusText = 'Down';
+            }
             
             // Untuk pelanggan nonaktif, tampilkan tanggal cabut. Untuk aktif, tampilkan tanggal terdaftar
             let dateInfo;
             if (profile.status === 'NONAKTIF') {
                 const churnDate = profile.churn_date 
                     ? new Date(profile.churn_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-                    : 'Belum diatur'; // Teks pengganti jika tanggal kosong
+                    : 'Belum diatur';
                 dateInfo = `Cabut: ${churnDate}`;
             } else {
                 const installDate = profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
@@ -244,24 +302,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             
             const customerItem = document.createElement('div');
-            customerItem.className = "flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50";
+            customerItem.className = "flex items-center gap-4 bg-white px-4 py-3 justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50";
+            
             customerItem.innerHTML = `
                 <div class="flex items-center gap-4 w-full">
-                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0" style="background-image: url('${profile.photo_url || 'assets/login_illustration.svg'}');"></div>
-                    <div class="flex flex-col justify-center overflow-hidden flex-1">
+                    <div class="p-0.5 rounded-full ${ringColorClass} ring-2 ring-offset-2 transition-colors duration-300">
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" 
+                             style="background-image: url('${profile.photo_url || 'assets/login_illustration.svg'}');">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col justify-center overflow-hidden">
                         <p class="text-[#110e1b] text-base font-medium truncate">${profile.full_name}</p>
                         <p class="text-[#625095] text-sm">${dateInfo}</p>
+                        
+                        <div class="text-xs mt-1">
+                            <span class="font-semibold ${statusTextColor}">${statusText}</span>
+                            <span class="text-gray-500"> since ${profile.netwatch_info && profile.netwatch_info.since ? profile.netwatch_info.since : '-'}</span>
+                        </div>
                     </div>
-                    <div class="shrink-0">${statusPill}</div>
                 </div>`;
             customerItem.addEventListener('click', () => openDetailView(profile.id));
             customerList.appendChild(customerItem);
         });
-        
-        // Update spacer height after rendering list
-        if (updateStickySpacerFn) {
-            setTimeout(updateStickySpacerFn, 100);
-        }
     }
 
     // Form & Detail View Logic
@@ -343,103 +406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (profile) openEditForm(profile);
     }
 
-    // async function openDetailView(profileId) {
-    //     lastView = 'list';
-    //     switchView('detail');
-        
-    //     // Show loading state without removing existing elements
-    //     const profileImage = document.getElementById('detail-profile-image');
-    //     const customerName = document.getElementById('detail-customer-name');
-    //     const customerId = document.getElementById('detail-customer-id');
-        
-    //     if (customerName) customerName.textContent = 'Memuat...';
-    //     if (customerId) customerId.textContent = 'Memuat...';
-
-    //     const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', profileId).single();
-
-    //     if (error || !profile) {
-    //         console.error('Error fetching profile detail:', error);
-    //         if (customerName) customerName.textContent = 'Gagal memuat data';
-    //         if (customerId) customerId.textContent = 'Error';
-    //         return;
-    //     }
-        
-    //     currentEditingProfileId = profile.id;
-        
-    //     // Update profile image
-    //     if (profileImage) {
-    //         profileImage.style.backgroundImage = `url('${profile.photo_url || 'assets/login_illustration.svg'}')`;
-    //     }
-        
-    //     // Update basic info
-    //     if (customerName) customerName.textContent = profile.full_name || '-';
-    //     if (customerId) customerId.textContent = profile.idpl || '-';
-
-    //     // Get latest invoice data
-    //     const { data: latest_invoice, error: invoiceError } = await supabase.from('invoices').select('*, packages(*)').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
-
-    //     // Panggil database function 'get_user_email' untuk mendapatkan email
-    //     const { data: userEmail, error: emailError } = await supabase.rpc('get_user_email', { user_id: profile.id });
-    //     if (emailError) console.error('Gagal mengambil email:', emailError);
-
-    //     // Update individual detail fields using existing IDs
-    //     const detailElements = {
-    //         'detail-idpl': profile.idpl,
-    //         'detail-nama': profile.full_name,
-    //         'detail-alamat': profile.address,
-    //         'detail-gender': profile.gender,
-    //         'detail-whatsapp': profile.whatsapp_number,
-    //         'detail-email': userEmail || '-',
-    //         'detail-paket': latest_invoice && latest_invoice.packages ? latest_invoice.packages.package_name : '-',
-    //         'detail-tagihan': latest_invoice && latest_invoice.packages && latest_invoice.packages.price ? 
-    //             new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(latest_invoice.packages.price) : 
-    //             (latest_invoice && latest_invoice.amount ? 
-    //                 new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(latest_invoice.amount) : 
-    //                 'Belum ada tagihan'),
-    //         'detail-status': profile.status,
-    //         'detail-tanggal-pasang': (() => {
-    //             if (profile.status === 'NONAKTIF') {
-    //                 if (profile.churn_date) {
-    //                     return new Date(profile.churn_date).toLocaleDateString('id-ID');
-    //                 } else {
-    //                     return 'Belum diset';
-    //                 }
-    //             } else {
-    //                 return profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID') : '-';
-    //             }
-    //         })(),
-    //         'detail-jenis-perangkat': profile.device_type,
-    //         'detail-ip-static': profile.ip_static_pppoe
-    //     };
-        
-    //     // Update each detail field
-    //     Object.entries(detailElements).forEach(([elementId, value]) => {
-    //         const element = document.getElementById(elementId);
-    //         if (element) {
-    //             element.textContent = value || '-';
-    //         }
-    //     });
-        
-    //     // Update label for tanggal pasang based on status
-    //     const tanggalPasangLabel = document.evaluate("//p[contains(text(), 'TANGGAL PASANG') or contains(text(), 'TANGGAL CABUT')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-    //     if (tanggalPasangLabel) {
-    //         if (profile.status === 'NONAKTIF') {
-    //             tanggalPasangLabel.textContent = 'TANGGAL CABUT';
-    //         } else {
-    //             tanggalPasangLabel.textContent = 'TANGGAL PASANG';
-    //         }
-    //     }
-
-    //     // Show unpaid bills section and load bills
-    //     const unpaidBillsSection = document.getElementById('unpaid-bills-section');
-    //     if (unpaidBillsSection) {
-    //         unpaidBillsSection.classList.remove('hidden');
-    //     }
-        
-    //     loadUnpaidBills(profile.id);
-    // }
-
-    async function openDetailView(profileId) {
+        async function openDetailView(profileId) {
     lastView = 'list';
     switchView('detail');
     
@@ -639,41 +606,41 @@ document.addEventListener('DOMContentLoaded', async () => {
             // }
 
             if (newPackageId && newAmount) {
-                // 1. Update package_id di tabel profiles
-                const { error: packageUpdateError } = await supabase
-                    .from('profiles')
-                    .update({ package_id: parseInt(newPackageId) })
-                    .eq('id', currentEditingProfileId);
+            // 1. Update package_id di tabel profiles
+            const { error: packageUpdateError } = await supabase
+                .from('profiles')
+                .update({ package_id: parseInt(newPackageId) })
+                .eq('id', currentEditingProfileId);
 
-                if (packageUpdateError) {
-                    console.error('Error updating package in profile:', packageUpdateError);
-                    showErrorNotification('Gagal memperbarui paket pelanggan: ' + packageUpdateError.message);
-                    // Lanjutkan proses meskipun gagal update di profile, karena update invoice lebih penting
-                }
-
-                // 2. Update tagihan bulan ini (jika ada)
-                const now = new Date();
-                const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
-                const currentYear = now.getFullYear();
-                const currentPeriod = `${currentMonthName} ${currentYear}`;
-
-                const { error: invoiceUpdateError } = await supabase
-                    .from('invoices')
-                    .update({
-                        package_id: parseInt(newPackageId),
-                        amount: parseFloat(newAmount), // Sisa tagihan
-                        total_due: parseFloat(newAmount) // Total tagihan
-                    })
-                    .eq('customer_id', currentEditingProfileId)
-                    .eq('invoice_period', currentPeriod)
-                    .eq('status', 'unpaid'); // Hanya update jika belum dibayar
-
-                if (invoiceUpdateError) {
-                    console.error('Error updating this month invoice:', invoiceUpdateError);
-                    // Tidak perlu menampilkan error jika invoice bulan ini tidak ada
-                }
+            if (packageUpdateError) {
+                console.error('Error updating package in profile:', packageUpdateError);
+                showErrorNotification('Gagal memperbarui paket pelanggan: ' + packageUpdateError.message);
+                // Lanjutkan proses meskipun gagal update di profile, karena update invoice lebih penting
             }
-            
+
+            // 2. Update tagihan bulan ini (jika ada)
+            const now = new Date();
+            const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
+            const currentYear = now.getFullYear();
+            const currentPeriod = `${currentMonthName} ${currentYear}`;
+
+            const { error: invoiceUpdateError } = await supabase
+                .from('invoices')
+                .update({
+                    package_id: parseInt(newPackageId),
+                    amount: parseFloat(newAmount), // Sisa tagihan
+                    total_due: parseFloat(newAmount) // Total tagihan
+                })
+                .eq('customer_id', currentEditingProfileId)
+                .eq('invoice_period', currentPeriod)
+                .eq('status', 'unpaid'); // Hanya update jika belum dibayar
+
+            if (invoiceUpdateError) {
+                console.error('Error updating this month invoice:', invoiceUpdateError);
+                // Tidak perlu menampilkan error jika invoice bulan ini tidak ada
+            }
+        }
+
             // Update email and password if provided
             const newEmail = document.getElementById('edit-customer-email').value;
             const newPassword = document.getElementById('edit-customer-password').value;
@@ -854,27 +821,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showSuccessNotification(message) { alert(message); }
     function showErrorNotification(message) { alert(message); }
-
-    // Sticky Header Effect
-    function setupStickyHeader() {
-        const stickySearch = document.querySelector('.sticky-search');
-        const searchSpacer = document.querySelector('.search-spacer');
-        
-        if (!stickySearch || !searchSpacer) return;
-
-        // Set spacer height to match sticky header height
-        const updateSpacerHeight = () => {
-            const height = stickySearch.offsetHeight;
-            searchSpacer.style.height = height + 'px';
-        };
-
-        // Initial height set with delay to ensure DOM is fully rendered
-        setTimeout(updateSpacerHeight, 100);
-
-        // Update on window resize
-        window.addEventListener('resize', updateSpacerHeight);
-        
-        // Return function to update spacer (useful after data load)
-        return updateSpacerHeight;
-    }
 });
