@@ -5,6 +5,10 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Plugin untuk auto-install dependencies di functions
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
 # API routes
 [[redirects]]
   from = "/api/*"
