@@ -16,16 +16,16 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-        <div class="flex-1 pb-24">
-            <header class="flex items-center bg-white p-4 justify-between shadow-sm sticky top-0 z-10">
-                <a href="dashboard.html" class="text-gray-600 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-                </a>
-                <h2 class="text-lg font-bold text-center flex-1">Pusat Notifikasi</h2>
-                <div class="w-6"></div> </header>
+    <div class="relative flex h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+        <header class="flex items-center bg-white/95 backdrop-blur-sm p-4 justify-between shadow-md z-10">
+            <a href="dashboard.html" class="text-gray-600 hover:text-gray-900">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+            </a>
+            <h2 class="text-lg font-bold text-center flex-1">Pusat Notifikasi</h2>
+            <div class="w-6"></div>
+        </header>
 
-            <main class="p-4">
+        <main class="flex-1 overflow-y-auto p-4 pb-24">
                 <div id="notification-list" class="space-y-3">
                     </div>
                 <div class="flex gap-2 mt-6">
@@ -36,10 +36,9 @@
                         Hapus Semua Notifikasi
                     </button>
                 </div>
-            </main>
-        </div>
-        
-        <footer class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t">
+        </main>
+
+        <footer class="bg-white border-t z-50">
              </footer>
     </div>
     <script type="module" src="notifikasi.js"></script>

@@ -24,40 +24,21 @@
       href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
     />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <style>
-        .search-filter-sticky {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            background-color: #f9f8fb;
-        }
-        
-        .search-filter-sticky.is-sticky {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Override parent overflow for sticky to work */
-        #list-view {
-            overflow: visible !important;
-        }
-    </style>
 </head>
-<body style="overflow-x: hidden;">
+<body>
     <div
-      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root"
+      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden"
       style='font-family: Manrope, "Noto Sans", sans-serif;'
     >
       <div class="flex-1 pb-24">
         
         <div id="list-view">
-            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
-              <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pelanggan</h2>
-            </header>
-            
-            <!-- Sticky Search & Filter Container -->
-            <div class="search-filter-sticky">
-              <div class="px-4 py-3 bg-[#f9f8fb]">
+            <div class="sticky-search">
+              <header class="flex items-center p-4 pb-2 justify-between border-none shadow-none">
+                <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pelanggan</h2>
+              </header>
+
+              <div class="px-4 py-3">
                 <label class="relative flex flex-col min-w-40 h-12 w-full">
                   <div class="flex w-full flex-1 items-stretch rounded-full h-full overflow-hidden bg-[#eae8f3]">
                     <div class="text-[#625095] flex items-center justify-center pl-4">
@@ -71,12 +52,14 @@
                 </label>
               </div>
               
-              <div class="flex gap-3 p-3 pb-4 flex-wrap pr-4 bg-[#f9f8fb]">
+              <div class="flex gap-3 p-3 flex-wrap pr-4">
                 <button id="filter-all" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4"><p class="text-[#110e1b] text-sm font-medium">Semua</p></button>
                 <button id="filter-active" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4"><p class="text-[#110e1b] text-sm font-medium">Aktif</p></button>
                 <button id="filter-inactive" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4"><p class="text-[#110e1b] text-sm font-medium">Tidak Aktif</p></button>
               </div>
             </div>
+            
+            <div class="search-spacer"></div>
 
             <div id="customer-list"></div>
             
@@ -192,6 +175,21 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+
+        .sticky-search {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background-color: #f9f8fb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-spacer {
+            height: 0px;
+            transition: height 0.3s ease;
+        }
       </style>
       <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
         <div class="flex items-center justify-around h-16">
@@ -236,3 +234,5 @@
 
     </body>
 </html>
+    
+    
