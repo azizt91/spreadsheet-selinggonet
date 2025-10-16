@@ -329,6 +329,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('customer-status').value = profile.status || 'AKTIF';
         document.getElementById('customer-device').value = profile.device_type || '';
         document.getElementById('customer-ip').value = profile.ip_static_pppoe || '';
+        
+        // Populate installation date (convert ISO string to YYYY-MM-DD)
+        if (profile.installation_date) {
+            const installDate = new Date(profile.installation_date);
+            const formattedDate = installDate.toISOString().split('T')[0];
+            document.getElementById('customer-installation-date').value = formattedDate;
+        } else {
+            document.getElementById('customer-installation-date').value = '';
+        }
+        
         document.getElementById('customer-latitude').value = profile.latitude || '';
         document.getElementById('customer-longitude').value = profile.longitude || '';
         document.getElementById('edit-customer-email').value = userEmail || '';
@@ -510,6 +520,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const latitudeValue = document.getElementById('customer-latitude').value.trim();
             const longitudeValue = document.getElementById('customer-longitude').value.trim();
             
+            // Get installation date
+            const installationDateInput = document.getElementById('customer-installation-date').value;
+            let installationDate = null;
+            if (installationDateInput) {
+                installationDate = new Date(installationDateInput).toISOString();
+            }
+            
             const profileData = {
                 full_name: document.getElementById('customer-name').value,
                 address: document.getElementById('customer-address').value,
@@ -519,6 +536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 device_type: document.getElementById('customer-device').value,
                 ip_static_pppoe: document.getElementById('customer-ip').value,
                 photo_url: photoUrl,
+                installation_date: installationDate,
                 latitude: latitudeValue ? parseFloat(latitudeValue) : null,
                 longitude: longitudeValue ? parseFloat(longitudeValue) : null,
                 // Churn Date Logic sesuai saran Gemini AI
@@ -703,6 +721,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const latitudeValue = document.getElementById('customer-latitude').value.trim();
             const longitudeValue = document.getElementById('customer-longitude').value.trim();
             
+            // Get installation date (use input value or default to today)
+            const installationDateInput = document.getElementById('customer-installation-date').value;
+            let installationDate;
+            if (installationDateInput) {
+                // Convert from YYYY-MM-DD to ISO string
+                installationDate = new Date(installationDateInput).toISOString();
+            } else {
+                // Default to today
+                installationDate = new Date().toISOString();
+            }
+            
             const customerData = {
                 email: document.getElementById('customer-email').value,
                 password: document.getElementById('customer-password').value,
@@ -715,7 +744,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ip_static_pppoe: document.getElementById('customer-ip').value,
                 photo_url: photoUrl,
                 idpl: idpl,
-                installation_date: new Date().toISOString(),
+                installation_date: installationDate,
                 package_id: parseInt(document.getElementById('customer-package').value),
                 amount: parseFloat(document.getElementById('customer-bill').value),
                 latitude: latitudeValue ? parseFloat(latitudeValue) : null,

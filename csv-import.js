@@ -84,28 +84,28 @@ export function initializeCSVImport(fetchDataCallback) {
         
         const sampleData = [
             [
-                'user1@selinggonet.com', 'password123', 'John Doe', 'Jl. Merdeka No 1 RT 02 RW 03 Bandung',
+                'import1@selinggonet.com', 'password123', 'John Doe', 'Jl. Merdeka No 1 RT 02 RW 03 Bandung',
                 '08123456789', 'LAKI-LAKI', 'AKTIF', '1', '150000', '2024-01-15',
                 '-6.9174639', '107.6191228', 'ONT ZTE F609', '192.168.1.100'
             ],
             [
-                'user2@selinggonet.com', 'password456', 'Jane Smith', 'Jl. Sudirman No 25 RT 01 RW 02 Jakarta',
-                '08198765432', 'PEREMPUAN', 'AKTIF', '2', '200000', '2024-03-20',
+                'import2@selinggonet.com', 'password456', 'Jane Smith', 'Jl. Sudirman No 25 RT 01 RW 02 Jakarta',
+                '08198765432', 'PEREMPUAN', 'AKTIF', '1', '150000', '2024-03-20',
                 '-6.9147444', '107.6098111', 'ONT Huawei HG8245H', '192.168.1.101'
             ],
             [
-                'user3@selinggonet.com', 'password789', 'Bob Wilson', 'Jl. Asia Afrika No 3 RT 05 RW 01 Surabaya',
+                'import3@selinggonet.com', 'password789', 'Bob Wilson', 'Jl. Asia Afrika No 3 RT 05 RW 01 Surabaya',
                 '08111222333', 'LAKI-LAKI', 'AKTIF', '1', '150000', '2023-12-01',
                 '', '', 'Router Mikrotik RB750', ''
             ],
             [
-                'user4@selinggonet.com', 'mypass2024', 'Alice Brown', 'Jl. Gatot Subroto No 12 RT 03 RW 04 Semarang',
-                '08567891234', 'PEREMPUAN', 'AKTIF', '3', '250000', '2024-02-10',
+                'import4@selinggonet.com', 'mypass2024', 'Alice Brown', 'Jl. Gatot Subroto No 12 RT 03 RW 04 Semarang',
+                '08567891234', 'PEREMPUAN', 'AKTIF', '1', '150000', '2024-02-10',
                 '-7.0051453', '110.4381254', 'ONT ZTE F660', '192.168.1.102'
             ],
             [
-                'user5@selinggonet.com', 'secure123', 'Charlie Davis', 'Jl. Diponegoro No 88 RT 02 RW 01 Yogyakarta',
-                '08234567890', 'LAKI-LAKI', 'NONAKTIF', '1', '150000', '2023-11-05',
+                'import5@selinggonet.com', 'secure123', 'Charlie Davis', 'Jl. Diponegoro No 88 RT 02 RW 01 Yogyakarta',
+                '08234567890', 'LAKI-LAKI', 'AKTIF', '1', '150000', '2023-11-05',
                 '-7.7955798', '110.3694896', 'ONT Fiberhome AN5506', '192.168.1.103'
             ]
         ];
@@ -201,6 +201,39 @@ export function initializeCSVImport(fetchDataCallback) {
         startImportBtn.disabled = true;
         cancelBtn.disabled = true;
         
+        // Pre-generate all IDPLs to avoid race condition
+        const idpls = [];
+        let baseIdpl = 1;
+        try {
+            // Get ALL CST profiles and sort by number in JavaScript
+            const { data: profiles, error: fetchError } = await supabase
+                .from('profiles')
+                .select('idpl')
+                .like('idpl', 'CST%');
+            
+            if (fetchError) throw fetchError;
+            
+            if (profiles && profiles.length > 0) {
+                // Extract numbers and find max
+                const numbers = profiles
+                    .map(p => parseInt(p.idpl.replace('CST', '')))
+                    .filter(n => !isNaN(n));
+                
+                if (numbers.length > 0) {
+                    const maxNumber = Math.max(...numbers);
+                    baseIdpl = maxNumber + 1;
+                    console.log(`[CSV Import] Last IDPL: CST${maxNumber.toString().padStart(3, '0')}, Next: CST${baseIdpl.toString().padStart(3, '0')}`);
+                }
+            }
+        } catch (error) {
+            console.warn('Error getting last IDPL, starting from CST001:', error);
+        }
+        
+        // Generate IDPLs for all rows
+        for (let i = 0; i < parsedData.length; i++) {
+            idpls.push(`CST${(baseIdpl + i).toString().padStart(3, '0')}`);
+        }
+        
         let successfulImports = 0;
         let failedImports = 0;
         const errorMessages = [];
@@ -208,9 +241,10 @@ export function initializeCSVImport(fetchDataCallback) {
         for (let i = 0; i < parsedData.length; i++) {
             const row = parsedData[i];
             const rowNumber = i + 2; // +2 because row 1 is header, and we're 0-indexed
+            const idpl = idpls[i];
             
             try {
-                await importSingleCustomer(row, rowNumber);
+                await importSingleCustomer(row, rowNumber, idpl);
                 successfulImports++;
             } catch (error) {
                 failedImports++;
@@ -313,7 +347,9 @@ export function initializeCSVImport(fetchDataCallback) {
         };
     }
     
-    async function importSingleCustomer(row, rowNumber) {
+    async function importSingleCustomer(row, rowNumber, idpl) {
+        // IDPL is pre-generated and passed as parameter
+        
         // Prepare installation_date
         let installationDate = row.installation_date?.trim();
         if (installationDate) {
@@ -349,18 +385,49 @@ export function initializeCSVImport(fetchDataCallback) {
             amount: parseFloat(row.amount),
             latitude: latitude,
             longitude: longitude,
-            idpl: '' // Will be auto-generated by Edge Function
+            idpl: idpl // Generated IDPL
         };
+        
+        console.log(`[CSV Import] Row ${rowNumber} data (IDPL: ${idpl}):`, customerData);
         
         const { data, error } = await supabase.functions.invoke('create-customer', { 
             body: customerData 
         });
         
+        console.log(`[CSV Import] Row ${rowNumber} response:`, { data, error });
+        
         if (error) {
-            throw new Error(error.message || 'Gagal menambahkan pelanggan');
+            // Extract more detailed error message
+            console.error(`[CSV Import] Row ${rowNumber} error details:`, error);
+            console.error(`[CSV Import] Full error object:`, JSON.stringify(error, null, 2));
+            
+            let errorMsg = 'Gagal menambahkan pelanggan';
+            if (error.message) {
+                errorMsg = error.message;
+            }
+            if (error.context?.body) {
+                try {
+                    const errorBody = JSON.parse(error.context.body);
+                    console.error(`[CSV Import] Row ${rowNumber} error body:`, errorBody);
+                    if (errorBody.error) {
+                        errorMsg = errorBody.error;
+                    }
+                } catch (e) {
+                    // Fallback to original error message
+                    console.error('Failed to parse error body:', e);
+                }
+            }
+            
+            // Show alert for first error only
+            if (errorMessages.length === 0) {
+                alert(`ERROR Row ${rowNumber}:\n${errorMsg}\n\nCek Console (F12) untuk detail lengkap.`);
+            }
+            
+            throw new Error(errorMsg);
         }
         
         if (data && data.error) {
+            console.error(`[CSV Import] Row ${rowNumber} data error:`, data.error);
             throw new Error(data.error);
         }
         

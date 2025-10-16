@@ -134,7 +134,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="bg-white rounded-xl shadow-sm p-4 mx-4 mb-3 hover:shadow-md transition-shadow">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
-                        <h3 class="text-[#110e1b] text-lg font-bold mb-1">${pkg.package_name}</h3>
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="text-[#110e1b] text-lg font-bold">${pkg.package_name}</h3>
+                            <span class="inline-flex items-center bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-semibold">ID: ${pkg.id}</span>
+                        </div>
                         <div class="flex items-center gap-2 mb-2">
                             <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
