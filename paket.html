@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paket Internet - Selinggonet</title>
+    
+    <meta name="theme-color" content="#f9f8fb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Selinggonet">
+    <meta name="description" content="Manajemen paket internet ISP">
+    
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        .search-filter-sticky {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background-color: #f9f8fb;
+        }
+        
+        .search-filter-sticky.is-sticky {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #list-view {
+            overflow: visible !important;
+        }
+    </style>
+</head>
+<body style="overflow-x: hidden;">
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root"
+      style='font-family: Manrope, "Noto Sans", sans-serif;'
+    >
+      <div class="flex-1 pb-24">
+        
+        <!-- List View -->
+        <div id="list-view">
+            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
+              <div class="w-12 flex justify-start">
+                  <button id="back-to-pelanggan" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                  </button>
+              </div>
+              <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Paket Internet</h2>
+              <div class="w-12"></div>
+            </header>
+            
+            <!-- Sticky Search Container -->
+            <div class="search-filter-sticky">
+              <div class="px-4 py-3 bg-[#f9f8fb]">
+                <label class="relative flex flex-col min-w-40 h-12 w-full">
+                  <div class="flex w-full flex-1 items-stretch rounded-full h-full overflow-hidden bg-[#eae8f3]">
+                    <div class="text-[#625095] flex items-center justify-center pl-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
+                    </div>
+                    <input id="search-input" placeholder="Cari paket..." class="form-input flex w-full min-w-0 flex-1 resize-none text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] h-full placeholder:text-[#625095] px-4 pl-2 text-base"/>
+                  </div>
+                  <button id="clear-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center hidden hover:bg-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111,163.51,47.51a12,12,0,0,1,17,17L145,128Z"></path></svg>
+                  </button>
+                </label>
+              </div>
+            </div>
+
+            <div id="package-list"></div>
+            
+            <button id="add-package-btn" class="fixed bottom-[84px] right-5 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#683fe4] text-[#f9f8fb] shadow-lg hover:bg-[#5324e0] transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+            </button>
+        </div>
+
+        <!-- Form View -->
+        <div id="form-view" class="hidden">
+            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
+              <div class="w-12 flex justify-start">
+                  <button id="back-from-form" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                  </button>
+              </div>
+              <h2 id="form-title" class="text-[#110e1b] text-lg font-bold flex-1 text-center">Tambah Paket</h2>
+              <div class="w-12"></div>
+            </header>
+            
+            <div class="px-4 py-6">
+              <form id="package-form" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-[#110e1b] mb-2">Nama Paket <span class="text-red-500">*</span></label>
+                  <input id="package-name" type="text" placeholder="Contoh: Paket Rumah 10 Mbps" class="w-full px-4 py-3 bg-[#eae8f3] border border-transparent rounded-xl text-[#110e1b] focus:outline-none focus:ring-2 focus:ring-[#683fe4]" required>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-[#110e1b] mb-2">Harga (Rp) <span class="text-red-500">*</span></label>
+                  <input id="package-price" type="number" placeholder="Contoh: 150000" class="w-full px-4 py-3 bg-[#eae8f3] border border-transparent rounded-xl text-[#110e1b] focus:outline-none focus:ring-2 focus:ring-[#683fe4]" required>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-[#110e1b] mb-2">Kecepatan (Mbps) <span class="text-red-500">*</span></label>
+                  <input id="package-speed" type="number" placeholder="Contoh: 10" class="w-full px-4 py-3 bg-[#eae8f3] border border-transparent rounded-xl text-[#110e1b] focus:outline-none focus:ring-2 focus:ring-[#683fe4]" required>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-[#110e1b] mb-2">Deskripsi</label>
+                  <textarea id="package-description" rows="4" placeholder="Deskripsi paket (opsional)" class="w-full px-4 py-3 bg-[#eae8f3] border border-transparent rounded-xl text-[#110e1b] focus:outline-none focus:ring-2 focus:ring-[#683fe4]"></textarea>
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                  <button type="button" id="cancel-btn" class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors">
+                    Batal
+                  </button>
+                  <button type="submit" class="flex-1 px-6 py-3 bg-[#683fe4] text-white rounded-xl font-semibold hover:bg-[#5324e0] transition-colors">
+                    <span id="save-btn-text">Simpan</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+        </div>
+        
+      </div>
+      
+      <!-- Fixed Bottom Navigation -->
+      <style>
+        .fab-container {
+            position: relative;
+            width: 64px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .fab {
+            position: absolute;
+            bottom: -16px;
+            height: 64px;
+            width: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .fab:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .fab.active {
+            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
+            box-shadow: 0 0 0 4px rgba(83, 36, 224, 0.2);
+        }
+      </style>
+      <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
+        <div class="flex items-center justify-around h-16">
+          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="dashboard.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
+            <p class="text-xs font-medium">Dasbor</p>
+          </a>
+
+          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pelanggan.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path></svg>
+            <p class="text-xs font-medium">Pelanggan</p>
+          </a>
+
+          <div class="fab-container">
+            <a href="tagihan.html" class="fab">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="#FFFFFF" viewBox="0 0 256 256"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path></svg>
+            </a>
+          </div>
+
+          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pengeluaran.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path></svg>
+            <p class="text-xs font-medium">Pengeluaran</p>
+          </a>
+
+          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="profile.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
+            <p class="text-xs font-medium">Profil</p>
+          </a>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module" src="paket.js"></script>
+</body>
+</html>

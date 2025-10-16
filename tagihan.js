@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterModal = document.getElementById('filter-modal');
     const closeFilterModalBtn = document.getElementById('close-filter-modal-btn');
     const customerNameInput = document.getElementById('customer-name-input');
-    const paymentMethodInput = document.getElementById('payment-method-input');
     const startDateInput = document.getElementById('start-date-input');
     const endDateInput = document.getElementById('end-date-input');
     const applyFilterBtn = document.getElementById('apply-filter-btn');
@@ -56,6 +55,25 @@ document.addEventListener('DOMContentLoaded', () => {
             detail: document.getElementById('detail-view') 
         };
         
+    }
+
+    // Sticky Header Management
+    function initializeStickyHeader() {
+        const stickyElement = document.querySelector('.search-filter-sticky');
+        if (!stickyElement) return;
+        
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.intersectionRatio < 1) {
+                    stickyElement.classList.add('is-sticky');
+                } else {
+                    stickyElement.classList.remove('is-sticky');
+                }
+            },
+            { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
+        );
+        
+        observer.observe(stickyElement);
     }
 
     function switchView(viewName) {
@@ -139,35 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===============================================
-    // Sticky Search Setup
-    // ===============================================
-    function initializeStickySearch() {
-        const stickySearch = document.querySelector('.sticky-search');
-        const searchSpacer = document.querySelector('.search-spacer');
-        
-        if (stickySearch && searchSpacer) {
-            // Set spacer height to match sticky search height
-            const updateSpacerHeight = () => {
-                const stickyHeight = stickySearch.offsetHeight;
-                searchSpacer.style.height = `${stickyHeight}px`;
-            };
-            
-            // Initial update
-            updateSpacerHeight();
-            
-            // Update on window resize
-            window.addEventListener('resize', updateSpacerHeight);
-            
-            // Update after a short delay to ensure all content is loaded
-            setTimeout(updateSpacerHeight, 100);
-        }
-    }
-
-    // ===============================================
     // Initial Setup
     // ===============================================
     initializeEventListeners();
-    initializeStickySearch();
+    initializeStickyHeader(); // Initialize sticky header behavior
     fetchData();
 
     // ===============================================
@@ -246,14 +239,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     function handleApplyFilter() {
         const customerName = customerNameInput.value.trim();
-        const paymentMethod = paymentMethodInput.value;
+        
+        // Get selected payment methods from checkboxes (query di sini agar DOM sudah ready)
+        const paymentMethodCheckboxes = document.querySelectorAll('.payment-method-checkbox');
+        const selectedPaymentMethods = Array.from(paymentMethodCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+        
         const startDate = startDateInput.value;
         const endDate = endDateInput.value;
         
         // Apply filter only to paid tab
         if (currentTab === 'paid') {
-            applyPaidFilter(customerName, paymentMethod, startDate, endDate);
-            updateFilterInfo(customerName, paymentMethod, startDate, endDate);
+            applyPaidFilter(customerName, selectedPaymentMethods, startDate, endDate);
+            updateFilterInfo(customerName, selectedPaymentMethods, startDate, endDate);
             totalContainer.classList.remove('hidden');
             updateTotal();
         }
@@ -263,7 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleResetFilter() {
         customerNameInput.value = '';
-        paymentMethodInput.value = '';
+        
+        // Uncheck all payment method checkboxes (query di sini agar DOM sudah ready)
+        const paymentMethodCheckboxes = document.querySelectorAll('.payment-method-checkbox');
+        paymentMethodCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
         startDateInput.value = '';
         endDateInput.value = '';
         
@@ -278,16 +283,18 @@ document.addEventListener('DOMContentLoaded', () => {
         filterModal.classList.add('hidden');
     }
 
-    function applyPaidFilter(customerName, paymentMethod, startDate, endDate) {
+    function applyPaidFilter(customerName, paymentMethods, startDate, endDate) {
         filteredPaidData = allPaidData.filter(invoice => {
             // Filter by customer name
             if (customerName && !invoice.profiles?.full_name?.toLowerCase().includes(customerName.toLowerCase())) {
                 return false;
             }
             
-            // Filter by payment method
-            if (paymentMethod && invoice.payment_method !== paymentMethod) {
-                return false;
+            // Filter by payment methods (multi-select)
+            if (paymentMethods && paymentMethods.length > 0) {
+                if (!paymentMethods.includes(invoice.payment_method)) {
+                    return false;
+                }
             }
             
             // Filter by date range
@@ -307,11 +314,18 @@ document.addEventListener('DOMContentLoaded', () => {
         renderList();
     }
 
-    function updateFilterInfo(customerName, paymentMethod, startDate, endDate) {
+    function updateFilterInfo(customerName, paymentMethods, startDate, endDate) {
         const filters = [];
         
         if (customerName) filters.push(`Nama: ${customerName}`);
-        if (paymentMethod) filters.push(`Metode: ${paymentMethod}`);
+        if (paymentMethods && paymentMethods.length > 0) {
+            // Capitalize first letter of each method for display
+            const methodsDisplay = paymentMethods.map(m => {
+                if (m === 'e-wallet') return 'E-Wallet';
+                return m.charAt(0).toUpperCase() + m.slice(1);
+            }).join(', ');
+            filters.push(`Metode: ${methodsDisplay}`);
+        }
         if (startDate || endDate) {
             const start = startDate ? new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '...';
             const end = endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '...';
@@ -380,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('invoice_period', targetPeriode)
                     .order('created_at', { ascending: false });
                 if (unpaidErr) throw unpaidErr;
-                unpaidData = unpaid || [];
+                unpaidData = unpaid;
 
                 // Ambil data Installment dengan filter (dengan error handling untuk enum)
                 try {
@@ -391,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .eq('invoice_period', targetPeriode)
                         .order('created_at', { ascending: false });
                     if (installmentErr) throw installmentErr;
-                    installmentData = installment || [];
+                    installmentData = installment;
                 } catch (enumError) {
                     console.warn('Enum partially_paid belum ada, menggunakan fallback query');
                     // Fallback: ambil data berdasarkan kondisi amount_paid > 0 dan status != 'paid'
@@ -439,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('status', 'unpaid')
                     .order('created_at', { ascending: false });
                 if (unpaidErr) throw unpaidErr;
-                unpaidData = unpaid || [];
+                unpaidData = unpaid;
 
                 // Ambil data Installment tanpa filter (dengan error handling untuk enum)
                 try {
@@ -449,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .eq('status', 'partially_paid')
                         .order('created_at', { ascending: false });
                     if (installmentErr) throw installmentErr;
-                    installmentData = installment || [];
+                    installmentData = installment;
                 } catch (enumError) {
                     console.warn('Enum partially_paid belum ada, menggunakan fallback query');
                     // Fallback: ambil data berdasarkan kondisi amount_paid > 0 dan status != 'paid'
@@ -546,15 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         renderList();
-        
-        // Update spacer height after tab switch
-        setTimeout(() => {
-            const stickySearch = document.querySelector('.sticky-search');
-            const searchSpacer = document.querySelector('.search-spacer');
-            if (stickySearch && searchSpacer) {
-                searchSpacer.style.height = `${stickySearch.offsetHeight}px`;
-            }
-        }, 50);
     }
 
     function renderList() {
@@ -590,26 +595,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (filteredData.length === 0) {
-            let mainMessage = 'Tidak ada tagihan ditemukan';
-            let subMessage = 'Coba ubah filter atau kata kunci pencarian';
+            let message = 'Tidak ada tagihan ditemukan';
+            let submessage = 'Coba ubah filter atau kata kunci pencarian';
             
-            // Customize message based on current tab
-            if (currentTab === 'installment') {
-                mainMessage = 'Tidak ada tagihan cicilan';
-                subMessage = 'Belum ada pelanggan yang membayar dengan cicilan';
-            } else if (currentTab === 'unpaid' && !searchTerm) {
-                mainMessage = 'Tidak ada tagihan belum dibayar';
-                subMessage = 'Semua tagihan sudah lunas';
-            } else if (currentTab === 'paid' && !searchTerm) {
-                mainMessage = 'Tidak ada tagihan lunas';
-                subMessage = 'Belum ada pembayaran yang tercatat';
+            if (currentTab === 'unpaid') {
+                message = 'Tidak ada tagihan belum dibayar';
+                submessage = searchTerm ? 'Tidak ada hasil untuk pencarian Anda' : 'Semua tagihan sudah dibayar atau belum ada tagihan';
+            } else if (currentTab === 'installment') {
+                message = 'Tidak ada tagihan cicilan';
+                submessage = searchTerm ? 'Tidak ada hasil untuk pencarian Anda' : 'Belum ada pelanggan yang membayar dengan cicilan';
+            } else if (currentTab === 'paid') {
+                message = 'Tidak ada tagihan yang dibayar';
+                submessage = searchTerm ? 'Tidak ada hasil untuk pencarian Anda' : 'Belum ada tagihan yang lunas';
             }
             
             invoiceList.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 px-4">
-                    <img src="assets/no_data.png" alt="No Data" class="w-48 h-48 mb-4 opacity-50">
-                    <p class="text-center text-gray-500 text-lg font-medium">${mainMessage}</p>
-                    <p class="text-center text-gray-400 text-sm mt-2">${subMessage}</p>
+                    <img src="assets/no_data.png" alt="No Data" class="w-64 h-64 mb-4 opacity-80">
+                    <p class="text-center text-gray-500 text-base font-medium">${message}</p>
+                    <p class="text-center text-gray-400 text-sm mt-2">${submessage}</p>
                 </div>
             `;
             return;

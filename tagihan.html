@@ -28,10 +28,28 @@
       href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
     />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        .search-filter-sticky {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background-color: #f9f8fb;
+        }
+        
+        .search-filter-sticky.is-sticky {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Override parent overflow for sticky to work */
+        #list-view {
+            overflow: visible !important;
+        }
+    </style>
 </head>
-<body>
+<body style="overflow-x: hidden;">
     <div
-      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root overflow-x-hidden"
+      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root"
       style='font-family: Manrope, "Noto Sans", sans-serif;'
     >
       <!-- Main Content with bottom padding for fixed navigation -->
@@ -39,64 +57,63 @@
         
         <!-- List View (Default) -->
         <div id="list-view">
-          <div class="sticky-search">
-            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
-              <div class="w-10"></div> <!-- Left Spacer -->
-              <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tagihan</h2>
-              <div class="w-10 flex justify-center"> <!-- Right Container -->
-                <button id="filter-btn" class="text-[#110e1b] flex items-center justify-center w-10 h-10 hidden">
-                  <svg fill="#000000" viewBox="0 -0.08 20 20" data-name="Capa 1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M14.32,6.87H5.68a.38.38,0,0,0-.38.38.37.37,0,0,0,.38.37h8.64a.37.37,0,0,0,.38-.37A.38.38,0,0,0,14.32,6.87Z"></path><path d="M12.32,9.56H7.68a.38.38,0,1,0,0,.75h4.64a.38.38,0,1,0,0-.75Z"></path><path d="M11.32,12.22H8.68a.38.38,0,1,0,0,.75h2.64a.38.38,0,1,0,0-.75Z"></path></g></svg>
-                </button>
-              </div>
-            </header>
-          
-            <!-- Tabs -->
-            <div class="pb-3">
-              <div class="flex border-b border-[#d6d1e6] px-4 gap-4">
-                <button id="unpaid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-[#5324e0] text-[#110e1b] pb-[13px] pt-4 tab-button active">
-                  <p class="text-sm font-bold leading-normal tracking-[0.015em]">Belum Dibayar</p>
-                </button>
-                <button id="installment-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
-                  <p class="text-sm font-bold leading-normal tracking-[0.015em]">Cicilan</p>
-                </button>
-                <button id="paid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
-                  <p class="text-sm font-bold leading-normal tracking-[0.015em]">Dibayar</p>
-                </button>
-              </div>
+          <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
+            <div class="w-10"></div> <!-- Left Spacer -->
+            <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tagihan</h2>
+            <div class="w-10 flex justify-center"> <!-- Right Container -->
+              <button id="filter-btn" class="text-[#110e1b] flex items-center justify-center w-10 h-10 hidden">
+                <svg fill="#000000" viewBox="0 -0.08 20 20" data-name="Capa 1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M14.32,6.87H5.68a.38.38,0,0,0-.38.38.37.37,0,0,0,.38.37h8.64a.37.37,0,0,0,.38-.37A.38.38,0,0,0,14.32,6.87Z"></path><path d="M12.32,9.56H7.68a.38.38,0,1,0,0,.75h4.64a.38.38,0,1,0,0-.75Z"></path><path d="M11.32,12.22H8.68a.38.38,0,1,0,0,.75h2.64a.38.38,0,1,0,0-.75Z"></path></g></svg>
+              </button>
             </div>
+          </header>
+        
+        <!-- Sticky Search & Tabs Container -->
+        <div class="search-filter-sticky">
+          <!-- Tabs -->
+          <div class="pb-3 bg-[#f9f8fb]">
+            <div class="flex border-b border-[#d6d1e6] px-4 gap-4">
+              <button id="unpaid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-[#5324e0] text-[#110e1b] pb-[13px] pt-4 tab-button active">
+                <p class="text-sm font-bold leading-normal tracking-[0.015em]">Belum Dibayar</p>
+              </button>
+              <button id="installment-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
+                <p class="text-sm font-bold leading-normal tracking-[0.015em]">Cicilan</p>
+              </button>
+              <button id="paid-tab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
+                <p class="text-sm font-bold leading-normal tracking-[0.015em]">Dibayar</p>
+              </button>
+            </div>
+          </div>
 
-            <!-- Search Bar -->
-            <div class="px-4 py-3">
-              <label class="relative flex flex-col min-w-40 h-12 w-full">
-                <div class="flex w-full flex-1 items-stretch rounded-full h-full overflow-hidden bg-[#eae8f3]">
-                  <div class="text-[#625095] flex items-center justify-center pl-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
-                  </div>
-                  <input
-                    id="search-input"
-                    placeholder="Cari tagihan"
-                    class="form-input flex w-full min-w-0 flex-1 resize-none text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] h-full placeholder:text-[#625095] px-4 pl-2 text-base font-normal leading-normal"
-                    value=""
-                  />
-                </div>
-                <button id="clear-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center hidden hover:bg-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111,163.51,47.51a12,12,0,0,1,17,17L145,128Z"></path></svg>
-                </button>
-              </label>
+          <!-- Search Bar -->
+          <div class="px-4 py-3 bg-[#f9f8fb]">
+          <label class="relative flex flex-col min-w-40 h-12 w-full">
+            <div class="flex w-full flex-1 items-stretch rounded-full h-full overflow-hidden bg-[#eae8f3]">
+              <div class="text-[#625095] flex items-center justify-center pl-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
+              </div>
+              <input
+                id="search-input"
+                placeholder="Cari tagihan"
+                class="form-input flex w-full min-w-0 flex-1 resize-none text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] h-full placeholder:text-[#625095] px-4 pl-2 text-base font-normal leading-normal"
+                value=""
+              />
+            </div>
+            <button id="clear-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center hidden hover:bg-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111,163.51,47.51a12,12,0,0,1,17,17L145,128Z"></path></svg>
+            </button>
+          </label>
 
-              <div id="total-container" class="hidden bg-white rounded-lg p-4 shadow-sm mt-4">
-                <div class="text-center">
-                  <p id="filter-info" class="text-sm text-gray-600 mb-2"></p>
-                  <div class="text-lg font-bold text-[#110e1b]">
-                    Total: <span id="total-display" class="text-green-600">Rp 0</span>
-                  </div>
-                </div>
+          <div id="total-container" class="hidden bg-white rounded-lg p-4 shadow-sm mt-4">
+            <div class="text-center">
+              <p id="filter-info" class="text-sm text-gray-600 mb-2"></p>
+              <div class="text-lg font-bold text-[#110e1b]">
+                Total: <span id="total-display" class="text-green-600">Rp 0</span>
               </div>
             </div>
           </div>
-          
-          <div class="search-spacer"></div>
-
+          </div>
+        </div>
+        
         <!-- Invoice List Container with proper scrolling -->
         <div id="invoice-list">
           <!-- Invoices will be dynamically loaded here -->
@@ -221,21 +238,6 @@
             background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
             box-shadow: 0 0 0 4px rgba(83, 36, 224, 0.2);
         }
-
-        .sticky-search {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 30;
-            background-color: #f9f8fb;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .search-spacer {
-            height: 0px;
-            transition: height 0.3s ease;
-        }
       </style>
       <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
         <div class="flex items-center justify-around h-16">
@@ -286,16 +288,27 @@
               <p class="text-[#110e1b] text-base font-medium pb-2">Nama Pelanggan</p>
               <input id="customer-name-input" type="text" placeholder="Cari nama pelanggan..." class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
             </label>
-            <label class="flex flex-col">
+            <div class="flex flex-col">
               <p class="text-[#110e1b] text-base font-medium pb-2">Metode Pembayaran</p>
-              <select id="payment-method-input" class="form-select w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                <option value="">Semua Metode</option>
-                <option value="cash">Cash</option>
-                <option value="transfer">Transfer</option>
-                <option value="qris">QRIS</option>
-                <option value="e-wallet">E-Wallet</option>
-              </select>
-            </label>
+              <div id="payment-method-checkboxes" class="space-y-2 bg-white p-3 rounded-lg border border-gray-300">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input type="checkbox" value="cash" class="payment-method-checkbox form-checkbox text-indigo-600 rounded focus:ring-indigo-500">
+                  <span class="text-sm text-[#110e1b]">Cash</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input type="checkbox" value="transfer" class="payment-method-checkbox form-checkbox text-indigo-600 rounded focus:ring-indigo-500">
+                  <span class="text-sm text-[#110e1b]">Transfer</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input type="checkbox" value="qris" class="payment-method-checkbox form-checkbox text-indigo-600 rounded focus:ring-indigo-500">
+                  <span class="text-sm text-[#110e1b]">QRIS</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                  <input type="checkbox" value="e-wallet" class="payment-method-checkbox form-checkbox text-indigo-600 rounded focus:ring-indigo-500">
+                  <span class="text-sm text-[#110e1b]">E-Wallet</span>
+                </label>
+              </div>
+            </div>
             <label class="flex flex-col">
               <p class="text-[#110e1b] text-base font-medium pb-2">Dari Tanggal</p>
               <input id="start-date-input" type="date" class="form-input w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"/>
@@ -313,12 +326,7 @@
       </div>
     </div>
 
-        <script src="config.js"></script>
-    <script src="auth.js"></script>
     <script type="module" src="tagihan.js"></script>
-    <script src="datetime-display.js"></script>
-    <script src="pwa-installer.js"></script>
-    <script src="sw.js"></script>
     
     <style>
         /* Tab Styles */

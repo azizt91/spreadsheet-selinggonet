@@ -16,6 +16,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
     installation_date: string;
     package_id: number;
     amount: number;
+    latitude?: number;
+    longitude?: number;
   }
 
   serve(async (req) => {
@@ -78,6 +80,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
           ip_static_pppoe: customerData.ip_static_pppoe,
           photo_url: customerData.photo_url,
           package_id: customerData.package_id,
+          latitude: customerData.latitude,
+          longitude: customerData.longitude,
         });
       console.log('Profile insert result:', { profileError });
       if (profileError) throw profileError;
