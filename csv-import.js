@@ -10,7 +10,6 @@ export function initializeCSVImport(fetchDataCallback) {
     const downloadTemplateBtn = document.getElementById('download-template-btn');
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('csv-file-input');
-    const browseBtn = document.getElementById('browse-file-btn');
     const previewSection = document.getElementById('csv-preview-section');
     const previewTable = document.getElementById('csv-preview-table');
     const rowCountSpan = document.getElementById('csv-row-count');
@@ -30,11 +29,11 @@ export function initializeCSVImport(fetchDataCallback) {
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
     downloadTemplateBtn?.addEventListener('click', downloadTemplate);
-    browseBtn?.addEventListener('click', () => fileInput.click());
+    // File input change listener - label handles the click (mobile-friendly)
     fileInput?.addEventListener('change', handleFileSelect);
     startImportBtn?.addEventListener('click', startImport);
     
-    // Drag & Drop
+    // Drag & Drop (Desktop only)
     uploadArea?.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.classList.add('border-[#683fe4]', 'bg-purple-50');
@@ -141,8 +140,8 @@ export function initializeCSVImport(fetchDataCallback) {
                     return;
                 }
                 
-                if (results.data.length > 100) {
-                    alert('Maksimal 100 baris per upload');
+                if (results.data.length > 500) {
+                    alert('Maksimal 500 baris per upload');
                     return;
                 }
                 

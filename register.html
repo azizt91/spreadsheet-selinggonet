@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Selinggonet</title>
+    <title>Daftar Admin - Selinggonet</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
-    <meta name="description" content="Sistem manajemen pelanggan ISP dengan integrasi Google Sheets">
+    <meta name="description" content="Registrasi Admin untuk Selinggonet">
     
     <!-- PWA Icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
@@ -90,17 +90,17 @@
           <h1 class="text-3xl font-bold text-white mb-2">Selinggonet</h1>
         </div>
 
-        <!-- Login Form -->
+        <!-- Register Form -->
         <div class="glass-effect rounded-2xl p-8 shadow-2xl fade-in">
           <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-            <p class="text-white/70 text-sm">Silakan masuk ke akun Anda</p>
+            <h2 class="text-2xl font-bold text-white mb-2">Daftar Admin Baru</h2>
+            <p class="text-white/70 text-sm">Buat akun administrator</p>
           </div>
 
-          <form id="login-form" class="space-y-6">
-            <!-- Email Input -->
+          <form id="register-form" class="space-y-5">
+            <!-- Full Name Input -->
             <div class="space-y-2">
-              <label for="username" class="block text-sm font-medium text-white/90">Email</label>
+              <label for="full-name" class="block text-sm font-medium text-white/90">Nama Lengkap</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,9 +108,28 @@
                   </svg>
                 </div>
                 <input
+                  id="full-name"
+                  type="text"
+                  placeholder="Masukkan nama lengkap"
+                  class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Email Input -->
+            <div class="space-y-2">
+              <label for="email" class="block text-sm font-medium text-white/90">Email</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <input
                   id="email"
                   type="email"
-                  placeholder="Masukkan email"
+                  placeholder="admin@selinggonet.com"
                   class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
                   required
                 />
@@ -129,38 +148,40 @@
                 <input
                   id="password"
                   type="password"
-                  placeholder="Masukkan password"
+                  placeholder="Minimal 6 karakter"
                   class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
                   required
+                  minlength="6"
                 />
               </div>
+              <p class="text-white/60 text-xs">Password minimal 6 karakter</p>
             </div>
 
-            <!-- Login Button -->
+            <!-- Register Button -->
             <button
               type="submit"
               class="btn-hover w-full bg-white text-purple-600 font-bold py-3 px-4 rounded-xl hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
             >
               <span class="flex items-center justify-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                 </svg>
-                Masuk
+                Daftar
               </span>
             </button>
 
             <!-- Error Message -->
             <p id="error-message" class="text-red-300 text-center text-sm mt-4 hidden"></p>
+            
+            <!-- Success Message -->
+            <p id="success-message" class="text-green-300 text-center text-sm mt-4 hidden"></p>
           </form>
           
-          <!-- Register Link -->
+          <!-- Back to Login -->
           <div class="mt-6 text-center">
-            <p class="text-white/70 text-sm">
-              Belum punya akun admin? 
-              <a href="register.html" class="text-white font-semibold hover:text-white/80 transition-colors">
-                Daftar Sekarang
-              </a>
-            </p>
+            <a href="index.html" class="text-white/80 text-sm hover:text-white transition-colors">
+              ← Kembali ke Login
+            </a>
           </div>
         </div>
 
@@ -181,7 +202,6 @@
     </div>
     
     <script type="module" src="supabase-client.js"></script>
-    <script type="module" src="login.js"></script>
-    <script src="pwa-installer.js"></script>
+    <script type="module" src="register.js"></script>
 </body>
 </html>
