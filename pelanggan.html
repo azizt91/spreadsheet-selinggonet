@@ -137,17 +137,17 @@
             <div id="customer-list"></div>
             
             <!-- FAB Menu Container -->
-            <div id="fab-menu-container" class="fixed bottom-[84px] right-5 z-40">
+            <div id="fab-menu-container" class="fixed bottom-[84px] right-5 z-40 flex flex-col items-end">
               <!-- Backdrop overlay -->
               <div id="fab-backdrop" class="fixed inset-0 bg-black bg-opacity-30 hidden" style="z-index: -1;"></div>
               
               <!-- Expanded Menu Items (Hidden by default) -->
-              <div id="fab-expanded-menu" class="flex flex-col gap-3 mb-3 hidden">
+              <div id="fab-expanded-menu" class="flex flex-col gap-3 mb-3 items-end hidden">
                 <!-- Button 1: Paket (Paling atas) -->
                 <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md">Kelola Paket</span>
+                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Kelola Paket</span>
                   <a href="paket.html" class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
                       <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192ZM176,88a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,88Zm0,40a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Z"></path>
                     </svg>
                   </a>
@@ -155,9 +155,9 @@
                 
                 <!-- Button 2: Upload CSV -->
                 <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md">Import CSV</span>
+                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Import CSV</span>
                   <button id="import-csv-btn" class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
                       <path d="M74.34,85.66A8,8,0,0,1,85.66,74.34L120,108.69V24a8,8,0,0,1,16,0v84.69l34.34-34.35a8,8,0,0,1,11.32,11.32l-48,48a8,8,0,0,1-11.32,0ZM240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H84.4a4,4,0,0,1,2.83,1.17L111,145a24,24,0,0,0,34,0l23.8-23.8A4,4,0,0,1,171.6,120H224A16,16,0,0,1,240,136Zm-16,0H173.54l-13,13a40,40,0,0,1-56.56,0l-13-13H32v64H224ZM192,172a12,12,0,1,0-12,12A12,12,0,0,0,192,172Z"></path>
                     </svg>
                   </button>
@@ -165,9 +165,9 @@
                 
                 <!-- Button 3: Add Pelanggan -->
                 <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md">Tambah Pelanggan</span>
+                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Tambah Pelanggan</span>
                   <button id="add-customer-btn" class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
                       <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
                     </svg>
                   </button>
@@ -398,7 +398,7 @@
             </svg>
             <p class="text-lg font-semibold text-gray-700 mb-2">Pilih atau drop file CSV disini</p>
             <p class="text-sm text-gray-500 mb-4">Maksimal 500 baris per upload</p>
-            <input type="file" id="csv-file-input" accept=".csv" class="hidden">
+            <input type="file" id="csv-file-input" accept=".csv,.CSV,text/csv,text/comma-separated-values,application/csv,text/plain" class="hidden">
             <label for="csv-file-input" class="inline-block px-6 py-2 bg-[#683fe4] text-white rounded-lg font-semibold hover:bg-[#5324e0] transition-colors cursor-pointer">
               Pilih File
             </label>
@@ -463,10 +463,10 @@
 
     <!-- PapaParse Library for CSV parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script type="module" src="supabase-client.js?v=2"></script>
-    <script type="module" src="auth.js?v=2"></script>
-    <script type="module" src="pelanggan.js?v=2"></script>
-    <script src="pwa-installer.js?v=2"></script>
+    <script type="module" src="supabase-client.js?v=5"></script>
+    <script type="module" src="auth.js?v=5"></script>
+    <script type="module" src="pelanggan.js?v=5"></script>
+    <script src="pwa-installer.js?v=5"></script>
 
     </body>
 </html>

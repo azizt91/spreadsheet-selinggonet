@@ -47,10 +47,21 @@ export function initializeCSVImport(fetchDataCallback) {
         e.preventDefault();
         uploadArea.classList.remove('border-[#683fe4]', 'bg-purple-50');
         const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].name.endsWith('.csv')) {
-            handleFile(files[0]);
-        } else {
-            alert('Hanya file CSV yang diizinkan');
+        
+        if (files.length > 0) {
+            const file = files[0];
+            // Check both filename extension and MIME type
+            const isCSV = file.name.toLowerCase().endsWith('.csv') || 
+                         file.type === 'text/csv' || 
+                         file.type === 'application/csv' ||
+                         file.type === 'text/comma-separated-values' ||
+                         file.type === 'text/plain';
+            
+            if (isCSV) {
+                handleFile(file);
+            } else {
+                alert('Hanya file CSV yang diizinkan');
+            }
         }
     });
     
@@ -123,7 +134,16 @@ export function initializeCSVImport(fetchDataCallback) {
     
     function handleFileSelect(event) {
         const file = event.target.files[0];
-        if (file && file.name.endsWith('.csv')) {
+        if (!file) return;
+        
+        // Check both filename extension and MIME type for mobile compatibility
+        const isCSV = file.name.toLowerCase().endsWith('.csv') || 
+                     file.type === 'text/csv' || 
+                     file.type === 'application/csv' ||
+                     file.type === 'text/comma-separated-values' ||
+                     file.type === 'text/plain';
+        
+        if (isCSV) {
             handleFile(file);
         } else {
             alert('Hanya file CSV yang diizinkan');
