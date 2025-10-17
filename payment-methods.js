@@ -8,8 +8,8 @@ export default class PaymentMethodsManager {
     }
 
     init() {
-        // Check if we're on profile page
-        if (!window.location.pathname.includes('profile.html')) {
+        // Check if payment methods elements exist (works on any environment)
+        if (!document.getElementById('payment-methods-card')) {
             return;
         }
 
@@ -18,9 +18,14 @@ export default class PaymentMethodsManager {
 
     initializeEventListeners() {
         // Navigate to payment methods list
-        document.getElementById('payment-methods-card')?.addEventListener('click', () => {
-            this.showPaymentMethodsView();
-        });
+        const paymentMethodsCard = document.getElementById('payment-methods-card');
+        if (paymentMethodsCard) {
+            console.log('[PaymentMethods] Event listener attached to payment-methods-card');
+            paymentMethodsCard.addEventListener('click', () => {
+                console.log('[PaymentMethods] Card clicked! Showing payment methods view...');
+                this.showPaymentMethodsView();
+            });
+        }
 
         // Back buttons
         document.getElementById('payment-methods-back-btn')?.addEventListener('click', () => {
@@ -56,22 +61,38 @@ export default class PaymentMethodsManager {
     // View Management
     // ===============================================
     async showPaymentMethodsView() {
+        console.log('[PaymentMethods] showPaymentMethodsView() called');
+        
         // Hide other views
-        document.getElementById('profile-view').classList.add('hidden');
-        document.getElementById('edit-view')?.classList.add('hidden');
-        document.getElementById('app-settings-view')?.classList.add('hidden');
-        document.getElementById('payment-method-form-view')?.classList.add('hidden');
+        const profileView = document.getElementById('profile-view');
+        const editView = document.getElementById('edit-view');
+        const settingsView = document.getElementById('app-settings-view');
+        const formView = document.getElementById('payment-method-form-view');
+        const paymentMethodsView = document.getElementById('payment-methods-view');
+        
+        console.log('[PaymentMethods] Elements found:', { 
+            profileView, editView, settingsView, formView, paymentMethodsView 
+        });
+        
+        profileView?.classList.add('hidden');
+        editView?.classList.add('hidden');
+        settingsView?.classList.add('hidden');
+        formView?.classList.add('hidden');
         
         // Show payment methods view
-        document.getElementById('payment-methods-view').classList.remove('hidden');
+        paymentMethodsView?.classList.remove('hidden');
+        
+        console.log('[PaymentMethods] View switched to payment-methods-view');
 
         // Load payment methods
         await this.loadPaymentMethods();
     }
 
     hidePaymentMethodsView() {
-        document.getElementById('payment-methods-view').classList.add('hidden');
-        document.getElementById('profile-view').classList.remove('hidden');
+        console.log('[PaymentMethods] hidePaymentMethodsView() called');
+        document.getElementById('payment-methods-view')?.classList.add('hidden');
+        document.getElementById('profile-view')?.classList.remove('hidden');
+        console.log('[PaymentMethods] View switched back to profile-view');
     }
 
     showAddForm() {
@@ -331,6 +352,15 @@ export default class PaymentMethodsManager {
 }
 
 // Initialize Payment Methods Manager
-if (window.location.pathname.includes('profile.html')) {
-    window.paymentMethodsManager = new PaymentMethodsManager();
-}
+// Wrap in DOMContentLoaded to ensure DOM is ready (especially important for Netlify)
+document.addEventListener('DOMContentLoaded', () => {
+    const paymentMethodsCard = document.getElementById('payment-methods-card');
+    console.log('[PaymentMethods] Initializing...', { paymentMethodsCard });
+    
+    if (paymentMethodsCard) {
+        console.log('[PaymentMethods] Creating new PaymentMethodsManager instance');
+        window.paymentMethodsManager = new PaymentMethodsManager();
+    } else {
+        console.log('[PaymentMethods] payment-methods-card not found, skipping initialization');
+    }
+});
