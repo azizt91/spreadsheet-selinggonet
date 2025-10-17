@@ -269,6 +269,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         avatarUploadInput.addEventListener('change', handlePhotoUpload);
     }
     
+    // Event listener untuk Laporan card
+    const laporanCard = document.getElementById('laporan-card');
+    if (laporanCard) {
+        laporanCard.addEventListener('click', () => {
+            window.location.href = 'laporan.html';
+        });
+    }
+    
     // --- Initial Load ---
     await loadUserProfile();
 });

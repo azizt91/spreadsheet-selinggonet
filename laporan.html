@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan - Selinggonet</title>
+    <link rel="icon" type="image/png" href="assets/logo_192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f9f8fb">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Header (Sticky) -->
+    <header class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <button id="back-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+        </button>
+        <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Laporan</h2>
+        <button id="filter-btn" class="flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors relative">
+            <svg class="text-[#110e1b]" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M230.6,49.53A15.81,15.81,0,0,0,216,40H40A16,16,0,0,0,28.19,66.36l.08.11L96,139.17V216a16,16,0,0,0,24.87,13.32l32-21.34A16,16,0,0,0,160,194.66V139.17l67.73-72.7.08-.11A15.8,15.8,0,0,0,230.6,49.53ZM144,132.94V194.66l-32,21.33V132.94L40,56H216Z"></path></svg>
+            <span id="filter-badge" class="hidden absolute -top-1 -right-1 bg-[#683fe4] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">1</span>
+        </button>
+    </header>
+
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] justify-between group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+        
+        <!-- Main Content -->
+        <main class="flex-1 pb-6">
+            
+            <!-- Filter Modal (Hidden by default) -->
+            <div id="filter-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center">
+                <div class="bg-white rounded-t-3xl md:rounded-xl w-full md:max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div class="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex items-center justify-between rounded-t-3xl md:rounded-t-xl">
+                        <h3 class="text-lg font-bold text-[#110e1b]">Filter Laporan</h3>
+                        <button id="close-filter-modal" class="text-gray-400 hover:text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="p-6 space-y-4">
+                        <!-- Periode Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
+                            <select id="periode-filter" class="w-full rounded-lg border-gray-300 focus:border-[#683fe4] focus:ring-[#683fe4]">
+                                <option value="all">Semua Periode</option>
+                                <option value="bulan-ini">Bulan Ini</option>
+                                <option value="bulan-lalu">Bulan Lalu</option>
+                                <option value="3-bulan">3 Bulan Terakhir</option>
+                                <option value="6-bulan">6 Bulan Terakhir</option>
+                                <option value="tahun-ini">Tahun Ini</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom Date Range (Hidden by default) -->
+                        <div id="custom-date-range" class="hidden space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                                <input type="date" id="start-date" class="w-full rounded-lg border-gray-300 focus:border-[#683fe4] focus:ring-[#683fe4]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
+                                <input type="date" id="end-date" class="w-full rounded-lg border-gray-300 focus:border-[#683fe4] focus:ring-[#683fe4]">
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status Pembayaran</label>
+                            <select id="status-filter" class="w-full rounded-lg border-gray-300 focus:border-[#683fe4] focus:ring-[#683fe4]">
+                                <option value="all">Semua Status</option>
+                                <option value="paid">Lunas</option>
+                                <option value="installment">Cicilan</option>
+                                <option value="unpaid">Belum Dibayar</option>
+                            </select>
+                        </div>
+
+                        <!-- Payment Method Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Metode Pembayaran</label>
+                            <select id="payment-method-filter" class="w-full rounded-lg border-gray-300 focus:border-[#683fe4] focus:ring-[#683fe4]">
+                                <option value="all">Semua Metode</option>
+                                <option value="cash">Cash</option>
+                                <option value="transfer">Transfer Bank</option>
+                                <option value="qris">QRIS</option>
+                            </select>
+                        </div>
+
+                        <!-- Customer Search -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cari Pelanggan</label>
+                            <input type="text" id="customer-search" placeholder="Nama atau ID Pelanggan" class="w-full rounded-lg border-gray-300 focus:border-[#683fe4] focus:ring-[#683fe4]">
+                        </div>
+                    </div>
+
+                    <div class="sticky bottom-0 bg-white px-6 py-4 border-t border-gray-200 flex gap-3">
+                        <button id="reset-filter-btn" class="flex-1 h-11 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
+                            Reset
+                        </button>
+                        <button id="apply-filter-btn" class="flex-1 h-11 rounded-lg bg-[#683fe4] text-white font-semibold hover:bg-[#501ee6] transition-colors">
+                            Terapkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="p-4 grid grid-cols-2 gap-3">
+                <!-- Total Pendapatan -->
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M240,56H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM96,96a8,8,0,0,0-8-8H40a8,8,0,0,0,0,16H88A8,8,0,0,0,96,96Zm144,8H168a8,8,0,0,0,0,16h72a8,8,0,0,0,0-16Zm0,32H120a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16Zm0,32H88a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16Z"></path></svg>
+                        <span class="text-sm font-medium opacity-90">Total Pendapatan</span>
+                    </div>
+                    <p id="total-pendapatan" class="text-2xl font-bold">Rp 0</p>
+                    <p class="text-xs opacity-75 mt-1" id="total-transaksi">0 Transaksi</p>
+                </div>
+
+                <!-- Total Lunas -->
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>
+                        <span class="text-sm font-medium opacity-90">Lunas</span>
+                    </div>
+                    <p id="total-lunas" class="text-2xl font-bold">Rp 0</p>
+                    <p class="text-xs opacity-75 mt-1" id="count-lunas">0 Tagihan</p>
+                </div>
+
+                <!-- Total Belum Bayar -->
+                <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm0-40a16,16,0,1,1,16-16A16,16,0,0,1,128,176Zm0-88a36,36,0,0,0-36,36,8,8,0,0,0,16,0,20,20,0,1,1,38.2,7.47c-9.08,14.44-18.2,28.83-18.2,40.53a8,8,0,0,0,16,0c0-9.3,6.86-21.15,16-35a36,36,0,0,0-32-49Z"></path></svg>
+                        <span class="text-sm font-medium opacity-90">Belum Bayar</span>
+                    </div>
+                    <p id="total-unpaid" class="text-2xl font-bold">Rp 0</p>
+                    <p class="text-xs opacity-75 mt-1" id="count-unpaid">0 Tagihan</p>
+                </div>
+
+                <!-- Total Cicilan -->
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM172.24,99.76a6,6,0,0,1,0,8.48l-40,40a6,6,0,0,1-8.48,0l-24-24a6,6,0,0,1,8.48-8.48L128,135.51l35.76-35.75A6,6,0,0,1,172.24,99.76Z"></path></svg>
+                        <span class="text-sm font-medium opacity-90">Cicilan</span>
+                    </div>
+                    <p id="total-installment" class="text-2xl font-bold">Rp 0</p>
+                    <p class="text-xs opacity-75 mt-1" id="count-installment">0 Tagihan</p>
+                </div>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="px-4 pb-4 flex gap-3">
+                <button id="export-pdf-btn" class="flex-1 h-11 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold flex items-center justify-center gap-2 transition-colors shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"></path></svg>
+                    Export PDF
+                </button>
+                <button id="export-excel-btn" class="flex-1 h-11 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold flex items-center justify-center gap-2 transition-colors shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,152v56a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V152a8,8,0,0,1,16,0v56H208V152a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,132.69V40a8,8,0,0,0-16,0v92.69L93.66,106.34a8,8,0,0,0-11.32,11.32Z"></path></svg>
+                    Export Excel
+                </button>
+            </div>
+
+            <!-- Data Table -->
+            <div class="px-4">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-700">Data Tagihan</h3>
+                        <p id="data-count" class="text-xs text-gray-500 mt-1">Menampilkan 0 data</p>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div id="loading-state" class="p-8 text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#683fe4] mx-auto"></div>
+                        <p class="text-gray-500 mt-3">Memuat data...</p>
+                    </div>
+
+                    <!-- Table -->
+                    <div id="table-container" class="hidden overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">Nama Pelanggan</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Periode</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Jumlah</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">Tgl Bayar</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Metode</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="hidden p-8 text-center">
+                        <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-gray-500 font-medium">Tidak ada data</p>
+                        <p class="text-gray-400 text-sm mt-1">Coba ubah filter untuk melihat data lainnya</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script type="module" src="./laporan.js"></script>
+</body>
+</html>
