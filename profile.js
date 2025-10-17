@@ -277,6 +277,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
+    // Note: Event listeners untuk Pengaturan Aplikasi dan Metode Pembayaran 
+    // sudah di-handle oleh app-settings.js dan payment-methods.js
+    // Tidak perlu duplicate di sini.
+    
     // --- Initial Load ---
     await loadUserProfile();
 });
