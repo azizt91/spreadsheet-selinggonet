@@ -58,7 +58,7 @@
                                         </div>
                                         <div class="text-sm">
                                             <p class="font-medium text-gray-800 mb-1">Pembayaran Offline</p>
-                                            <p class="text-gray-700">Anda juga dapat melakukan pembayaran secara langsung di rumah <span class="font-medium">Bapak Karsadi dan Ibu Sopiyah</span>, beralamat di <span class="font-medium">Dukuh Sekiyong RT 04/RW 07, Desa Pamutih</span>.</p>
+                                            <p class="text-gray-700">Anda juga dapat melakukan pembayaran secara langsung di rumah <span id="offline-payment-name" class="font-medium">Bapak Karsadi dan Ibu Sopiyah</span>, beralamat di <span id="offline-payment-address" class="font-medium">Dukuh Sekiyong RT 04/RW 07, Desa Pamutih</span>.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -80,80 +80,18 @@
                     <p class="text-xs text-gray-500">Ketuk gambar untuk memperbesar.</p>
                 </div>
 
-                <!-- SeaBank Card -->
-                <div class="flex items-start gap-3 bg-white px-4 py-3 rounded-lg mb-3 border border-[#e7edf3]">
-                    <div class="text-[#110e1b] flex items-center justify-center rounded-lg bg-[#f0f2f4] shrink-0 size-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Z"></path>
-                        </svg>
+                <!-- Payment Methods (Dynamic) -->
+                <div id="payment-methods-container">
+                    <!-- Will be populated dynamically by JavaScript -->
+                    <!-- Loading state -->
+                    <div class="flex items-center justify-center py-8">
+                        <div class="animate-pulse text-gray-400">
+                            <svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="flex flex-col flex-1">
-                        <p class="text-[#110e1b] text-sm font-semibold leading-normal">SeaBank</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal" id="seabank-number">901307925714</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal">TAUFIQ AZIZ</p>
-                    </div>
-                    <button class="text-[#6366f1] p-2 rounded-lg bg-[#6366f1] bg-opacity-10" onclick="copyToClipboard('seabank-number', this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- BCA Card -->
-                <div class="flex items-start gap-3 bg-white px-4 py-3 rounded-lg mb-3 border border-[#e7edf3]">
-                    <div class="text-[#110e1b] flex items-center justify-center rounded-lg bg-[#f0f2f4] shrink-0 size-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex flex-col flex-1">
-                        <p class="text-[#110e1b] text-sm font-semibold leading-normal">BCA</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal" id="bca-number">3621053653</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal">TAUFIQ AZIZ</p>
-                    </div>
-                    <button class="text-[#6366f1] p-2 rounded-lg bg-[#6366f1] bg-opacity-10" onclick="copyToClipboard('bca-number', this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- BSI Card -->
-                <div class="flex items-start gap-3 bg-white px-4 py-3 rounded-lg mb-3 border border-[#e7edf3]">
-                    <div class="text-[#110e1b] flex items-center justify-center rounded-lg bg-[#f0f2f4] shrink-0 size-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex flex-col flex-1">
-                        <p class="text-[#110e1b] text-sm font-semibold leading-normal">BSI</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal" id="bsi-number">7211806138</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal">TAUFIQ AZIZ</p>
-                    </div>
-                    <button class="text-[#6366f1] p-2 rounded-lg bg-[#6366f1] bg-opacity-10" onclick="copyToClipboard('bsi-number', this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- DANA Card -->
-                <div class="flex items-start gap-3 bg-white px-4 py-3 rounded-lg mb-4 border border-[#e7edf3]">
-                    <div class="text-[#110e1b] flex items-center justify-center rounded-lg bg-[#f0f2f4] shrink-0 size-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex flex-col flex-1">
-                        <p class="text-[#110e1b] text-sm font-semibold leading-normal">DANA</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal" id="dana-number">089609497390</p>
-                        <p class="text-[#110e1b] text-sm font-normal leading-normal">TAUFIQ AZIZ</p>
-                    </div>
-                    <button class="text-[#6366f1] p-2 rounded-lg bg-[#6366f1] bg-opacity-10" onclick="copyToClipboard('dana-number', this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path>
-                        </svg>
-                    </button>
                 </div>
 
                 <!-- Confirm Payment Button -->
@@ -211,6 +149,7 @@
     
     <script type="module" src="supabase-client.js"></script>
     <script type="module" src="auth.js"></script>
+    <script type="module" src="apply-settings.js"></script>
     <script type="module" src="pelanggan_info.js"></script>
     <script src="pwa-installer.js"></script>
 

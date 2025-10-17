@@ -715,11 +715,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${period}
             </span>
         </div>
-        <div class="shrink-0 flex items-center gap-3">
+        <div class="shrink-0 flex items-center gap-2">
             <div class="flex flex-col items-end">
                 <p class="text-green-600 text-base font-bold leading-normal">LUNAS</p>
                 <p class="text-gray-500 text-xs font-medium leading-normal">${item.payment_method || 'Tidak diketahui'}</p>
             </div>
+            <button class="revert-paid-btn flex items-center justify-center w-8 h-8 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" data-invoice-id="${invoiceId}" title="Batalkan Pembayaran">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L60.63,81.29l17,17A8,8,0,0,1,72,112H24a8,8,0,0,1-8-8V56A8,8,0,0,1,29.66,50.3L49.31,70,59.78,59.43a96,96,0,0,1,164.2,68.5A8,8,0,0,1,224,128Z"></path>
+                </svg>
+            </button>
             <button class="detail-btn flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 transition-colors" data-invoice-id="${invoiceId}" title="Lihat Detail">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
                     <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>
@@ -761,6 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
             handleInstallmentPayment(targetItem);
         } else if (button.classList.contains('detail-btn')) {
             navigateToPaymentDetail(targetItem);
+        } else if (button.classList.contains('revert-paid-btn')) {
+            revertPaymentStatus(targetItem);
         }
     }
     
@@ -869,6 +876,68 @@ document.addEventListener('DOMContentLoaded', () => {
             remainingAmount: remainingAmount,
             invoicePeriod: invoice.invoice_period
         });
+    }
+
+    async function revertPaymentStatus(invoice) {
+        if (!invoice || !invoice.id) {
+            showErrorNotification('Error: Data tagihan tidak lengkap.');
+            return;
+        }
+
+        const customerName = invoice.profiles?.full_name || 'Pelanggan';
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+        const totalDue = invoice.total_due || invoice.amount;
+
+        // Confirmation dialog
+        const confirmMessage = `⚠️ BATALKAN PEMBAYARAN\n\n` +
+            `Pelanggan: ${customerName}\n` +
+            `Periode: ${invoice.invoice_period || 'N/A'}\n` +
+            `Jumlah: ${formatter.format(totalDue)}\n` +
+            `Status: LUNAS → BELUM DIBAYAR\n\n` +
+            `Tindakan ini akan mengembalikan status tagihan ke "Belum Dibayar".\n` +
+            `Data pembayaran (tanggal & metode) akan dihapus.\n\n` +
+            `Apakah Anda yakin ingin membatalkan pembayaran ini?`;
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        try {
+            showPaymentLoading('Membatalkan pembayaran...');
+
+            // Revert status to unpaid and reset payment fields
+            const { error } = await supabase
+                .from('invoices')
+                .update({
+                    status: 'unpaid',
+                    paid_at: null,
+                    payment_method: null,
+                    amount: totalDue, // Reset to full amount
+                    amount_paid: 0 // Reset amount paid
+                })
+                .eq('id', invoice.id);
+
+            hidePaymentLoading();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            showSuccessNotification(`✅ Pembayaran berhasil dibatalkan!\nTagihan "${invoice.invoice_period}" kembali ke status belum dibayar.`);
+
+            // Refresh data and switch to unpaid tab
+            await fetchData();
+            switchTab('unpaid');
+
+        } catch (error) {
+            hidePaymentLoading();
+            console.error('Error reverting payment:', error);
+            showErrorNotification(`❌ Gagal membatalkan pembayaran: ${error.message}`);
+        }
     }
     
     function sendWhatsAppMessage(rowData) {

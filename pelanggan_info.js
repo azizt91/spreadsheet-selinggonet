@@ -1,6 +1,7 @@
 // pelanggan_info.js - Payment Information Page with Copy Functionality and WhatsApp Integration
 import { supabase } from './supabase-client.js';
 import { checkAuth, requireRole } from './auth.js';
+import { getWhatsAppNumber, getOfflinePaymentInfo, getQRISInfo } from './apply-settings.js';
 
 let currentUser = null;
 let currentProfile = null;
@@ -19,6 +20,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize event listeners
     initializeEventListeners();
+
+    // Apply offline payment info dynamically
+    applyOfflinePaymentInfo();
+
+    // Apply QRIS settings dynamically
+    applyQRISSettings();
+
+    // Load payment methods dynamically
+    await loadPaymentMethods();
 
     // ===============================================
     // Event Listeners Setup
@@ -184,7 +194,7 @@ _Pesan otomatis dari aplikasi Selinggonet_`;
     }
 
     function sendWhatsAppMessage(message) {
-        const whatsappNumber = '6281914170701'; // Admin WhatsApp number
+        const whatsappNumber = getWhatsAppNumber(); // Get from app settings
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
         
@@ -225,6 +235,143 @@ _Pesan otomatis dari aplikasi Selinggonet_`;
             console.error('Error fetching customer profile:', error);
             return null;
         }
+    }
+
+    function applyOfflinePaymentInfo() {
+        try {
+            // Get offline payment info from settings
+            const offlineInfo = getOfflinePaymentInfo();
+            
+            // Update HTML elements
+            const nameElement = document.getElementById('offline-payment-name');
+            const addressElement = document.getElementById('offline-payment-address');
+            
+            if (nameElement) {
+                nameElement.textContent = offlineInfo.name;
+            }
+            
+            if (addressElement) {
+                addressElement.textContent = offlineInfo.address;
+            }
+            
+            console.log('Offline payment info applied:', offlineInfo);
+        } catch (error) {
+            console.error('Error applying offline payment info:', error);
+            // Keep default values if error
+        }
+    }
+
+    function applyQRISSettings() {
+        try {
+            // Get QRIS info from settings
+            const qrisInfo = getQRISInfo();
+            
+            // Find QRIS card element (parent div of qris-image)
+            const qrisImage = document.getElementById('qris-image');
+            const qrisCard = qrisImage?.closest('.bg-white.p-4.rounded-lg');
+            const qrisModal = document.getElementById('qris-modal');
+            
+            if (!qrisCard) {
+                console.warn('QRIS card element not found');
+                return;
+            }
+
+            // Show or hide QRIS based on settings
+            if (qrisInfo.showQRIS) {
+                // Show QRIS
+                qrisCard.classList.remove('hidden');
+                if (qrisModal) qrisModal.classList.remove('hidden');
+                
+                // Update image URL
+                if (qrisImage) {
+                    qrisImage.src = qrisInfo.imageUrl;
+                }
+                
+                // Update modal image if exists
+                const modalImage = qrisModal?.querySelector('img');
+                if (modalImage) {
+                    modalImage.src = qrisInfo.imageUrl;
+                }
+                
+                console.log('QRIS displayed with image:', qrisInfo.imageUrl);
+            } else {
+                // Hide QRIS
+                qrisCard.classList.add('hidden');
+                if (qrisModal) qrisModal.classList.add('hidden');
+                
+                console.log('QRIS hidden (show_qris = false)');
+            }
+        } catch (error) {
+            console.error('Error applying QRIS settings:', error);
+            // Keep default behavior (show QRIS) if error
+        }
+    }
+
+    async function loadPaymentMethods() {
+        try {
+            // Fetch only active payment methods for customer
+            const { data, error } = await supabase
+                .from('payment_methods')
+                .select('*')
+                .eq('is_active', true)
+                .order('sort_order', { ascending: true });
+
+            if (error) throw error;
+
+            // Render payment methods
+            renderPaymentMethods(data || []);
+        } catch (error) {
+            console.error('Error loading payment methods:', error);
+            // Show fallback message
+            const container = document.getElementById('payment-methods-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                        <p class="text-gray-600 text-sm">Gagal memuat metode pembayaran</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function renderPaymentMethods(methods) {
+        const container = document.getElementById('payment-methods-container');
+        if (!container) return;
+
+        if (methods.length === 0) {
+            container.innerHTML = `
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                    <p class="text-gray-600 text-sm">Belum ada metode pembayaran</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Generate HTML for each payment method
+        container.innerHTML = methods.map((method, index) => {
+            const uniqueId = `payment-${method.id}`;
+            return `
+                <div class="flex items-start gap-3 bg-white px-4 py-3 rounded-lg mb-3 border border-[#e7edf3]">
+                    <div class="text-[#110e1b] flex items-center justify-center rounded-lg bg-[#f0f2f4] shrink-0 size-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col flex-1">
+                        <p class="text-[#110e1b] text-sm font-semibold leading-normal">${method.bank_name}</p>
+                        <p class="text-[#110e1b] text-sm font-normal leading-normal" id="${uniqueId}">${method.account_number}</p>
+                        <p class="text-[#110e1b] text-sm font-normal leading-normal">${method.account_holder}</p>
+                    </div>
+                    <button class="text-[#6366f1] p-2 rounded-lg bg-[#6366f1] bg-opacity-10" onclick="copyToClipboard('${uniqueId}', this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256">
+                            <path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        console.log(`Rendered ${methods.length} payment methods`);
     }
 
     function showToast(message, type = 'info') {

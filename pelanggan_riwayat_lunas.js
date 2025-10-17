@@ -1,6 +1,7 @@
 // pelanggan_riwayat_lunas.js - Customer Payment History with Tabs
 import { supabase } from './supabase-client.js';
 import { checkAuth, requireRole } from './auth.js';
+import { getWhatsAppNumber } from './apply-settings.js';
 
 let currentUser = null;
 let currentProfile = null;
@@ -658,7 +659,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 Saya sudah melakukan pembayaran. Mohon untuk diverifikasi. Terima kasih.`;
 
-        const whatsappNumber = '6281914170701'; // Ganti dengan nomor WhatsApp Admin
+        const whatsappNumber = getWhatsAppNumber(); // Get from app settings
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 

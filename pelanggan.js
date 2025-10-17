@@ -177,6 +177,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            if (id === 'delete-customer-icon-btn') {
+                handleDeleteCustomer();
+                return;
+            }
+
             if (id === 'add-customer-btn') {
                 closeFABMenu(); // Close FAB menu if open
                 openAddForm();
@@ -437,6 +442,102 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function handleEditFromDetailView() {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentEditingProfileId).single();
         if (profile) openEditForm(profile);
+    }
+
+    async function handleDeleteCustomer() {
+        if (!currentEditingProfileId) {
+            alert('Data pelanggan tidak ditemukan');
+            return;
+        }
+
+        // Fetch customer data for confirmation
+        const { data: profile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('full_name, idpl')
+            .eq('id', currentEditingProfileId)
+            .single();
+
+        if (fetchError || !profile) {
+            alert('Gagal mengambil data pelanggan');
+            return;
+        }
+
+        // Confirmation dialog
+        const confirmMessage = `⚠️ PERHATIAN: Hapus Pelanggan\n\n` +
+            `Nama: ${profile.full_name}\n` +
+            `ID: ${profile.idpl}\n\n` +
+            `Tindakan ini akan menghapus:\n` +
+            `✓ Akun login (Supabase Auth)\n` +
+            `✓ Data profil pelanggan\n` +
+            `✓ Semua riwayat tagihan\n\n` +
+            `Data yang dihapus TIDAK DAPAT dikembalikan!\n\n` +
+            `Apakah Anda yakin ingin menghapus pelanggan ini?`;
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        // Double confirmation for safety
+        const finalConfirm = confirm('Konfirmasi terakhir: Yakin ingin melanjutkan penghapusan?');
+        if (!finalConfirm) {
+            return;
+        }
+
+        try {
+            // Show loading state
+            const deleteBtn = document.getElementById('delete-customer-icon-btn');
+            if (deleteBtn) deleteBtn.disabled = true;
+
+            // Step 1: Delete all invoices (cascade)
+            const { error: invoicesError } = await supabase
+                .from('invoices')
+                .delete()
+                .eq('customer_id', currentEditingProfileId);
+
+            if (invoicesError) {
+                throw new Error(`Gagal menghapus tagihan: ${invoicesError.message}`);
+            }
+
+            // Step 2: Delete profile
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .delete()
+                .eq('id', currentEditingProfileId);
+
+            if (profileError) {
+                throw new Error(`Gagal menghapus profil: ${profileError.message}`);
+            }
+
+            // Step 3: Delete from Supabase Auth (using Edge Function)
+            try {
+                const { error: authError } = await supabase.functions.invoke('delete-user', {
+                    body: { user_id: currentEditingProfileId }
+                });
+
+                if (authError) {
+                    console.warn('Warning: Gagal menghapus dari Auth (user mungkin sudah terhapus):', authError);
+                }
+            } catch (authDeleteError) {
+                console.warn('Warning: Auth delete error (continuing):', authDeleteError);
+                // Continue even if auth delete fails (user might not exist)
+            }
+
+            // Success notification
+            alert(`✅ Pelanggan "${profile.full_name}" berhasil dihapus!\n\nData yang dihapus:\n- Akun login\n- Profil pelanggan\n- Riwayat tagihan`);
+
+            // Reset state and refresh
+            currentEditingProfileId = null;
+            await fetchData();
+            switchView('list');
+
+        } catch (error) {
+            console.error('Error deleting customer:', error);
+            alert(`❌ Gagal menghapus pelanggan:\n${error.message}`);
+            
+            // Re-enable button
+            const deleteBtn = document.getElementById('delete-customer-icon-btn');
+            if (deleteBtn) deleteBtn.disabled = false;
+        }
     }
 
         async function openDetailView(profileId) {
