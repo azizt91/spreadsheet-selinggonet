@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test FAB Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #fab-info-icon, #fab-close-icon {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    
+    <div class="text-center">
+        <h1 class="text-2xl font-bold mb-4">Test FAB Icon Toggle</h1>
+        <p class="text-gray-600 mb-8">Klik button ungu untuk test toggle icon</p>
+        
+        <!-- FAB Button Test -->
+        <div class="fixed bottom-10 right-10">
+            <button id="fab-test-btn" class="relative flex items-center justify-center w-16 h-16 rounded-full bg-purple-600 text-white shadow-lg hover:shadow-xl transition-all">
+                <!-- Info Icon (Default) -->
+                <svg id="fab-info-icon" xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="currentColor" viewBox="0 0 256 256" style="position: absolute; display: block;">
+                  <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path>
+                </svg>
+                <!-- Close Icon (Hidden by default) -->
+                <svg id="fab-close-icon" xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="currentColor" viewBox="0 0 256 256" style="position: absolute; display: none;">
+                  <path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Status Display -->
+        <div class="mt-20 p-4 bg-white rounded-lg shadow">
+            <h3 class="font-bold mb-2">Status:</h3>
+            <p id="status-text" class="text-lg">Collapsed (Info Icon)</p>
+            <div class="mt-4 space-y-2 text-left">
+                <p>Info Icon Display: <span id="info-display" class="font-mono">block</span></p>
+                <p>Close Icon Display: <span id="close-display" class="font-mono">none</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const fabBtn = document.getElementById('fab-test-btn');
+        const infoIcon = document.getElementById('fab-info-icon');
+        const closeIcon = document.getElementById('fab-close-icon');
+        const statusText = document.getElementById('status-text');
+        const infoDisplay = document.getElementById('info-display');
+        const closeDisplay = document.getElementById('close-display');
+        
+        let isExpanded = false;
+        
+        fabBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            
+            if (isExpanded) {
+                // Show close icon
+                infoIcon.style.display = 'none';
+                closeIcon.style.display = 'block';
+                statusText.textContent = 'Expanded (Close Icon)';
+                statusText.className = 'text-lg text-green-600 font-bold';
+                
+                console.log('✅ Expanded - Close icon should be visible');
+            } else {
+                // Show info icon
+                infoIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+                statusText.textContent = 'Collapsed (Info Icon)';
+                statusText.className = 'text-lg text-blue-600 font-bold';
+                
+                console.log('✅ Collapsed - Info icon should be visible');
+            }
+            
+            // Update display values
+            infoDisplay.textContent = infoIcon.style.display;
+            closeDisplay.textContent = closeIcon.style.display;
+            
+            console.log('Info display:', infoIcon.style.display);
+            console.log('Close display:', closeIcon.style.display);
+        });
+    </script>
+</body>
+</html>

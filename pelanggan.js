@@ -105,6 +105,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.scrollTo(0, 0);
     }
 
+    // FAB Menu Toggle
+    function toggleFABMenu() {
+        const fabExpandedMenu = document.getElementById('fab-expanded-menu');
+        const fabBackdrop = document.getElementById('fab-backdrop');
+        const fabInfoIcon = document.getElementById('fab-info-icon');
+        const fabCloseIcon = document.getElementById('fab-close-icon');
+        const fabMainBtn = document.getElementById('fab-main-btn');
+
+        // Null check
+        if (!fabExpandedMenu || !fabBackdrop || !fabInfoIcon || !fabCloseIcon || !fabMainBtn) {
+            console.error('FAB Menu elements not found!');
+            return;
+        }
+
+        const isExpanded = !fabExpandedMenu.classList.contains('hidden');
+
+        if (isExpanded) {
+            // Collapse menu
+            fabExpandedMenu.classList.add('hidden');
+            fabBackdrop.classList.add('hidden');
+            fabInfoIcon.style.display = 'block';
+            fabCloseIcon.style.display = 'none';
+            fabMainBtn.classList.remove('rotate-45');
+            console.log('✅ FAB Menu collapsed');
+            console.log('   Info icon display:', fabInfoIcon.style.display);
+            console.log('   Close icon display:', fabCloseIcon.style.display);
+        } else {
+            // Expand menu
+            fabExpandedMenu.classList.remove('hidden');
+            fabBackdrop.classList.remove('hidden');
+            fabInfoIcon.style.display = 'none';
+            fabCloseIcon.style.display = 'block';
+            fabMainBtn.classList.add('rotate-45');
+            console.log('✅ FAB Menu expanded');
+            console.log('   Info icon display:', fabInfoIcon.style.display);
+            console.log('   Close icon display:', fabCloseIcon.style.display);
+            console.log('   Close icon SVG path:', fabCloseIcon.querySelector('path').getAttribute('d').substring(0, 50) + '...');
+        }
+    }
+
+    // Helper: Close FAB Menu
+    function closeFABMenu() {
+        const fabExpandedMenu = document.getElementById('fab-expanded-menu');
+        const fabBackdrop = document.getElementById('fab-backdrop');
+        const fabInfoIcon = document.getElementById('fab-info-icon');
+        const fabCloseIcon = document.getElementById('fab-close-icon');
+        const fabMainBtn = document.getElementById('fab-main-btn');
+
+        if (!fabExpandedMenu || fabExpandedMenu.classList.contains('hidden')) return;
+
+        fabExpandedMenu.classList.add('hidden');
+        fabBackdrop.classList.add('hidden');
+        fabInfoIcon.style.display = 'block';
+        fabCloseIcon.style.display = 'none';
+        fabMainBtn.classList.remove('rotate-45');
+    }
+
     // Event Listeners using Event Delegation
     function initializeEventListeners() {
         document.body.addEventListener('click', (event) => {
@@ -128,7 +185,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (id === 'add-customer-btn') {
+                closeFABMenu(); // Close FAB menu if open
                 openAddForm();
+                return;
+            }
+
+            if (id === 'import-csv-btn') {
+                closeFABMenu(); // Close FAB menu if open
+                // CSV modal will be opened by csv-import.js
+                return;
+            }
+
+            if (id === 'fab-main-btn') {
+                toggleFABMenu();
+                return;
+            }
+
+            if (id === 'fab-backdrop') {
+                toggleFABMenu();
                 return;
             }
         });
