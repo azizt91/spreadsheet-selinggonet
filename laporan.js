@@ -19,14 +19,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Global variables
     let allInvoices = [];
+    let allExpenses = [];
     let filteredInvoices = [];
+    let filteredExpenses = [];
+    let combinedData = []; // Gabungan invoices dan expenses untuk display
     let currentFilters = {
         periode: 'all',
         status: 'all',
         paymentMethod: 'all',
         customerSearch: '',
         startDate: null,
-        endDate: null
+        endDate: null,
+        includeExpenses: true // Toggle untuk include/exclude expenses
     };
 
     // DOM Elements
@@ -61,6 +65,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const countUnpaid = document.getElementById('count-unpaid');
     const totalInstallment = document.getElementById('total-installment');
     const countInstallment = document.getElementById('count-installment');
+    const totalPengeluaran = document.getElementById('total-pengeluaran');
+    const countPengeluaran = document.getElementById('count-pengeluaran');
 
     // Currency formatter
     const formatter = new Intl.NumberFormat('id-ID', {
@@ -126,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showLoading();
 
             // Fetch all invoices with customer profiles
-            const { data: invoices, error } = await supabase
+            const { data: invoices, error: invoiceError } = await supabase
                 .from('invoices')
                 .select(`
                     *,
@@ -137,10 +143,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `)
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
+            if (invoiceError) throw invoiceError;
+
+            // Fetch all expenses
+            const { data: expenses, error: expenseError } = await supabase
+                .from('expenses')
+                .select('*')
+                .order('expense_date', { ascending: false });
+
+            if (expenseError) throw expenseError;
 
             allInvoices = invoices || [];
+            allExpenses = expenses || [];
             filteredInvoices = [...allInvoices];
+            filteredExpenses = [...allExpenses];
+
+            console.log(`Loaded ${allInvoices.length} invoices and ${allExpenses.length} expenses`);
 
             updateDisplay();
             hideLoading();
@@ -232,6 +250,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // ============================================
+        // Filter expenses by periode (same logic as invoices)
+        // ============================================
+        filteredExpenses = [...allExpenses];
+
+        if (currentFilters.periode !== 'all') {
+            filteredExpenses = filteredExpenses.filter(expense => {
+                const expenseDate = new Date(expense.expense_date);
+                const now = new Date();
+
+                switch (currentFilters.periode) {
+                    case 'bulan-ini':
+                        return expenseDate.getMonth() === now.getMonth() && 
+                               expenseDate.getFullYear() === now.getFullYear();
+                    case 'bulan-lalu':
+                        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        return expenseDate.getMonth() === lastMonth.getMonth() && 
+                               expenseDate.getFullYear() === lastMonth.getFullYear();
+                    case '3-bulan':
+                        const threeMonthsAgo = new Date(now.setMonth(now.getMonth() - 3));
+                        return expenseDate >= threeMonthsAgo;
+                    case '6-bulan':
+                        const sixMonthsAgo = new Date(now.setMonth(now.getMonth() - 6));
+                        return expenseDate >= sixMonthsAgo;
+                    case 'tahun-ini':
+                        return expenseDate.getFullYear() === now.getFullYear();
+                    case 'custom':
+                        if (currentFilters.startDate && currentFilters.endDate) {
+                            const start = new Date(currentFilters.startDate);
+                            const end = new Date(currentFilters.endDate);
+                            end.setHours(23, 59, 59);
+                            return expenseDate >= start && expenseDate <= end;
+                        }
+                        return true;
+                    default:
+                        return true;
+                }
+            });
+        }
+
         updateDisplay();
         updateFilterBadge();
     }
@@ -282,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateSummary() {
-        // Calculate totals
+        // Calculate totals for invoices
         const paid = filteredInvoices.filter(inv => inv.status === 'paid');
         const unpaid = filteredInvoices.filter(inv => inv.status === 'unpaid');
         const installment = filteredInvoices.filter(inv => inv.status === 'installment');
@@ -291,6 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const totalLunasValue = paid.reduce((sum, inv) => sum + (inv.total_due || 0), 0);
         const totalUnpaidValue = unpaid.reduce((sum, inv) => sum + (inv.amount || 0), 0);
         const totalInstallmentValue = installment.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
+
+        // Calculate totals for expenses
+        const totalPengeluaranValue = filteredExpenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
 
         // Update DOM
         totalPendapatan.textContent = formatter.format(totalPendapatanValue);
@@ -304,40 +365,81 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         totalInstallment.textContent = formatter.format(totalInstallmentValue);
         countInstallment.textContent = `${installment.length} Tagihan`;
+
+        totalPengeluaran.textContent = formatter.format(totalPengeluaranValue);
+        countPengeluaran.textContent = `${filteredExpenses.length} Pengeluaran`;
     }
 
     function updateTable() {
-        if (filteredInvoices.length === 0) {
+        // Combine invoices and expenses
+        combinedData = [];
+
+        // Add invoices with type 'income'
+        filteredInvoices.forEach(invoice => {
+            combinedData.push({
+                type: 'income',
+                date: invoice.paid_at || invoice.created_at,
+                customerName: invoice.profiles?.full_name || 'N/A',
+                customerIdpl: invoice.profiles?.idpl || 'N/A',
+                description: invoice.invoice_period || '-',
+                amount: invoice.status === 'paid' ? invoice.total_due : invoice.amount,
+                status: invoice.status,
+                paymentMethod: invoice.payment_method || '-',
+                data: invoice
+            });
+        });
+
+        // Add expenses with type 'expense'
+        filteredExpenses.forEach(expense => {
+            combinedData.push({
+                type: 'expense',
+                date: expense.expense_date,
+                customerName: '-',
+                customerIdpl: '-',
+                description: expense.description || '-',
+                amount: parseFloat(expense.amount) || 0,
+                status: 'expense',
+                paymentMethod: '-',
+                data: expense
+            });
+        });
+
+        // Sort by date (newest first)
+        combinedData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (combinedData.length === 0) {
             showEmptyState();
             return;
         }
 
         tableContainer.classList.remove('hidden');
         emptyState.classList.add('hidden');
-        dataCount.textContent = `Menampilkan ${filteredInvoices.length} data`;
+        dataCount.textContent = `Menampilkan ${combinedData.length} data (${filteredInvoices.length} pendapatan, ${filteredExpenses.length} pengeluaran)`;
 
         tableBody.innerHTML = '';
 
-        filteredInvoices.forEach((invoice, index) => {
+        combinedData.forEach((item, index) => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-gray-50 transition-colors';
 
-            const customerName = invoice.profiles?.full_name || 'N/A';
-            const customerIdpl = invoice.profiles?.idpl || 'N/A';
-            const amount = invoice.status === 'paid' ? invoice.total_due : invoice.amount;
-            const statusBadge = getStatusBadge(invoice.status);
-            const paidDate = invoice.paid_at ? new Date(invoice.paid_at).toLocaleDateString('id-ID') : '-';
-            const paymentMethod = invoice.payment_method || '-';
+            const statusBadge = item.type === 'expense' ? 
+                '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">Pengeluaran</span>' : 
+                getStatusBadge(item.status);
+
+            const displayDate = new Date(item.date).toLocaleDateString('id-ID');
+            const amountText = item.type === 'expense' ? 
+                `<span class="text-purple-600">-${formatter.format(item.amount)}</span>` : 
+                `<span class="text-green-600">+${formatter.format(item.amount)}</span>`;
 
             row.innerHTML = `
                 <td class="px-4 py-3 whitespace-nowrap text-gray-900 font-medium">${index + 1}</td>
-                <td class="px-4 py-3 text-gray-900">${customerName}</td>
-                <td class="px-4 py-3 text-gray-600 text-xs">${customerIdpl}</td>
-                <td class="px-4 py-3 text-gray-900">${invoice.invoice_period || '-'}</td>
-                <td class="px-4 py-3 text-gray-900 font-semibold whitespace-nowrap">${formatter.format(amount || 0)}</td>
+                <td class="px-4 py-3 text-gray-900">${item.customerName}</td>
+                <td class="px-4 py-3 text-gray-600 text-xs">${item.customerIdpl}</td>
+                <td class="px-4 py-3 text-gray-900">${item.description}</td>
+                <td class="px-4 py-3 font-semibold whitespace-nowrap">${amountText}</td>
                 <td class="px-4 py-3">${statusBadge}</td>
-                <td class="px-4 py-3 text-gray-600 text-xs whitespace-nowrap">${paidDate}</td>
-                <td class="px-4 py-3 text-gray-600 text-xs">${paymentMethod}</td>
+                <td class="px-4 py-3 text-gray-600 text-xs whitespace-nowrap">${displayDate}</td>
+                <td class="px-4 py-3 text-gray-600 text-xs">${item.paymentMethod}</td>
             `;
 
             tableBody.appendChild(row);
@@ -385,7 +487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Add title
             doc.setFontSize(18);
             doc.setFont(undefined, 'bold');
-            doc.text('LAPORAN TAGIHAN', 14, 15);
+            doc.text('LAPORAN KEUANGAN', 14, 15);
 
             // Add date
             doc.setFontSize(10);
@@ -400,27 +502,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             doc.setFont(undefined, 'normal');
             const paidTotal = filteredInvoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + (inv.total_due || 0), 0);
             const unpaidTotal = filteredInvoices.filter(inv => inv.status === 'unpaid').reduce((sum, inv) => sum + (inv.amount || 0), 0);
+            const installmentTotal = filteredInvoices.filter(inv => inv.status === 'installment').reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
+            const expenseTotal = filteredExpenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+            const netIncome = paidTotal - expenseTotal;
             
-            doc.text(`Total Lunas: ${formatter.format(paidTotal)}`, 14, 38);
-            doc.text(`Total Belum Bayar: ${formatter.format(unpaidTotal)}`, 14, 44);
-            doc.text(`Jumlah Data: ${filteredInvoices.length} tagihan`, 14, 50);
+            doc.text(`Total Pendapatan (Lunas): ${formatter.format(paidTotal)}`, 14, 38);
+            doc.text(`Total Pengeluaran: ${formatter.format(expenseTotal)}`, 14, 44);
+            doc.text(`Pendapatan Bersih: ${formatter.format(netIncome)}`, 14, 50);
+            doc.text(`Total Belum Bayar: ${formatter.format(unpaidTotal)}`, 14, 56);
+            doc.text(`Jumlah Data: ${filteredInvoices.length} tagihan, ${filteredExpenses.length} pengeluaran`, 14, 62);
 
-            // Prepare table data
-            const tableData = filteredInvoices.map((invoice, index) => [
-                index + 1,
-                invoice.profiles?.full_name || 'N/A',
-                invoice.profiles?.idpl || 'N/A',
-                invoice.invoice_period || '-',
-                formatter.format((invoice.status === 'paid' ? invoice.total_due : invoice.amount) || 0),
-                getStatusText(invoice.status),
-                invoice.paid_at ? new Date(invoice.paid_at).toLocaleDateString('id-ID') : '-',
-                invoice.payment_method || '-'
-            ]);
+            // Prepare table data from combinedData
+            const tableData = combinedData.map((item, index) => {
+                const displayDate = new Date(item.date).toLocaleDateString('id-ID');
+                const amountStr = formatter.format(item.amount);
+                const statusStr = item.type === 'expense' ? 'Pengeluaran' : getStatusText(item.status);
+                
+                return [
+                    index + 1,
+                    item.customerName,
+                    item.customerIdpl,
+                    item.description,
+                    item.type === 'expense' ? `-${amountStr}` : `+${amountStr}`,
+                    statusStr,
+                    displayDate,
+                    item.paymentMethod
+                ];
+            });
 
             // Add table
             doc.autoTable({
-                startY: 58,
-                head: [['No', 'Nama', 'ID', 'Periode', 'Jumlah', 'Status', 'Tgl Bayar', 'Metode']],
+                startY: 70,
+                head: [['No', 'Nama', 'ID', 'Keterangan', 'Jumlah', 'Status', 'Tanggal', 'Metode']],
                 body: tableData,
                 theme: 'striped',
                 headStyles: {
@@ -439,7 +552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             // Save PDF
-            const filename = `Laporan_Tagihan_${new Date().toISOString().split('T')[0]}.pdf`;
+            const filename = `Laporan_Keuangan_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(filename);
 
             showSuccessNotification('✅ PDF berhasil diexport!');
@@ -451,19 +564,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function exportToExcel() {
         try {
-            // Prepare data
-            const excelData = filteredInvoices.map((invoice, index) => ({
-                'No': index + 1,
-                'Nama Pelanggan': invoice.profiles?.full_name || 'N/A',
-                'ID Pelanggan': invoice.profiles?.idpl || 'N/A',
-                'Periode': invoice.invoice_period || '-',
-                'Jumlah': (invoice.status === 'paid' ? invoice.total_due : invoice.amount) || 0,
-                'Status': getStatusText(invoice.status),
-                'Tanggal Bayar': invoice.paid_at ? new Date(invoice.paid_at).toLocaleDateString('id-ID') : '-',
-                'Metode Pembayaran': invoice.payment_method || '-',
-                'Total Due': invoice.total_due || 0,
-                'Amount Paid': invoice.amount_paid || 0
-            }));
+            // Prepare data from combinedData
+            const excelData = combinedData.map((item, index) => {
+                const displayDate = new Date(item.date).toLocaleDateString('id-ID');
+                const amount = item.amount || 0;
+                const statusStr = item.type === 'expense' ? 'Pengeluaran' : getStatusText(item.status);
+                
+                return {
+                    'No': index + 1,
+                    'Tipe': item.type === 'expense' ? 'Pengeluaran' : 'Pendapatan',
+                    'Nama Pelanggan': item.customerName,
+                    'ID Pelanggan': item.customerIdpl,
+                    'Keterangan': item.description,
+                    'Jumlah': item.type === 'expense' ? -amount : amount,
+                    'Status': statusStr,
+                    'Tanggal': displayDate,
+                    'Metode Pembayaran': item.paymentMethod
+                };
+            });
 
             // Create worksheet
             const ws = XLSX.utils.json_to_sheet(excelData);
@@ -471,34 +589,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Set column widths
             const colWidths = [
                 { wch: 5 },  // No
+                { wch: 12 }, // Tipe
                 { wch: 25 }, // Nama
                 { wch: 15 }, // ID
-                { wch: 15 }, // Periode
+                { wch: 30 }, // Keterangan
                 { wch: 15 }, // Jumlah
                 { wch: 12 }, // Status
                 { wch: 15 }, // Tanggal
-                { wch: 15 }, // Metode
-                { wch: 15 }, // Total Due
-                { wch: 15 }  // Amount Paid
+                { wch: 15 }  // Metode
             ];
             ws['!cols'] = colWidths;
 
             // Create workbook
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Laporan Tagihan');
+            XLSX.utils.book_append_sheet(wb, ws, 'Laporan Keuangan');
 
             // Add summary sheet
+            const paidTotal = filteredInvoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + (inv.total_due || 0), 0);
+            const unpaidTotal = filteredInvoices.filter(inv => inv.status === 'unpaid').reduce((sum, inv) => sum + (inv.amount || 0), 0);
+            const installmentTotal = filteredInvoices.filter(inv => inv.status === 'installment').reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
+            const expenseTotal = filteredExpenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+            const netIncome = paidTotal - expenseTotal;
+
             const summaryData = [
-                { 'Keterangan': 'Total Lunas', 'Jumlah': filteredInvoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + (inv.total_due || 0), 0) },
-                { 'Keterangan': 'Total Belum Bayar', 'Jumlah': filteredInvoices.filter(inv => inv.status === 'unpaid').reduce((sum, inv) => sum + (inv.amount || 0), 0) },
-                { 'Keterangan': 'Total Cicilan', 'Jumlah': filteredInvoices.filter(inv => inv.status === 'installment').reduce((sum, inv) => sum + (inv.amount_paid || 0), 0) },
-                { 'Keterangan': 'Jumlah Data', 'Jumlah': filteredInvoices.length }
+                { 'Keterangan': 'Total Pendapatan (Lunas)', 'Jumlah': paidTotal },
+                { 'Keterangan': 'Total Pengeluaran', 'Jumlah': expenseTotal },
+                { 'Keterangan': 'Pendapatan Bersih', 'Jumlah': netIncome },
+                { 'Keterangan': 'Total Belum Bayar', 'Jumlah': unpaidTotal },
+                { 'Keterangan': 'Total Cicilan', 'Jumlah': installmentTotal },
+                { 'Keterangan': 'Jumlah Tagihan', 'Jumlah': `${filteredInvoices.length} tagihan` },
+                { 'Keterangan': 'Jumlah Pengeluaran', 'Jumlah': `${filteredExpenses.length} pengeluaran` }
             ];
             const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            wsSummary['!cols'] = [{ wch: 30 }, { wch: 20 }];
             XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
 
             // Save file
-            const filename = `Laporan_Tagihan_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const filename = `Laporan_Keuangan_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(wb, filename);
 
             showSuccessNotification('✅ Excel berhasil diexport!');
