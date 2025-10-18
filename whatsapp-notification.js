@@ -31,12 +31,31 @@ export async function sendCustomerPaymentNotification(customerData, invoiceData,
         return { success: false, message: 'Nomor WhatsApp pelanggan tidak ada.' };
     }
 
-    // --- PERBAIKAN DIMULAI DI SINI ---
+    // Check if auto notification is enabled
+    const { data: autoNotifSetting } = await supabase
+        .from('whatsapp_settings')
+        .select('setting_value')
+        .eq('setting_key', 'auto_notification_enabled')
+        .single();
 
-    // Ambil email pelanggan untuk dimasukkan ke dalam pesan
-    let customerEmail = 'email_login_anda'; // Fallback jika email tidak ditemukan
+    if (autoNotifSetting?.setting_value !== 'true') {
+        console.log('Auto notification is disabled');
+        return { success: true, message: 'Notifikasi otomatis dinonaktifkan' };
+    }
+
+    // Get WhatsApp settings
+    const { data: whatsappSettings } = await supabase
+        .from('whatsapp_settings')
+        .select('*');
+
+    const settings = {};
+    whatsappSettings?.forEach(s => {
+        settings[s.setting_key] = s.setting_value;
+    });
+
+    // Get customer email
+    let customerEmail = 'email_login_anda';
     try {
-        // Asumsi ada fungsi RPC 'get_user_email' untuk mengambil email dari auth.users
         const { data: email, error: emailError } = await supabase.rpc('get_user_email', {
             user_id: customerData.id
         });
@@ -52,39 +71,24 @@ export async function sendCustomerPaymentNotification(customerData, invoiceData,
         target = '62' + target.substring(1);
     }
     
-    let message;
     const paymentMethodText = { 'cash': 'Tunai', 'transfer': 'Transfer Bank', 'ewallet': 'E-Wallet', 'qris': 'QRIS' }[paymentMethod] || 'Tunai';
 
-    // Pesan tambahan untuk login
-    const loginInfo = `\nAnda dapat melihat riwayat pembayaran dan status tagihan terbaru melalui dasbor pelanggan Anda.\n` +
-                      `\nLogin di:\n*http://selinggonet.netlify.app/*\n` +
-                      `*- Email:* ${customerEmail}\n` +
-                      `*- Password:* password\n`;
+    // Get template based on payment type
+    let template = invoiceData.is_fully_paid 
+        ? settings.template_payment_full 
+        : settings.template_payment_installment;
 
-    if (invoiceData.is_fully_paid) {
-        message = `Konfirmasi Pembayaran LUNAS\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n` +
-                  `✅ *TAGIHAN TELAH LUNAS!*\n\n` +
-                  `*Detail Pembayaran:*\n` +
-                  `• Periode: *${invoiceData.invoice_period}*\n` +
-                  `• Total Tagihan: *${formatter.format(invoiceData.amount)}*\n` +
-                  `• Metode: ${paymentMethodText}\n` +
-                  `• Status: *LUNAS*\n\n` +
-                  `Terima kasih atas pembayaran Anda.` +
-                  `${loginInfo}\n` + // <-- Tambahan info login
-                  `_____________________________\n*Pesan otomatis dari Selinggonet*`;
-    } else {
-        message = `Konfirmasi Pembayaran Cicilan\n\nHai Bapak/Ibu ${customerData.full_name},\nID Pelanggan: ${customerData.idpl}\n\n` +
-                  `✅ *Pembayaran cicilan diterima!*\n\n` +
-                  `*Detail Pembayaran:*\n` +
-                  `• Periode: *${invoiceData.invoice_period}*\n` +
-                  `• Jumlah Dibayar: *${formatter.format(invoiceData.amount)}*\n` +
-                  `• Metode: ${paymentMethodText}\n` +
-                  `• Sisa Tagihan: *${formatter.format(invoiceData.remaining_amount)}*\n\n` +
-                  `Sisa tagihan dapat Anda lunasi sebelum jatuh tempo. Terima kasih.` +
-                  `${loginInfo}\n` + // <-- Tambahan info login
-                  `_____________________________\n*Pesan otomatis dari Selinggonet*`;
-    }
-    // --- PERBAIKAN SELESAI ---
+    // Replace variables in template
+    const message = template
+        .replace(/{nama_pelanggan}/g, customerData.full_name)
+        .replace(/{idpl}/g, customerData.idpl)
+        .replace(/{periode}/g, invoiceData.invoice_period)
+        .replace(/{total_tagihan}/g, formatter.format(invoiceData.amount))
+        .replace(/{jumlah_dibayar}/g, formatter.format(invoiceData.amount))
+        .replace(/{sisa_tagihan}/g, formatter.format(invoiceData.remaining_amount || 0))
+        .replace(/{metode_pembayaran}/g, paymentMethodText)
+        .replace(/{app_url}/g, settings.app_url || 'http://selinggonet.netlify.app/')
+        .replace(/{email_pelanggan}/g, customerEmail);
 
     return await invokeWhatsappFunction(target, message);
 }

@@ -75,6 +75,11 @@ export default class AppSettings {
         document.getElementById('bg-color-text')?.addEventListener('input', (e) => {
             document.getElementById('bg-color-input').value = e.target.value;
         });
+
+        // WhatsApp Settings - Reset to Default
+        document.getElementById('reset-whatsapp-templates-btn')?.addEventListener('click', () => {
+            this.resetWhatsAppTemplates();
+        });
     }
 
     // View management methods removed - now using separate page
@@ -110,6 +115,38 @@ export default class AppSettings {
             } else {
                 this.populateForm(this.getDefaultSettings());
             }
+        }
+
+        // Load WhatsApp settings separately
+        await this.loadWhatsAppSettings();
+    }
+
+    async loadWhatsAppSettings() {
+        try {
+            const { data, error } = await supabase
+                .from('whatsapp_settings')
+                .select('*');
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                data.forEach(setting => {
+                    if (setting.setting_key === 'auto_notification_enabled') {
+                        const isEnabled = setting.setting_value === 'true';
+                        document.getElementById('auto-notification-toggle').checked = isEnabled;
+                    } else if (setting.setting_key === 'app_url') {
+                        document.getElementById('app-url-input').value = setting.setting_value || '';
+                    } else if (setting.setting_key === 'template_payment_full') {
+                        document.getElementById('template-payment-full').value = setting.setting_value || '';
+                    } else if (setting.setting_key === 'template_payment_installment') {
+                        document.getElementById('template-payment-installment').value = setting.setting_value || '';
+                    } else if (setting.setting_key === 'template_custom_message') {
+                        document.getElementById('template-custom-message').value = setting.setting_value || '';
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading WhatsApp settings:', error);
         }
     }
 
@@ -283,6 +320,9 @@ export default class AppSettings {
             // Update manifest.json
             await this.updateManifest(settings);
 
+            // Save WhatsApp settings
+            await this.saveWhatsAppSettings();
+
             alert('✅ Pengaturan berhasil disimpan!\n\nRefresh browser (F5) untuk melihat semua perubahan.');
             window.location.href = 'profile.html';
 
@@ -406,6 +446,131 @@ export default class AppSettings {
     getLocalSettings() {
         const settings = localStorage.getItem('app_settings');
         return settings ? JSON.parse(settings) : null;
+    }
+
+    async saveWhatsAppSettings() {
+        try {
+            const whatsappSettings = [
+                {
+                    setting_key: 'auto_notification_enabled',
+                    setting_value: document.getElementById('auto-notification-toggle').checked ? 'true' : 'false'
+                },
+                {
+                    setting_key: 'app_url',
+                    setting_value: document.getElementById('app-url-input').value.trim()
+                },
+                {
+                    setting_key: 'template_payment_full',
+                    setting_value: document.getElementById('template-payment-full').value
+                },
+                {
+                    setting_key: 'template_payment_installment',
+                    setting_value: document.getElementById('template-payment-installment').value
+                },
+                {
+                    setting_key: 'template_custom_message',
+                    setting_value: document.getElementById('template-custom-message').value
+                }
+            ];
+
+            // Update each setting
+            for (const setting of whatsappSettings) {
+                const { error } = await supabase
+                    .from('whatsapp_settings')
+                    .update({ 
+                        setting_value: setting.setting_value,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('setting_key', setting.setting_key);
+
+                if (error) {
+                    console.error(`Error updating ${setting.setting_key}:`, error);
+                }
+            }
+
+            console.log('✅ WhatsApp settings saved successfully');
+        } catch (error) {
+            console.error('Error saving WhatsApp settings:', error);
+            throw error;
+        }
+    }
+
+    async resetWhatsAppTemplates() {
+        if (!confirm('Reset semua template WhatsApp ke default?\n\nPerubahan tidak dapat dibatalkan.')) {
+            return;
+        }
+
+        try {
+            const defaultTemplates = {
+                template_payment_full: `Konfirmasi Pembayaran LUNAS
+
+Hai Bapak/Ibu {nama_pelanggan},
+ID Pelanggan: {idpl}
+
+✅ *TAGIHAN TELAH LUNAS!*
+
+*Detail Pembayaran:*
+• Periode: *{periode}*
+• Total Tagihan: *{total_tagihan}*
+• Metode: {metode_pembayaran}
+• Status: *LUNAS*
+
+Terima kasih atas pembayaran Anda.
+
+Anda dapat melihat riwayat pembayaran dan status tagihan terbaru melalui dasbor pelanggan Anda.
+
+Login di:
+*{app_url}*
+*- Email:* {email_pelanggan}
+*- Password:* password
+
+_____________________________
+*Pesan otomatis dari Selinggonet*`,
+                template_payment_installment: `Konfirmasi Pembayaran Cicilan
+
+Hai Bapak/Ibu {nama_pelanggan},
+ID Pelanggan: {idpl}
+
+✅ *Pembayaran cicilan diterima!*
+
+*Detail Pembayaran:*
+• Periode: *{periode}*
+• Jumlah Dibayar: *{jumlah_dibayar}*
+• Metode: {metode_pembayaran}
+• Sisa Tagihan: *{sisa_tagihan}*
+
+Sisa tagihan dapat Anda lunasi sebelum jatuh tempo. Terima kasih.
+
+Anda dapat melihat riwayat pembayaran dan status tagihan terbaru melalui dasbor pelanggan Anda.
+
+Login di:
+*{app_url}*
+*- Email:* {email_pelanggan}
+*- Password:* password
+
+_____________________________
+*Pesan otomatis dari Selinggonet*`,
+                template_custom_message: `Pesan dari Admin
+
+Hai Bapak/Ibu {nama_pelanggan},
+ID Pelanggan: {idpl}
+
+{pesan_custom}
+
+_____________________________
+*Pesan dari Selinggonet*`
+            };
+
+            // Update templates in form
+            document.getElementById('template-payment-full').value = defaultTemplates.template_payment_full;
+            document.getElementById('template-payment-installment').value = defaultTemplates.template_payment_installment;
+            document.getElementById('template-custom-message').value = defaultTemplates.template_custom_message;
+
+            alert('✅ Template berhasil direset ke default!\n\nJangan lupa klik SIMPAN untuk menyimpan perubahan.');
+        } catch (error) {
+            console.error('Error resetting templates:', error);
+            alert('❌ Gagal reset template: ' + error.message);
+        }
     }
 }
 

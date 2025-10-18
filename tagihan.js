@@ -1488,12 +1488,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 showErrorNotification('⚠️ Error mengirim notifikasi ke admin: ' + notifError.message);
             }
 
-            // Show results for customer notification
-            if (customerNotificationResult.success) {
-                const statusText = isFullyPaid ? 'LUNAS' : 'CICILAN';
-                showSuccessNotification(`✅ Notifikasi WhatsApp ${statusText} berhasil dikirim ke ${customer.full_name}`);
-            } else {
-                showErrorNotification(`⚠️ Gagal mengirim notifikasi ke pelanggan: ${customerNotificationResult.message}`);
+            // Show results for customer notification only if not disabled
+            if (customerNotificationResult.message !== 'Notifikasi otomatis dinonaktifkan') {
+                if (customerNotificationResult.success) {
+                    const statusText = isFullyPaid ? 'LUNAS' : 'CICILAN';
+                    showSuccessNotification(`✅ Notifikasi WhatsApp ${statusText} berhasil dikirim ke ${customer.full_name}`);
+                } else {
+                    showErrorNotification(`⚠️ Gagal mengirim notifikasi ke pelanggan: ${customerNotificationResult.message}`);
+                }
             }
             
         } catch (error) {
