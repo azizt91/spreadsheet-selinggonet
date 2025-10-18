@@ -86,7 +86,7 @@ class PWAInstaller {
         installContainer.id = 'pwa-install-container';
         installContainer.style.cssText = `
             position: fixed;
-            bottom: 20px;
+            bottom: 90px;
             right: 20px;
             z-index: 1000;
             display: none;
