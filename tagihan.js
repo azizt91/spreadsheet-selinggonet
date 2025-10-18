@@ -709,25 +709,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gabungkan semua bagian menjadi satu
     invoiceDiv.innerHTML = `
         ${paymentDateHtml}
-        <div class="flex flex-col justify-center gap-1 flex-1">
+        <div class="flex flex-col justify-center gap-1 flex-1 cursor-pointer" data-invoice-id="${invoiceId}" data-click-type="detail">
             <p class="text-[#110e1b] text-base font-medium leading-normal">${customerName}</p>
             <span class="${pillClasses.bg} ${pillClasses.text} text-xs font-medium w-fit px-2.5 py-0.5 rounded-full">
                 ${period}
             </span>
         </div>
         <div class="shrink-0 flex items-center gap-1.5">
-            <div class="flex flex-col items-end">
+            <div class="flex flex-col items-end cursor-pointer" data-invoice-id="${invoiceId}" data-click-type="detail">
                 <p class="text-green-600 text-sm font-bold leading-normal">LUNAS</p>
                 <p class="text-gray-500 text-xs font-medium leading-normal">${item.payment_method || 'Tidak diketahui'}</p>
             </div>
             <button class="revert-paid-btn flex items-center justify-center w-7 h-7 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" data-invoice-id="${invoiceId}" title="Batalkan Pembayaran">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256">
                     <path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L60.63,81.29l17,17A8,8,0,0,1,72,112H24a8,8,0,0,1-8-8V56A8,8,0,0,1,29.66,50.3L49.31,70,59.78,59.43a96,96,0,0,1,164.2,68.5A8,8,0,0,1,224,128Z"></path>
-                </svg>
-            </button>
-            <button class="detail-btn flex items-center justify-center w-7 h-7 text-gray-400 hover:text-gray-600 transition-colors" data-invoice-id="${invoiceId}" title="Lihat Detail">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256">
-                    <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>
                 </svg>
             </button>
         </div>
@@ -738,36 +733,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleInvoiceListClick(event) {
+        // Check for button click first
         const button = event.target.closest('button');
-        if (!button) return;
-        const invoiceId = button.dataset.invoiceId;
-        if (!invoiceId) return;
-        
-        // Cari data di semua array berdasarkan tab aktif
-        let targetItem;
-        if (currentTab === 'unpaid') {
-            targetItem = unpaidData.find(item => item.id === invoiceId);
-        } else if (currentTab === 'installment') {
-            targetItem = installmentData.find(item => item.id === invoiceId);
-        } else {
-            targetItem = paidData.find(item => item.id === invoiceId);
-        }
-        
-        if (!targetItem) {
-            showErrorNotification('Data tagihan tidak ditemukan.');
+        if (button) {
+            const invoiceId = button.dataset.invoiceId;
+            if (!invoiceId) return;
+            
+            // Cari data di semua array berdasarkan tab aktif
+            let targetItem;
+            if (currentTab === 'unpaid') {
+                targetItem = unpaidData.find(item => item.id === invoiceId);
+            } else if (currentTab === 'installment') {
+                targetItem = installmentData.find(item => item.id === invoiceId);
+            } else {
+                targetItem = paidData.find(item => item.id === invoiceId);
+            }
+            
+            if (!targetItem) {
+                showErrorNotification('Data tagihan tidak ditemukan.');
+                return;
+            }
+            
+            if (button.classList.contains('mark-paid-btn')) {
+                markAsPaid(targetItem);
+            } else if (button.classList.contains('whatsapp-btn')) {
+                sendWhatsAppMessage(targetItem);
+            } else if (button.classList.contains('installment-btn')) {
+                handleInstallmentPayment(targetItem);
+            } else if (button.classList.contains('revert-paid-btn')) {
+                revertPaymentStatus(targetItem);
+            }
             return;
         }
         
-        if (button.classList.contains('mark-paid-btn')) {
-            markAsPaid(targetItem);
-        } else if (button.classList.contains('whatsapp-btn')) {
-            sendWhatsAppMessage(targetItem);
-        } else if (button.classList.contains('installment-btn')) {
-            handleInstallmentPayment(targetItem);
-        } else if (button.classList.contains('detail-btn')) {
+        // Check for detail area click (like pelanggan.js - click anywhere on card)
+        const detailArea = event.target.closest('[data-click-type="detail"]');
+        if (detailArea && currentTab === 'paid') {
+            const invoiceId = detailArea.dataset.invoiceId;
+            if (!invoiceId) return;
+            
+            const targetItem = paidData.find(item => item.id === invoiceId);
+            if (!targetItem) {
+                showErrorNotification('Data tagihan tidak ditemukan.');
+                return;
+            }
+            
             navigateToPaymentDetail(targetItem);
-        } else if (button.classList.contains('revert-paid-btn')) {
-            revertPaymentStatus(targetItem);
         }
     }
     

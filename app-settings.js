@@ -19,24 +19,14 @@ export default class AppSettings {
     }
 
     initializeEventListeners() {
-        // Navigate to settings view
-        const appSettingsCard = document.getElementById('app-settings-card');
-        if (appSettingsCard) {
-            console.log('[AppSettings] Event listener attached to app-settings-card');
-            appSettingsCard.addEventListener('click', () => {
-                console.log('[AppSettings] Card clicked! Showing settings view...');
-                this.showSettingsView();
-            });
-        }
-
-        // Back button
+        // Back button - navigate to profile.html
         document.getElementById('settings-back-btn')?.addEventListener('click', () => {
-            this.hideSettingsView();
+            window.location.href = 'profile.html';
         });
 
-        // Cancel button
+        // Cancel button - navigate to profile.html
         document.getElementById('settings-cancel-btn')?.addEventListener('click', () => {
-            this.hideSettingsView();
+            window.location.href = 'profile.html';
         });
 
         // Save button
@@ -87,27 +77,7 @@ export default class AppSettings {
         });
     }
 
-    showSettingsView() {
-        console.log('[AppSettings] showSettingsView() called');
-        const profileView = document.getElementById('profile-view');
-        const editView = document.getElementById('edit-view');
-        const settingsView = document.getElementById('app-settings-view');
-        
-        console.log('[AppSettings] Elements found:', { profileView, editView, settingsView });
-        
-        profileView?.classList.add('hidden');
-        editView?.classList.add('hidden');
-        settingsView?.classList.remove('hidden');
-        
-        console.log('[AppSettings] View switched to app-settings-view');
-    }
-
-    hideSettingsView() {
-        console.log('[AppSettings] hideSettingsView() called');
-        document.getElementById('app-settings-view')?.classList.add('hidden');
-        document.getElementById('profile-view')?.classList.remove('hidden');
-        console.log('[AppSettings] View switched back to profile-view');
-    }
+    // View management methods removed - now using separate page
 
     async loadCurrentSettings() {
         try {
@@ -314,7 +284,7 @@ export default class AppSettings {
             await this.updateManifest(settings);
 
             alert('✅ Pengaturan berhasil disimpan!\n\nRefresh browser (F5) untuk melihat semua perubahan.');
-            this.hideSettingsView();
+            window.location.href = 'profile.html';
 
             // Reset uploaded files
             this.uploadedFiles = { logo: null, favicon: null, icon192: null, icon512: null, qris: null };
@@ -439,16 +409,8 @@ export default class AppSettings {
     }
 }
 
-// Initialize App Settings
-// Wrap in DOMContentLoaded to ensure DOM is ready (especially important for Netlify)
+// Initialize App Settings on page load
 document.addEventListener('DOMContentLoaded', () => {
-    const appSettingsCard = document.getElementById('app-settings-card');
-    console.log('[AppSettings] Initializing...', { appSettingsCard });
-    
-    if (appSettingsCard) {
-        console.log('[AppSettings] Creating new AppSettings instance');
-        new AppSettings();
-    } else {
-        console.log('[AppSettings] app-settings-card not found, skipping initialization');
-    }
+    console.log('[AppSettings] Initializing on app-settings.html');
+    new AppSettings();
 });

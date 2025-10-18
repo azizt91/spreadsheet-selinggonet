@@ -277,9 +277,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // Note: Event listeners untuk Pengaturan Aplikasi dan Metode Pembayaran 
-    // sudah di-handle oleh app-settings.js dan payment-methods.js
-    // Tidak perlu duplicate di sini.
+    // Event listener untuk Pengaturan Aplikasi card
+    const appSettingsCard = document.getElementById('app-settings-card');
+    if (appSettingsCard) {
+        appSettingsCard.addEventListener('click', () => {
+            window.location.href = 'app-settings.html';
+        });
+    }
+    
+    // Event listener untuk Metode Pembayaran card
+    const paymentMethodsCard = document.getElementById('payment-methods-card');
+    if (paymentMethodsCard) {
+        paymentMethodsCard.addEventListener('click', () => {
+            window.location.href = 'payment-methods.html';
+        });
+    }
     
     // --- Initial Load ---
     await loadUserProfile();
