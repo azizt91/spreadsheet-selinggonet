@@ -51,6 +51,9 @@ export default class PaymentMethodsManager {
     showPaymentMethodsView() {
         document.getElementById('payment-methods-view')?.classList.remove('hidden');
         document.getElementById('payment-method-form-view')?.classList.add('hidden');
+        // Toggle headers
+        document.getElementById('payment-methods-header')?.classList.remove('hidden');
+        document.getElementById('payment-form-header')?.classList.add('hidden');
     }
 
     hidePaymentMethodsView() {
@@ -71,6 +74,9 @@ export default class PaymentMethodsManager {
         // Hide list view, show form view
         document.getElementById('payment-methods-view').classList.add('hidden');
         document.getElementById('payment-method-form-view').classList.remove('hidden');
+        // Toggle headers
+        document.getElementById('payment-methods-header')?.classList.add('hidden');
+        document.getElementById('payment-form-header')?.classList.remove('hidden');
     }
 
     showEditForm(method) {
@@ -94,12 +100,18 @@ export default class PaymentMethodsManager {
         // Hide list view, show form view
         document.getElementById('payment-methods-view').classList.add('hidden');
         document.getElementById('payment-method-form-view').classList.remove('hidden');
+        // Toggle headers
+        document.getElementById('payment-methods-header')?.classList.add('hidden');
+        document.getElementById('payment-form-header')?.classList.remove('hidden');
     }
 
     hideFormView() {
         // Hide form, show list
         document.getElementById('payment-method-form-view').classList.add('hidden');
         document.getElementById('payment-methods-view').classList.remove('hidden');
+        // Toggle headers
+        document.getElementById('payment-methods-header')?.classList.remove('hidden');
+        document.getElementById('payment-form-header')?.classList.add('hidden');
         
         // Reset form
         this.resetForm();

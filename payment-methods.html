@@ -12,19 +12,28 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 </head>
 <body>
+    <!-- Header List View (Sticky) -->
+    <header id="payment-methods-header" class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <button id="payment-methods-back-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+        </button>
+        <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Metode Pembayaran</h2>
+        <div class="w-10"></div>
+    </header>
+
+    <!-- Header Form View (Sticky) -->
+    <header id="payment-form-header" class="hidden flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <button id="payment-form-back-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+        </button>
+        <h2 id="payment-form-title" class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tambah Bank Baru</h2>
+        <div class="w-10"></div>
+    </header>
+
     <div class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] justify-between group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
         
         <!-- Payment Methods List View -->
         <div id="payment-methods-view">
-            <!-- Header (Sticky) -->
-            <header class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
-                <button id="payment-methods-back-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-                </button>
-                <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Metode Pembayaran</h2>
-                <div class="w-10"></div>
-            </header>
-
             <main class="flex-1 pb-6">
                 <div class="p-4 space-y-4">
                     <!-- Add New Button -->
@@ -52,15 +61,6 @@
 
         <!-- Payment Method Form View (Add/Edit) -->
         <div id="payment-method-form-view" class="hidden">
-            <!-- Header (Sticky) -->
-            <header class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
-                <button id="payment-form-back-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-                </button>
-                <h2 id="payment-form-title" class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tambah Bank Baru</h2>
-                <div class="w-10"></div>
-            </header>
-
             <main class="flex-1 pb-6">
                 <div class="p-4 space-y-4">
                     <!-- Form -->
