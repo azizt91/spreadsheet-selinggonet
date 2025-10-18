@@ -80,6 +80,12 @@ export default class AppSettings {
         document.getElementById('reset-whatsapp-templates-btn')?.addEventListener('click', () => {
             this.resetWhatsAppTemplates();
         });
+
+        // Toggle Fonnte Token visibility
+        document.getElementById('toggle-fonnte-token')?.addEventListener('click', () => {
+            const input = document.getElementById('fonnte-token-input');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
     }
 
     // View management methods removed - now using separate page
@@ -134,6 +140,8 @@ export default class AppSettings {
                     if (setting.setting_key === 'auto_notification_enabled') {
                         const isEnabled = setting.setting_value === 'true';
                         document.getElementById('auto-notification-toggle').checked = isEnabled;
+                    } else if (setting.setting_key === 'fonnte_token') {
+                        document.getElementById('fonnte-token-input').value = setting.setting_value || '';
                     } else if (setting.setting_key === 'app_url') {
                         document.getElementById('app-url-input').value = setting.setting_value || '';
                     } else if (setting.setting_key === 'template_payment_full') {
@@ -454,6 +462,10 @@ export default class AppSettings {
                 {
                     setting_key: 'auto_notification_enabled',
                     setting_value: document.getElementById('auto-notification-toggle').checked ? 'true' : 'false'
+                },
+                {
+                    setting_key: 'fonnte_token',
+                    setting_value: document.getElementById('fonnte-token-input').value.trim()
                 },
                 {
                     setting_key: 'app_url',

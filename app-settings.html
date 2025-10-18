@@ -261,6 +261,18 @@
                     </label>
                 </div>
 
+                <!-- Fonnte Token -->
+                <label class="flex flex-col mb-4">
+                    <p class="text-[#110e1b] text-sm font-medium pb-1">Fonnte API Token</p>
+                    <input id="fonnte-token-input" type="password" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm font-mono" placeholder="Masukkan token Fonnte (opsional)" />
+                    <small class="text-xs text-gray-400 mt-1">
+                        Token API dari <a href="https://fonnte.com" target="_blank" class="text-blue-600 hover:underline">fonnte.com</a>. Kosongkan jika sudah diatur di Supabase Secrets.
+                    </small>
+                    <button type="button" id="toggle-fonnte-token" class="text-xs text-gray-600 hover:text-gray-800 mt-1 text-left">
+                        👁️ Tampilkan/Sembunyikan Token
+                    </button>
+                </label>
+
                 <!-- App URL -->
                 <label class="flex flex-col mb-4">
                     <p class="text-[#110e1b] text-sm font-medium pb-1">URL Aplikasi</p>

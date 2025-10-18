@@ -43,6 +43,19 @@ export async function sendCustomerPaymentNotification(customerData, invoiceData,
         return { success: true, message: 'Notifikasi otomatis dinonaktifkan' };
     }
 
+    // Check if Fonnte token is configured (either in database or Supabase Secrets)
+    const { data: tokenSetting } = await supabase
+        .from('whatsapp_settings')
+        .select('setting_value')
+        .eq('setting_key', 'fonnte_token')
+        .single();
+
+    // If no token in database, assume it's in Supabase Secrets (will be checked by Edge Function)
+    // If token exists but empty, show warning
+    if (tokenSetting && tokenSetting.setting_value === '') {
+        console.warn('Fonnte token not configured in database. Make sure it is set in Supabase Secrets.');
+    }
+
     // Get WhatsApp settings
     const { data: whatsappSettings } = await supabase
         .from('whatsapp_settings')

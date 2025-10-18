@@ -1,8 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { corsHeaders } from '../_shared/cors.ts';
 
-// Ambil token Fonnte dari environment variables di Supabase
-const FONNTE_TOKEN = Deno.env.get('FONNTE_TOKEN');
+// Ambil token Fonnte dari environment variables di Supabase (fallback)
+const FONNTE_TOKEN_ENV = Deno.env.get('FONNTE_TOKEN');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 serve(async (req) => {
   // Handle preflight request untuk CORS
@@ -17,8 +20,29 @@ serve(async (req) => {
     if (!target || !message) {
       throw new Error("Nomor tujuan (target) dan isi pesan (message) harus diisi.");
     }
-     if (!FONNTE_TOKEN) {
-      throw new Error("Token Fonnte belum diatur di environment variables Supabase.");
+
+    // Initialize Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Try to get Fonnte token from database first
+    let FONNTE_TOKEN = FONNTE_TOKEN_ENV; // Default to environment variable
+    
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('whatsapp_settings')
+      .select('setting_value')
+      .eq('setting_key', 'fonnte_token')
+      .single();
+
+    // If token exists in database and not empty, use it (priority)
+    if (!tokenError && tokenData?.setting_value && tokenData.setting_value.trim() !== '') {
+      FONNTE_TOKEN = tokenData.setting_value.trim();
+      console.log('Using Fonnte token from database');
+    } else {
+      console.log('Using Fonnte token from environment variables');
+    }
+
+    if (!FONNTE_TOKEN) {
+      throw new Error("Token Fonnte belum diatur. Silakan atur di Pengaturan Aplikasi atau Supabase Secrets.");
     }
 
     // Panggil API Fonnte untuk mengirim pesan
