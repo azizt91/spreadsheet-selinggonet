@@ -226,8 +226,33 @@ document.addEventListener('DOMContentLoaded', async function() {
         profileAvatar.classList.remove('animate-pulse');
     }
 
+    // --- Check GenieACS Enabled ---
+    async function checkGenieACSEnabled() {
+        try {
+            const { data, error } = await supabase
+                .from('genieacs_settings')
+                .select('setting_value')
+                .eq('setting_key', 'genieacs_enabled')
+                .single();
+
+            if (error) throw error;
+
+            const gantiWifiCard = document.getElementById('ganti-wifi-card');
+            if (data && data.setting_value === 'true' && gantiWifiCard) {
+                gantiWifiCard.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error checking GenieACS status:', error);
+        }
+    }
+
     // --- Event Listeners ---
     editInfoCard.addEventListener('click', () => toggleMode(true));
+    
+    // Ganti WiFi menu
+    document.getElementById('ganti-wifi-card')?.addEventListener('click', () => {
+        window.location.href = 'ganti-wifi.html';
+    });
     
     // Back button event listener
     editBackBtn.addEventListener('click', () => {
@@ -274,4 +299,5 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Initial load
     loadUserProfile();
+    checkGenieACSEnabled();
 });
