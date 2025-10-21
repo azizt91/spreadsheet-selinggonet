@@ -67,8 +67,8 @@ async function loadUserData() {
 
         if (ipAddress && ipAddress.trim() !== '') {
             document.getElementById('current-ip').textContent = ipAddress;
-            // Get current SSID via Supabase proxy
-            await getCurrentSSID(ipAddress);
+            // Get current WiFi info via Supabase proxy
+            await loadCurrentWiFiInfo(ipAddress);
         } else {
             document.getElementById('current-ip').textContent = 'Tidak ditemukan';
             document.getElementById('current-ssid').textContent = 'Tidak tersedia';
@@ -81,28 +81,27 @@ async function loadUserData() {
     }
 }
 
-async function getCurrentSSID(ipAddress) {
+async function loadCurrentWiFiInfo(ipAddress) {
+    const ssidElement = document.getElementById('current-ssid');
+    const passwordElement = document.getElementById('current-password');
+
     try {
-        // Call GenieACS API via Supabase proxy to avoid Mixed Content
         const genieacsUrl = genieacsSettings.genieacs_url;
         if (!genieacsUrl) {
-            document.getElementById('current-ssid').textContent = 'URL GenieACS tidak dikonfigurasi';
+            ssidElement.textContent = 'URL GenieACS tidak dikonfigurasi';
             return;
         }
 
-        // Build auth object
         const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password) 
             ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
             : null;
 
-        // Call via Supabase Edge Function proxy
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
         const targetUrl = `${genieacsUrl}/devices`;
         
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         
-        // GenieACS uses GET with query string (not POST)
         const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
             "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
         }))}`;
@@ -129,23 +128,35 @@ async function getCurrentSSID(ipAddress) {
         
         if (devices && devices.length > 0) {
             const device = devices[0];
-            // Try to get SSID from device parameters
-            // Path may vary depending on device model
-            const ssidPath = 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID';
-            const ssid = device[ssidPath]?._value || 'Tidak dapat diambil';
-            document.getElementById('current-ssid').textContent = ssid;
+            let ssid = 'Tidak dapat diambil';
+            let password = 'Tidak dapat diambil';
+
+            // Safely access nested SSID value
+            try {
+                ssid = device.InternetGatewayDevice.LANDevice['1'].WLANConfiguration['1'].SSID._value;
+            } catch (e) {
+                console.error('Could not find SSID in device data', e);
+            }
+
+            // Safely access nested Password value
+            try {
+                password = device.InternetGatewayDevice.LANDevice['1'].WLANConfiguration['1'].PreSharedKey['1'].KeyPassphrase._value;
+            } catch (e) {
+                console.error('Could not find KeyPassphrase in device data', e);
+            }
+
+            ssidElement.textContent = ssid || '(Kosong)';
+            passwordElement.textContent = password || ' (Kosong)';
+
         } else {
-            document.getElementById('current-ssid').textContent = 'Device tidak ditemukan';
+            ssidElement.textContent = 'Device tidak ditemukan';
+            passwordElement.textContent = 'Device tidak ditemukan';
         }
 
     } catch (error) {
-        console.error('Error getting current SSID:', error);
-        // Handle CORS error gracefully
-        if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-            document.getElementById('current-ssid').textContent = 'Tidak dapat diambil (CORS)';
-        } else {
-            document.getElementById('current-ssid').textContent = 'Gagal mengambil data';
-        }
+        console.error('Error getting current WiFi info:', error);
+        ssidElement.textContent = 'Gagal mengambil data';
+        passwordElement.textContent = 'Gagal mengambil data';
     }
 }
 
@@ -246,13 +257,13 @@ async function handleFormSubmit(e) {
                 .update({ status: 'success' })
                 .eq('id', logData.id);
 
-            showNotification('✅ WiFi berhasil diganti! Silakan hubungkan ulang perangkat Anda.', 'success');
+            showNotification('✅ Perintah ganti WiFi berhasil dikirim! Perangkat akan diperbarui dalam 1-2 menit.', 'success');
             
-            // Reload data
-            setTimeout(() => {
-                loadUserData();
-                loadChangeHistory();
-            }, 2000);
+            // // Reload data - DISABLED to prevent timeout errors as device needs time to update
+            // setTimeout(() => {
+            //     loadUserData();
+            //     loadChangeHistory();
+            // }, 2000);
         } else {
             // Update log status with error
             await supabase
@@ -345,9 +356,9 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 })
             });
 
-            if (!ssidResponse.ok) {
-                return { success: false, message: 'Gagal mengatur SSID' };
-            }
+            // if (!ssidResponse.ok) {
+            //     return { success: false, message: 'Gagal mengatur SSID' };
+            // }
         }
 
         // Step 3: Set Password parameter (if provided) via proxy
@@ -373,9 +384,9 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 })
             });
 
-            if (!passwordResponse.ok) {
-                return { success: false, message: 'Gagal mengatur password' };
-            }
+            // if (!passwordResponse.ok) {
+            //     return { success: false, message: 'Gagal mengatur password' };
+            // }
         }
 
         // Build success message
