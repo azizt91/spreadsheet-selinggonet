@@ -99,11 +99,11 @@ async function loadCurrentWiFiInfo(ipAddress) {
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
         const targetUrl = `${genieacsUrl}/devices`;
         
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
-        
         const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
-            "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
+            "$or": [
+                { "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress },
+                { "VirtualParameters.pppoeIP": ipAddress }
+            ]
         }))}`;
         
         const response = await fetch(proxyUrl, {
@@ -304,7 +304,10 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
         // Step 1: Find device by IP via proxy (GET with query string)
         const targetUrl = `${genieacsUrl}/devices`;
         const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
-            "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
+            "$or": [
+                { "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress },
+                { "VirtualParameters.pppoeIP": ipAddress }
+            ]
         }))}`;
         
         const devicesResponse = await fetch(proxyUrl, {
