@@ -246,77 +246,78 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.61-9.74,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"></path></svg>
                     Notifikasi WhatsApp
                 </h3>
-                
-                <!-- Enable/Disable Auto Notification -->
-                <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <div>
-                            <p class="text-[#110e1b] text-sm font-medium">Notifikasi Otomatis</p>
-                            <p class="text-xs text-gray-500">Kirim WhatsApp otomatis saat pembayaran diterima</p>
-                        </div>
-                        <div class="relative">
-                            <input type="checkbox" id="auto-notification-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#683fe4]"></div>
-                        </div>
-                    </label>
-                </div>
+                <div class="space-y-3">
+                    <!-- Enable/Disable Auto Notification -->
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <div>
+                                <p class="text-[#110e1b] text-sm font-medium">Notifikasi Otomatis</p>
+                                <p class="text-xs text-gray-500">Kirim WhatsApp otomatis saat pembayaran diterima</p>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="auto-notification-toggle" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#683fe4]"></div>
+                            </div>
+                        </label>
+                    </div>
 
-                <!-- Fonnte Token -->
-                <label class="flex flex-col mb-4">
-                    <p class="text-[#110e1b] text-sm font-medium pb-1">Fonnte API Token</p>
-                    <input id="fonnte-token-input" type="password" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm font-mono" placeholder="Masukkan token Fonnte (opsional)" />
-                    <small class="text-xs text-gray-400 mt-1">
-                        Token API dari <a href="https://fonnte.com" target="_blank" class="text-blue-600 hover:underline">fonnte.com</a>. Kosongkan jika sudah diatur di Supabase Secrets.
-                    </small>
-                    <button type="button" id="toggle-fonnte-token" class="text-xs text-gray-600 hover:text-gray-800 mt-1 text-left">
-                        👁️ Tampilkan/Sembunyikan Token
+                    <!-- Fonnte Token -->
+                    <label class="flex flex-col">
+                        <p class="text-[#110e1b] text-sm font-medium pb-1">Fonnte API Token</p>
+                        <input id="fonnte-token-input" type="password" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm font-mono" placeholder="Masukkan token Fonnte (opsional)" />
+                        <small class="text-xs text-gray-400 mt-1">
+                            Token API dari <a href="https://fonnte.com" target="_blank" class="text-blue-600 hover:underline">fonnte.com</a>. Kosongkan jika sudah diatur di Supabase Secrets.
+                        </small>
+                        <button type="button" id="toggle-fonnte-token" class="text-xs text-gray-600 hover:text-gray-800 mt-1 text-left">
+                            👁️ Tampilkan/Sembunyikan Token
+                        </button>
+                    </label>
+
+                    <!-- App URL -->
+                    <label class="flex flex-col">
+                        <p class="text-[#110e1b] text-sm font-medium pb-1">URL Aplikasi</p>
+                        <input id="app-url-input" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="http://selinggonet.netlify.app/" />
+                        <small class="text-xs text-gray-400 mt-1">URL untuk login pelanggan di pesan WhatsApp</small>
+                    </label>
+
+                    <!-- Template Pembayaran Lunas -->
+                    <div>
+                        <label class="flex flex-col">
+                            <p class="text-[#110e1b] text-sm font-medium pb-1">Template Pembayaran Lunas</p>
+                            <textarea id="template-payment-full" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white p-2 text-sm font-mono" rows="12" placeholder="Template pesan..."></textarea>
+                            <small class="text-xs text-gray-400 mt-1">
+                                Variabel: {nama_pelanggan}, {idpl}, {periode}, {total_tagihan}, {metode_pembayaran}, {app_url}, {email_pelanggan}
+                            </small>
+                        </label>
+                    </div>
+
+                    <!-- Template Pembayaran Cicilan -->
+                    <div>
+                        <label class="flex flex-col">
+                            <p class="text-[#110e1b] text-sm font-medium pb-1">Template Pembayaran Cicilan</p>
+                            <textarea id="template-payment-installment" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white p-2 text-sm font-mono" rows="12" placeholder="Template pesan..."></textarea>
+                            <small class="text-xs text-gray-400 mt-1">
+                                Variabel: {nama_pelanggan}, {idpl}, {periode}, {jumlah_dibayar}, {sisa_tagihan}, {metode_pembayaran}, {app_url}, {email_pelanggan}
+                            </small>
+                        </label>
+                    </div>
+
+                    <!-- Template Pesan Custom -->
+                    <div>
+                        <label class="flex flex-col">
+                            <p class="text-[#110e1b] text-sm font-medium pb-1">Template Pesan Manual</p>
+                            <textarea id="template-custom-message" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white p-2 text-sm font-mono" rows="8" placeholder="Template pesan..."></textarea>
+                            <small class="text-xs text-gray-400 mt-1">
+                                Variabel: {nama_pelanggan}, {idpl}, {pesan_custom}
+                            </small>
+                        </label>
+                    </div>
+
+                    <!-- Reset to Default Button -->
+                    <button id="reset-whatsapp-templates-btn" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
+                        Reset ke Template Default
                     </button>
-                </label>
-
-                <!-- App URL -->
-                <label class="flex flex-col mb-4">
-                    <p class="text-[#110e1b] text-sm font-medium pb-1">URL Aplikasi</p>
-                    <input id="app-url-input" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="http://selinggonet.netlify.app/" />
-                    <small class="text-xs text-gray-400 mt-1">URL untuk login pelanggan di pesan WhatsApp</small>
-                </label>
-
-                <!-- Template Pembayaran Lunas -->
-                <div class="mb-4">
-                    <label class="flex flex-col">
-                        <p class="text-[#110e1b] text-sm font-medium pb-1">Template Pembayaran Lunas</p>
-                        <textarea id="template-payment-full" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white p-2 text-sm font-mono" rows="12" placeholder="Template pesan..."></textarea>
-                        <small class="text-xs text-gray-400 mt-1">
-                            Variabel: {nama_pelanggan}, {idpl}, {periode}, {total_tagihan}, {metode_pembayaran}, {app_url}, {email_pelanggan}
-                        </small>
-                    </label>
                 </div>
-
-                <!-- Template Pembayaran Cicilan -->
-                <div class="mb-4">
-                    <label class="flex flex-col">
-                        <p class="text-[#110e1b] text-sm font-medium pb-1">Template Pembayaran Cicilan</p>
-                        <textarea id="template-payment-installment" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white p-2 text-sm font-mono" rows="12" placeholder="Template pesan..."></textarea>
-                        <small class="text-xs text-gray-400 mt-1">
-                            Variabel: {nama_pelanggan}, {idpl}, {periode}, {jumlah_dibayar}, {sisa_tagihan}, {metode_pembayaran}, {app_url}, {email_pelanggan}
-                        </small>
-                    </label>
-                </div>
-
-                <!-- Template Pesan Custom -->
-                <div class="mb-4">
-                    <label class="flex flex-col">
-                        <p class="text-[#110e1b] text-sm font-medium pb-1">Template Pesan Manual</p>
-                        <textarea id="template-custom-message" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white p-2 text-sm font-mono" rows="8" placeholder="Template pesan..."></textarea>
-                        <small class="text-xs text-gray-400 mt-1">
-                            Variabel: {nama_pelanggan}, {idpl}, {pesan_custom}
-                        </small>
-                    </label>
-                </div>
-
-                <!-- Reset to Default Button -->
-                <button id="reset-whatsapp-templates-btn" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
-                    Reset ke Template Default
-                </button>
             </div>
 
             <!-- Section: GenieACS Configuration -->
@@ -325,52 +326,53 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path></svg>
                     Konfigurasi GenieACS
                 </h3>
+                <div class="space-y-3">
+                    <!-- Enable/Disable GenieACS -->
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <div>
+                                <p class="text-[#110e1b] text-sm font-medium">Aktifkan GenieACS</p>
+                                <p class="text-xs text-gray-500">Izinkan pelanggan mengganti SSID & Password WiFi</p>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="genieacs-enabled-toggle" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#683fe4]"></div>
+                            </div>
+                        </label>
+                    </div>
 
-                <!-- Enable/Disable GenieACS -->
-                <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <div>
-                            <p class="text-[#110e1b] text-sm font-medium">Aktifkan GenieACS</p>
-                            <p class="text-xs text-gray-500">Izinkan pelanggan mengganti SSID & Password WiFi</p>
-                        </div>
-                        <div class="relative">
-                            <input type="checkbox" id="genieacs-enabled-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#683fe4]"></div>
-                        </div>
+                    <!-- GenieACS URL -->
+                    <label class="flex flex-col">
+                        <p class="text-[#110e1b] text-sm font-medium pb-1">URL GenieACS</p>
+                        <input id="genieacs-url-input" type="text" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="http://192.168.1.10:7547" />
+                        <small class="text-xs text-gray-400 mt-1">URL server GenieACS Anda (contoh: http://192.168.1.10:7547 atau http://acs.bayardong.my.id)</small>
                     </label>
-                </div>
 
-                <!-- GenieACS URL -->
-                <label class="flex flex-col mb-4">
-                    <p class="text-[#110e1b] text-sm font-medium pb-1">URL GenieACS</p>
-                    <input id="genieacs-url-input" type="text" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="http://192.168.1.10:7547" />
-                    <small class="text-xs text-gray-400 mt-1">URL server GenieACS Anda (contoh: http://192.168.1.10:7547 atau http://acs.bayardong.my.id)</small>
-                </label>
+                    <!-- GenieACS Username (Optional) -->
+                    <label class="flex flex-col">
+                        <p class="text-[#110e1b] text-sm font-medium pb-1">Username (Opsional)</p>
+                        <input id="genieacs-username-input" type="text" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="Kosongkan jika tidak ada autentikasi" />
+                        <small class="text-xs text-gray-400 mt-1">Username untuk akses GenieACS API (jika diperlukan)</small>
+                    </label>
 
-                <!-- GenieACS Username (Optional) -->
-                <label class="flex flex-col mb-4">
-                    <p class="text-[#110e1b] text-sm font-medium pb-1">Username (Opsional)</p>
-                    <input id="genieacs-username-input" type="text" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="Kosongkan jika tidak ada autentikasi" />
-                    <small class="text-xs text-gray-400 mt-1">Username untuk akses GenieACS API (jika diperlukan)</small>
-                </label>
+                    <!-- GenieACS Password (Optional) -->
+                    <label class="flex flex-col">
+                        <p class="text-[#110e1b] text-sm font-medium pb-1">Password (Opsional)</p>
+                        <input id="genieacs-password-input" type="password" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="Kosongkan jika tidak ada autentikasi" />
+                        <small class="text-xs text-gray-400 mt-1">Password untuk akses GenieACS API (jika diperlukan)</small>
+                        <button type="button" id="toggle-genieacs-password" class="text-xs text-gray-600 hover:text-gray-800 mt-1 text-left">
+                            👁️ Tampilkan/Sembunyikan Password
+                        </button>
+                    </label>
 
-                <!-- GenieACS Password (Optional) -->
-                <label class="flex flex-col mb-4">
-                    <p class="text-[#110e1b] text-sm font-medium pb-1">Password (Opsional)</p>
-                    <input id="genieacs-password-input" type="password" class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" placeholder="Kosongkan jika tidak ada autentikasi" />
-                    <small class="text-xs text-gray-400 mt-1">Password untuk akses GenieACS API (jika diperlukan)</small>
-                    <button type="button" id="toggle-genieacs-password" class="text-xs text-gray-600 hover:text-gray-800 mt-1 text-left">
-                        👁️ Tampilkan/Sembunyikan Password
-                    </button>
-                </label>
-
-                <!-- Info Box -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div class="flex gap-2">
-                        <svg class="text-blue-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path></svg>
-                        <div class="flex-1">
-                            <p class="text-xs font-medium text-blue-900 mb-1">Informasi</p>
-                            <p class="text-xs text-blue-700">Jika GenieACS diaktifkan, pelanggan dapat mengganti SSID dan Password WiFi mereka sendiri dari halaman profil.</p>
+                    <!-- Info Box -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div class="flex gap-2">
+                            <svg class="text-blue-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path></svg>
+                            <div class="flex-1">
+                                <p class="text-xs font-medium text-blue-900 mb-1">Informasi</p>
+                                <p class="text-xs text-blue-700">Jika GenieACS diaktifkan, pelanggan dapat mengganti SSID dan Password WiFi mereka sendiri dari halaman profil.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
