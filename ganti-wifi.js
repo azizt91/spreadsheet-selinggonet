@@ -102,7 +102,11 @@ async function getCurrentSSID(ipAddress) {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         
-        // GenieACS uses POST for queries with query in body
+        // GenieACS uses GET with query string (not POST)
+        const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
+            "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
+        }))}`;
+        
         const response = await fetch(proxyUrl, {
             method: 'POST',
             headers: {
@@ -111,14 +115,9 @@ async function getCurrentSSID(ipAddress) {
                 'apikey': supabase.supabaseKey
             },
             body: JSON.stringify({
-                url: targetUrl,
-                method: 'POST',
-                auth: auth,
-                body: {
-                    query: {
-                        "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
-                    }
-                }
+                url: queryUrl,
+                method: 'GET',
+                auth: auth
             })
         });
 
@@ -291,8 +290,11 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
 
-        // Step 1: Find device by IP via proxy
+        // Step 1: Find device by IP via proxy (GET with query string)
         const targetUrl = `${genieacsUrl}/devices`;
+        const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
+            "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
+        }))}`;
         
         const devicesResponse = await fetch(proxyUrl, {
             method: 'POST',
@@ -302,14 +304,9 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 'apikey': supabase.supabaseKey
             },
             body: JSON.stringify({
-                url: targetUrl,
-                method: 'POST',
-                auth: auth,
-                body: {
-                    query: {
-                        "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
-                    }
-                }
+                url: queryUrl,
+                method: 'GET',
+                auth: auth
             })
         });
 
