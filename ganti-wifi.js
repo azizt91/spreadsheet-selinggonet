@@ -99,11 +99,15 @@ async function getCurrentSSID(ipAddress) {
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
         const targetUrl = `${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`;
         
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        
         const response = await fetch(proxyUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabase.supabaseKey}`
+                'Authorization': `Bearer ${token || supabase.supabaseKey}`,
+                'apikey': supabase.supabaseKey
             },
             body: JSON.stringify({
                 url: targetUrl,
@@ -278,6 +282,8 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             : null;
 
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
 
         // Step 1: Find device by IP via proxy
         const targetUrl = `${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`;
@@ -286,7 +292,8 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabase.supabaseKey}`
+                'Authorization': `Bearer ${token || supabase.supabaseKey}`,
+                'apikey': supabase.supabaseKey
             },
             body: JSON.stringify({
                 url: targetUrl,
@@ -316,7 +323,8 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${supabase.supabaseKey}`
+                    'Authorization': `Bearer ${token || supabase.supabaseKey}`,
+                    'apikey': supabase.supabaseKey
                 },
                 body: JSON.stringify({
                     url: ssidUrl,
@@ -343,7 +351,8 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${supabase.supabaseKey}`
+                    'Authorization': `Bearer ${token || supabase.supabaseKey}`,
+                    'apikey': supabase.supabaseKey
                 },
                 body: JSON.stringify({
                     url: passwordUrl,
