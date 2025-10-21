@@ -13,31 +13,60 @@ serve(async (req) => {
   }
 
   try {
-    const { url, method, body, auth } = await req.json()
+    const requestData = await req.json()
+    const { url, method, body, auth } = requestData
+    
+    console.log('Proxy request:', { url, method, hasAuth: !!auth, hasBody: !!body })
     
     const headers: any = {
       'Content-Type': 'application/json'
     }
     
-    if (auth) {
+    if (auth && auth.username && auth.password) {
       headers['Authorization'] = `Basic ${btoa(auth.username + ':' + auth.password)}`
     }
     
-    const response = await fetch(url, {
+    const fetchOptions: any = {
       method: method || 'GET',
-      headers: headers,
-      body: body ? JSON.stringify(body) : undefined
-    })
+      headers: headers
+    }
     
-    const data = await response.json()
+    // Only add body for POST/PUT/PATCH methods
+    if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+      fetchOptions.body = JSON.stringify(body)
+    }
+    
+    console.log('Fetching:', url, fetchOptions)
+    
+    const response = await fetch(url, fetchOptions)
+    
+    console.log('Response status:', response.status)
+    
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type')
+    let data
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json()
+    } else {
+      const text = await response.text()
+      data = { success: response.ok, text: text }
+    }
     
     return new Response(
       JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     )
   } catch (error) {
+    console.error('Proxy error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        stack: error.stack 
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
