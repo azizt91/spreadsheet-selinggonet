@@ -38,28 +38,51 @@ serve(async (req) => {
     
     console.log('Fetching:', url, fetchOptions)
     
-    const response = await fetch(url, fetchOptions)
+    // Add timeout (10 seconds)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
     
-    console.log('Response status:', response.status)
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type')
-    let data
-    
-    if (contentType && contentType.includes('application/json')) {
-      data = await response.json()
-    } else {
-      const text = await response.text()
-      data = { success: response.ok, text: text }
-    }
-    
-    return new Response(
-      JSON.stringify(data),
-      { 
-        status: response.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    try {
+      const response = await fetch(url, {
+        ...fetchOptions,
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      let data
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json()
+      } else {
+        const text = await response.text()
+        data = { success: response.ok, text: text }
       }
-    )
+      
+      return new Response(
+        JSON.stringify(data),
+        { 
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      console.error('Fetch error:', fetchError)
+      
+      if (fetchError.name === 'AbortError') {
+        return new Response(
+          JSON.stringify({ error: 'Request timeout after 10 seconds' }),
+          { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      throw fetchError
+    }
   } catch (error) {
     console.error('Proxy error:', error)
     return new Response(

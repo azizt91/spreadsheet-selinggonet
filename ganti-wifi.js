@@ -97,11 +97,12 @@ async function getCurrentSSID(ipAddress) {
 
         // Call via Supabase Edge Function proxy
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
-        const targetUrl = `${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`;
+        const targetUrl = `${genieacsUrl}/devices`;
         
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         
+        // GenieACS uses POST for queries with query in body
         const response = await fetch(proxyUrl, {
             method: 'POST',
             headers: {
@@ -111,8 +112,13 @@ async function getCurrentSSID(ipAddress) {
             },
             body: JSON.stringify({
                 url: targetUrl,
-                method: 'GET',
-                auth: auth
+                method: 'POST',
+                auth: auth,
+                body: {
+                    query: {
+                        "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
+                    }
+                }
             })
         });
 
@@ -286,7 +292,7 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
         const token = session?.access_token;
 
         // Step 1: Find device by IP via proxy
-        const targetUrl = `${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`;
+        const targetUrl = `${genieacsUrl}/devices`;
         
         const devicesResponse = await fetch(proxyUrl, {
             method: 'POST',
@@ -297,8 +303,13 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             },
             body: JSON.stringify({
                 url: targetUrl,
-                method: 'GET',
-                auth: auth
+                method: 'POST',
+                auth: auth,
+                body: {
+                    query: {
+                        "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress
+                    }
+                }
             })
         });
 
