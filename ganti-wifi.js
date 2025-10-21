@@ -67,7 +67,7 @@ async function loadUserData() {
 
         if (ipAddress && ipAddress.trim() !== '') {
             document.getElementById('current-ip').textContent = ipAddress;
-            // Try to get current SSID from GenieACS
+            // Get current SSID via Supabase proxy
             await getCurrentSSID(ipAddress);
         } else {
             document.getElementById('current-ip').textContent = 'Tidak ditemukan';
@@ -83,27 +83,33 @@ async function loadUserData() {
 
 async function getCurrentSSID(ipAddress) {
     try {
-        // Call GenieACS API to get current SSID
+        // Call GenieACS API via Supabase proxy to avoid Mixed Content
         const genieacsUrl = genieacsSettings.genieacs_url;
         if (!genieacsUrl) {
             document.getElementById('current-ssid').textContent = 'URL GenieACS tidak dikonfigurasi';
             return;
         }
 
-        // Build auth header if username/password provided
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        // Build auth object
+        const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password) 
+            ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
+            : null;
 
-        if (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password) {
-            const auth = btoa(`${genieacsSettings.genieacs_username}:${genieacsSettings.genieacs_password}`);
-            headers['Authorization'] = `Basic ${auth}`;
-        }
-
-        // Query device by IP address
-        const response = await fetch(`${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`, {
-            method: 'GET',
-            headers: headers
+        // Call via Supabase Edge Function proxy
+        const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
+        const targetUrl = `${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`;
+        
+        const response = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabase.supabaseKey}`
+            },
+            body: JSON.stringify({
+                url: targetUrl,
+                method: 'GET',
+                auth: auth
+            })
         });
 
         if (!response.ok) {
@@ -266,20 +272,27 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             return { success: false, message: 'URL GenieACS tidak dikonfigurasi' };
         }
 
-        // Build auth header
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        // Build auth object
+        const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password) 
+            ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
+            : null;
 
-        if (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password) {
-            const auth = btoa(`${genieacsSettings.genieacs_username}:${genieacsSettings.genieacs_password}`);
-            headers['Authorization'] = `Basic ${auth}`;
-        }
+        const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
 
-        // Step 1: Find device by IP
-        const devicesResponse = await fetch(`${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`, {
-            method: 'GET',
-            headers: headers
+        // Step 1: Find device by IP via proxy
+        const targetUrl = `${genieacsUrl}/devices?query={"InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress":"${ipAddress}"}`;
+        
+        const devicesResponse = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabase.supabaseKey}`
+            },
+            body: JSON.stringify({
+                url: targetUrl,
+                method: 'GET',
+                auth: auth
+            })
         });
 
         if (!devicesResponse.ok) {
@@ -294,15 +307,25 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
 
         const deviceId = devices[0]._id;
 
-        // Step 2: Set SSID parameter (if provided)
+        // Step 2: Set SSID parameter (if provided) via proxy
         if (newSSID) {
             const ssidPath = 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID';
-            const ssidResponse = await fetch(`${genieacsUrl}/devices/${deviceId}/tasks?timeout=3000&connection_request`, {
+            const ssidUrl = `${genieacsUrl}/devices/${deviceId}/tasks?timeout=3000&connection_request`;
+            
+            const ssidResponse = await fetch(proxyUrl, {
                 method: 'POST',
-                headers: headers,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${supabase.supabaseKey}`
+                },
                 body: JSON.stringify({
-                    name: 'setParameterValues',
-                    parameterValues: [[ssidPath, newSSID, 'xsd:string']]
+                    url: ssidUrl,
+                    method: 'POST',
+                    auth: auth,
+                    body: {
+                        name: 'setParameterValues',
+                        parameterValues: [[ssidPath, newSSID, 'xsd:string']]
+                    }
                 })
             });
 
@@ -311,15 +334,25 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             }
         }
 
-        // Step 3: Set Password parameter (if provided)
+        // Step 3: Set Password parameter (if provided) via proxy
         if (newPassword) {
             const passwordPath = 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.PreSharedKey.1.KeyPassphrase';
-            const passwordResponse = await fetch(`${genieacsUrl}/devices/${deviceId}/tasks?timeout=3000&connection_request`, {
+            const passwordUrl = `${genieacsUrl}/devices/${deviceId}/tasks?timeout=3000&connection_request`;
+            
+            const passwordResponse = await fetch(proxyUrl, {
                 method: 'POST',
-                headers: headers,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${supabase.supabaseKey}`
+                },
                 body: JSON.stringify({
-                    name: 'setParameterValues',
-                    parameterValues: [[passwordPath, newPassword, 'xsd:string']]
+                    url: passwordUrl,
+                    method: 'POST',
+                    auth: auth,
+                    body: {
+                        name: 'setParameterValues',
+                        parameterValues: [[passwordPath, newPassword, 'xsd:string']]
+                    }
                 })
             });
 
