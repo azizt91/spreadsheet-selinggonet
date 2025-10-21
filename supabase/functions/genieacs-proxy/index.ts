@@ -1,5 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { corsHeaders } from '../_shared/cors.ts'
+
+// Self-contained CORS headers to bypass faulty _shared deployment
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+console.log('Executing Function Version: FINAL_DEBUG_V4');
 
 serve(async (req) => {
   // Handle CORS preflight request
@@ -10,8 +18,6 @@ serve(async (req) => {
   try {
     const requestData = await req.json()
     const { url, method, body, auth } = requestData
-    
-    console.log('Proxy request:', { url, method, hasAuth: !!auth, hasBody: !!body })
     
     const headers: any = {
       'Content-Type': 'application/json'
@@ -26,14 +32,10 @@ serve(async (req) => {
       headers: headers
     }
     
-    // Only add body for POST/PUT/PATCH methods
     if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
       fetchOptions.body = JSON.stringify(body)
     }
     
-    console.log('Fetching:', url, fetchOptions)
-    
-    // Add timeout (10 seconds)
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
     
@@ -44,10 +46,7 @@ serve(async (req) => {
       })
       
       clearTimeout(timeoutId)
-      console.log('Response status:', response.status)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
-      // Check if response is JSON
       const contentType = response.headers.get('content-type')
       let data
       
@@ -67,19 +66,15 @@ serve(async (req) => {
       )
     } catch (fetchError) {
       clearTimeout(timeoutId)
-      console.error('Fetch error:', fetchError)
-      
       if (fetchError.name === 'AbortError') {
         return new Response(
           JSON.stringify({ error: 'Request timeout after 10 seconds' }),
           { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
-      
       throw fetchError
     }
   } catch (error) {
-    console.error('Proxy error:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message,

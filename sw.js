@@ -67,37 +67,48 @@ self.addEventListener('activate', (event) => {
 
 // Fetch Event - Serve cached content when offline
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
-          return response;
-        }
-        
-        // For API calls, try network first, then show offline message
-        if (event.request.url.includes('/api/') || event.request.url.includes('localhost:3000')) {
-          return fetch(event.request).catch(() => {
-            // Return a custom offline response for API calls
-            return new Response(
-              JSON.stringify({ 
-                message: 'Aplikasi sedang offline. Silakan coba lagi ketika koneksi internet tersedia.' 
-              }),
-              {
-                status: 503,
-                statusText: 'Service Unavailable',
-                headers: { 'Content-Type': 'application/json' }
-              }
-            );
-          });
-        }
-        
-        // For other requests, try network first
-        return fetch(event.request).catch(() => {
-          // If network fails, return cached version if available
-          return caches.match('/index.html');
-        });
+  // Network-first for Supabase functions to avoid caching API responses.
+  if (event.request.url.includes('/functions/v1/')) {
+    // Always go to the network.
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Optional: return a generic offline error for API calls
+        return new Response(
+          JSON.stringify({ error: 'Anda sedang offline. Tidak dapat mengambil data.' }),
+          { headers: { 'Content-Type': 'application/json' }, status: 503 }
+        );
       })
+    );
+    return; // Stop further processing
+  }
+
+  // Cache-first for all other assets (like HTML, CSS, JS, images)
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // If not in cache, fetch from network, cache it, and then return it.
+      return fetch(event.request).then((networkResponse) => {
+        // Check if we received a valid response
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+
+        // IMPORTANT: Clone the response. A response is a stream
+        // and because we want the browser to consume the response
+        // as well as the cache consuming the response, we need
+        // to clone it so we have two streams.
+        const responseToCache = networkResponse.clone();
+
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+
+        return networkResponse;
+      });
+    })
   );
 });
 
