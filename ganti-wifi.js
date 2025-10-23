@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize event listeners
     initializeEventListeners();
 
+    // Load connected devices
+    await loadConnectedDevices();
+
     // Load change history
     await loadChangeHistory();
 });
@@ -189,6 +192,11 @@ function initializeEventListeners() {
 
     // Form submit
     document.getElementById('wifi-form')?.addEventListener('submit', handleFormSubmit);
+
+    // Refresh devices button
+    document.getElementById('refresh-devices-btn')?.addEventListener('click', async () => {
+        await loadConnectedDevices();
+    });
 }
 
 async function handleFormSubmit(e) {
@@ -408,6 +416,137 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
     } catch (error) {
         console.error('Error in changeWiFiViaGenieACS:', error);
         return { success: false, message: error.message };
+    }
+}
+
+async function loadConnectedDevices() {
+    const devicesList = document.getElementById('devices-list');
+    
+    try {
+        devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Memuat perangkat...</p>';
+
+        if (!currentProfile || !currentProfile.ip_static_pppoe || currentProfile.ip_static_pppoe.trim() === '') {
+            devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">IP Address tidak ditemukan</p>';
+            return;
+        }
+
+        const ipAddress = currentProfile.ip_static_pppoe;
+        const genieacsUrl = genieacsSettings.genieacs_url;
+        
+        if (!genieacsUrl) {
+            devicesList.innerHTML = '<p class="text-xs text-red-500 text-center py-4">URL GenieACS tidak dikonfigurasi</p>';
+            return;
+        }
+
+        const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password) 
+            ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
+            : null;
+
+        const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const targetUrl = `${genieacsUrl}/devices`;
+        
+        const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
+            "$or": [
+                { "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress },
+                { "VirtualParameters.pppoeIP": ipAddress }
+            ]
+        }))}`;
+        
+        const response = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token || supabase.supabaseKey}`,
+                'apikey': supabase.supabaseKey
+            },
+            body: JSON.stringify({
+                url: queryUrl,
+                method: 'GET',
+                auth: auth
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Gagal mengambil data dari GenieACS');
+        }
+
+        const devices = await response.json();
+        
+        if (!devices || devices.length === 0) {
+            devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Device tidak ditemukan</p>';
+            return;
+        }
+
+        const device = devices[0];
+        const connectedDevices = [];
+
+        // Parse connected devices from InternetGatewayDevice.LANDevice.1.Hosts.Host
+        try {
+            const hosts = device.InternetGatewayDevice?.LANDevice?.['1']?.Hosts?.Host;
+            
+            if (hosts) {
+                // Iterate through all host entries
+                for (const hostKey in hosts) {
+                    const host = hosts[hostKey];
+                    
+                    // Extract device info
+                    const hostname = host.HostName?._value || 'Unknown';
+                    const ipAddr = host.IPAddress?._value || '-';
+                    const macAddr = host.MACAddress?._value || '-';
+                    const interfaceType = host.InterfaceType?._value || '-';
+
+                    // Only add if IP address exists (active device)
+                    if (ipAddr && ipAddr !== '-' && ipAddr !== '0.0.0.0') {
+                        connectedDevices.push({
+                            hostname,
+                            ipAddress: ipAddr,
+                            macAddress: macAddr,
+                            type: interfaceType
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing connected devices:', e);
+        }
+
+        // Render devices table
+        if (connectedDevices.length === 0) {
+            devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Tidak ada perangkat terhubung</p>';
+            return;
+        }
+
+        const tableHTML = `
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-2 px-2 font-semibold text-gray-700">Device</th>
+                        <th class="text-left py-2 px-2 font-semibold text-gray-700">IP Address</th>
+                        <th class="text-left py-2 px-2 font-semibold text-gray-700">MAC Address</th>
+                        <th class="text-left py-2 px-2 font-semibold text-gray-700">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${connectedDevices.map(dev => `
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="py-2 px-2 text-gray-800">${dev.hostname}</td>
+                            <td class="py-2 px-2 text-gray-600">${dev.ipAddress}</td>
+                            <td class="py-2 px-2 text-gray-600 font-mono text-xs">${dev.macAddress}</td>
+                            <td class="py-2 px-2 text-gray-600">${dev.type}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <p class="text-xs text-gray-400 mt-2">Total: ${connectedDevices.length} perangkat terhubung</p>
+        `;
+
+        devicesList.innerHTML = tableHTML;
+
+    } catch (error) {
+        console.error('Error loading connected devices:', error);
+        devicesList.innerHTML = '<p class="text-xs text-red-500 text-center py-4">Gagal memuat data perangkat</p>';
     }
 }
 
