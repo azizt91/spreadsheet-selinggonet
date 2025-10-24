@@ -7,8 +7,8 @@ Berikut adalah langkah-langkah untuk menginstal dan menjalankan aplikasi ini.
 Clone repositori ini ke mesin lokal Anda menggunakan git:
 
 ```bash
-git clone https://github.com/username/repo-name.git
-cd repo-name
+git clone https://github.com/azizt91/spreadsheet-selinggonet.git
+cd spreadsheet-selinggonet
 ```
 
 ## 2. Konfigurasi Supabase
