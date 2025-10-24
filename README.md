@@ -72,6 +72,34 @@ supabase functions deploy update-user-auth
 
 Setelah menyelesaikan langkah-langkah ini, aplikasi Anda seharusnya sudah siap untuk dijalankan.
 
+## ✨ Fitur Utama
+
+- **Database**: Scalable & reliable
+- **Authentication**: Built-in, secure & fast
+- **Real-time Subscriptions**: Sinkronisasi data live
+- **Edge Functions**: Serverless logic untuk proxy dan tugas lainnya
+
+### Integrasi
+- **GenieACS**: Manajemen perangkat TR-069 dari jarak jauh.
+- **WhatsApp API**: Notifikasi tagihan otomatis.
+
+### Infrastruktur
+- **Service Worker**: Fungsionalitas offline dan caching untuk akses cepat.
+- **Manifest**: Memberikan pengalaman seperti aplikasi native di perangkat mobile.
+- **Responsive Design**: Didesain dengan pendekatan mobile-first.
+
+
+## 🚀 Panduan Penggunaan
+
+1.  **Buat Akun Admin**: Setelah aplikasi berjalan, langkah pertama adalah mendaftarkan akun baru yang akan berfungsi sebagai admin.
+2.  **Kelola Paket Internet**: Sebelum menambahkan pelanggan, Anda harus menambahkan paket internet terlebih dahulu. Masuk ke menu **Pelanggan**, ketuk ikon **info (i)**, lalu pilih **Kelola Paket**.
+3.  **Tambah Data Pelanggan**: Setelah paket tersedia, Anda bisa menambahkan pelanggan melalui dua cara di menu info (i) yang sama:
+    *   **Import CSV**: Untuk menambahkan banyak data pelanggan sekaligus.
+    *   **Tambah Pelanggan**: Untuk menginput data pelanggan satu per satu.
+4.  **Kelola Tagihan**: Menu utama di bagian tengah adalah **Tagihan**. 
+    *   Gunakan tombol **plus (+)** untuk membuat tagihan bulanan bagi semua pelanggan yang aktif.
+    *   Pantau status tagihan melalui tiga tab: **Belum Dibayar**, **Cicilan**, dan **Dibayar**.
+
 ## Donasi
 
 Jika Anda merasa aplikasi ini bermanfaat, Anda bisa memberikan donasi untuk membeli kopi.
