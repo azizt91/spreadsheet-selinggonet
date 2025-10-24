@@ -41,13 +41,22 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 ### a. Jalankan SQL
 
-Buka **SQL Editor** di dasbor Supabase Anda. Hubungi admin untuk mendapatkan file SQL database, kemudian jalankan query tersebut untuk membuat tabel dan skema yang diperlukan.
+Buka **SQL Editor** di dasbor Supabase Anda. Buka file Database.sql copy semua query yang ada, kemudian jalankan query tersebut untuk membuat tabel dan skema yang diperlukan.
 
 ### b. Nonaktifkan Konfirmasi Email
 
 Untuk memudahkan proses pendaftaran pengguna selama pengembangan, nonaktifkan konfirmasi email:
 - Pergi ke **Authentication** -> **Providers**.
 - Temukan dan matikan *toggle* **Confirm email**.
+
+### c. Buat Storage Bucket
+
+Aplikasi memerlukan bucket untuk menyimpan file seperti avatar pengguna.
+- Pergi ke **Storage** dari menu utama.
+- Klik **New bucket**.
+- Isi **Bucket name** dengan `avatars`.
+- Aktifkan opsi **Public bucket**.
+- Klik **Create bucket**.
 
 ## 4. Deploy Supabase Functions
 
@@ -62,3 +71,9 @@ supabase functions deploy update-user-auth
 ```
 
 Setelah menyelesaikan langkah-langkah ini, aplikasi Anda seharusnya sudah siap untuk dijalankan.
+
+## Donasi
+
+Jika Anda merasa aplikasi ini bermanfaat, Anda bisa memberikan donasi untuk membeli kopi.
+
+![QRIS Donasi](assets/qris.jpeg)
