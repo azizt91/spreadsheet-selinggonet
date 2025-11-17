@@ -76,6 +76,7 @@
             box-shadow: 0 15px 35px rgba(80, 30, 230, 0.3);
         }
     </style>
+
 </head>
 <body>
     <div class="gradient-bg min-h-screen flex items-center justify-center p-4" style='font-family: Manrope, "Noto Sans", sans-serif;'>
@@ -156,10 +157,10 @@
           <!-- Register Link -->
           <div class="mt-6 text-center">
             <p class="text-white/70 text-sm">
-              Belum punya akun admin? 
+              <!-- Belum punya akun admin? 
               <a href="register.html" class="text-white font-semibold hover:text-white/80 transition-colors">
                 Daftar Sekarang
-              </a>
+              </a> -->
             </p>
           </div>
         </div>
@@ -167,7 +168,8 @@
         <!-- Footer -->
         <div class="text-center mt-8 fade-in">
           <p class="text-white/60 text-xs">
-            © 2025 Selinggonet. Semua hak dilindungi.
+            <!-- © 2025 Selinggonet. Semua hak dilindungi. -->
+            &copy; <span id="current-year"></span> Selinggonet. Semua hak dilindungi.
           </p>
         </div>
       </div>
@@ -184,5 +186,8 @@
     <script type="module" src="apply-settings.js"></script>
     <script type="module" src="login.js"></script>
     <script src="pwa-installer.js"></script>
+    <script>
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>

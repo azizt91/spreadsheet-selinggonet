@@ -24,6 +24,7 @@ const urlsToCache = [
   '/style.css',
   '/app-settings.js',
   '/apply-settings.js',
+  '/csv-import.js',
   '/login.js',
   '/auth.js',
   '/datetime-display.js',
@@ -45,6 +46,10 @@ const urlsToCache = [
   '/profile.js',
   '/assets/selinggonet.png',
   '/assets/qris.jpeg',
+  '/assets/logo_192x192.png',
+  '/assets/logo_512x512.png',
+  '/assets/no_data.png',
+  '/assets/sn-blue.png',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'
