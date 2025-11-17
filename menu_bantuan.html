@@ -40,27 +40,27 @@
         }
     </style>
 </head>
-<body class="font-display">
-<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
-    <!-- Top App Bar -->
-    <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between">
-        <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Pusat Bantuan</h2>
-    </div>
-    <!-- Search Bar -->
-    <div class="px-4 py-3">
-        <label class="flex flex-col min-w-40 h-14 w-full">
-            <div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
-                <div class="text-slate-500 dark:text-slate-400 flex bg-white dark:bg-slate-800 items-center justify-center pl-4 rounded-l-xl border-y border-l border-slate-200 dark:border-slate-700">
-                    <span class="material-symbols-outlined">search</span>
+<body class="font-display" style="overflow-x: hidden;"> <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root"> <div class="sticky top-0 z-30 bg-background-light dark:bg-background-dark pb-2 shadow-sm">
+        
+        <div class="flex items-center p-4 pb-2 justify-between">
+            <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Pusat Bantuan</h2>
+        </div>
+
+        <div class="px-4 py-2">
+            <label class="flex flex-col min-w-40 h-12 w-full">
+                <div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
+                    <div class="text-slate-500 dark:text-slate-400 flex bg-white dark:bg-slate-800 items-center justify-center pl-4 rounded-l-xl border-y border-l border-slate-200 dark:border-slate-700">
+                        <span class="material-symbols-outlined">search</span>
+                    </div>
+                    <input id="search-bantuan" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary focus:ring-inset border-y border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 text-base font-normal leading-normal" placeholder="Cari topik bantuan..." value=""/>
                 </div>
-                <input id="search-bantuan" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary focus:ring-inset border-y border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 text-base font-normal leading-normal" placeholder="Cari topik bantuan..." value=""/>
-            </div>
-        </label>
-    </div>
-    <div class="h-4 bg-background-light dark:bg-background-dark"></div>
+            </label>
+        </div>
+    </div> 
+    <div class="h-2 bg-background-light dark:bg-background-dark"></div>
     
     <div id="help-content">
         <!-- List Items Section -->

@@ -57,18 +57,18 @@
         }
     </style>
 </head>
-<body class="font-display">
-    <div id="loading-overlay" class="fixed inset-0 bg-background-light dark:bg-background-dark z-50 flex items-center justify-center">
+<body class="font-display" style="overflow-x: hidden;"> <div id="loading-overlay" class="fixed inset-0 bg-background-light dark:bg-background-dark z-50 flex items-center justify-center">
         <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
     </div>
 
-    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
-        <header class="flex items-center p-4 pb-2 justify-between sticky top-0 z-10 bg-background-light dark:bg-background-dark">
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
+        
+        <header class="flex items-center p-4 pb-2 justify-between sticky top-0 z-30 bg-background-light dark:bg-background-dark shadow-sm">
             <div class="flex items-center gap-3">
                 <div id="user-avatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"></div>
                 <h1 id="welcome-text" class="text-slate-900 dark:text-white text-lg font-bold">Halo, ...</h1>
             </div>
-            <button id="logout-btn" class="flex items-center justify-center rounded-full h-12 w-12 text-slate-900 dark:text-white">
+            <button id="logout-btn" class="flex items-center justify-center rounded-full h-12 w-12 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <span class="material-symbols-outlined text-2xl">logout</span>
             </button>
         </header>

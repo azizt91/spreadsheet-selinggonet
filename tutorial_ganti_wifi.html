@@ -53,15 +53,14 @@
         }
     </style>
 </head>
-<body class="font-display">
-<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
-    <!-- Top App Bar -->
-    <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
-        <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Panduan Ganti WiFi</h2>
-    </div>
+<body class="font-display" style="overflow-x: hidden;"> <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
+        
+        <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-30 shadow-sm">
+            <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Panduan Ganti WiFi</h2>
+        </div>
 
     <main class="flex-1 pb-24 px-4 prose max-w-none">
         <p>Berikut adalah panduan langkah demi langkah untuk mengganti nama (SSID) dan password WiFi untuk beberapa model modem yang umum digunakan di jaringan kami.</p>
@@ -73,12 +72,11 @@
             <ol>
                 <li>Hubungkan perangkat Anda (komputer atau HP) ke modem TOTOLINK, baik melalui kabel LAN atau WiFi.</li>
                 <li>Buka browser (Chrome, Firefox, dll.) dan ketik alamat IP <code>192.168.0.1</code> atau <code>192.168.1.1</code> di address bar, lalu tekan Enter.</li>
-                <li>Anda akan diminta login. Masukkan username <code>admin</code> dan password <code>admin</code>.</li>
-                <li>Setelah berhasil login, cari menu "Wireless" atau "Pengaturan Nirkabel".</li>
-                <li>Di dalamnya, cari "Basic Settings" atau "Pengaturan Dasar".</li>
+                <li>Anda akan diminta login. Masukkan username <code>admin</code> dan password <code>admin</code> atau <code>admin123</code>.</li>
+                <li>Setelah berhasil login, masuk ke menu "Wireless".</li>
                 <li>Untuk mengganti nama WiFi, ubah isian pada kolom "SSID".</li>
-                <li>Untuk mengganti password, cari kolom "Pre-Shared Key" atau "Password" dan masukkan password baru Anda.</li>
-                <li>Klik "Apply" atau "Simpan" untuk menyimpan perubahan. Modem akan restart secara otomatis.</li>
+                <li>Untuk mengganti password, cari kolom "Password" dan masukkan password baru Anda.</li>
+                <li>Klik "Apply" untuk menyimpan perubahan. Modem akan restart secara otomatis.</li>
             </ol>
         </section>
 
@@ -88,11 +86,10 @@
             <ol>
                 <li>Hubungkan perangkat ke modem N355RT.</li>
                 <li>Buka browser dan masukkan alamat IP <code>192.168.0.1</code> atau <code>192.168.1.1</code>.</li>
-                <li>Login dengan username <code>admin</code> dan password <code>admin</code>.</li>
-                <li>Masuk ke menu "Wireless", lalu "Basic Settings".</li>
-                <li>Ubah nama WiFi Anda di kolom "SSID".</li>
-                <li>Untuk password, cari kolom "Pre-Shared Key" dan masukkan password yang baru.</li>
-                <li>Klik "Apply" atau "Simpan" untuk menerapkan perubahan.</li>
+                <li>Login dengan username <code>admin</code> dan password <code>admin</code> atau <code>admin123</code>.</li>
+                <li>Untuk mengganti nama WiFi, ubah isian pada kolom "SSID".</li>
+                <li>Untuk mengganti password, cari kolom "Password" dan masukkan password baru Anda.</li>
+                <li>Klik "Apply" untuk menerapkan perubahan.</li>
             </ol>
         </section>
 
@@ -113,15 +110,16 @@
         <!-- TP-LINK TL-WR840N -->
         <section>
             <h3>TP-LINK TL-WR840N</h3>
-            <ol>
+            <ol>    
                 <li>Hubungkan perangkat ke modem TL-WR840N.</li>
                 <li>Buka browser dan ketik <code>tplinkwifi.net</code> atau <code>192.168.0.1</code>.</li>
-                <li>Login dengan username <code>admin</code> dan password <code>admin</code>.</li>
+                <li>Login dengan username <code>admin</code> dan password <code>admin</code> atau <code>admin123</code>.</li>
                 <li>Masuk ke menu "Wireless", lalu pilih "Wireless Security".</li>
-                <li>Pastikan mode keamanan adalah "WPA/WPA2-Personal".</li>
-                <li>Ubah password Anda di kolom "PSK Password" atau "Wireless Password".</li>
-                <li>Untuk mengubah nama WiFi, masuk ke menu "Wireless" -> "Wireless Settings" dan ubah "Wireless Network Name (SSID)".</li>
-                <li>Klik "Save" atau "Simpan" dan tunggu modem restart.</li>
+                <li>Ubah password Anda di kolom "Wireless Password".</li>
+                <li>Klik "Save" untuk menyimpan perubahan.</li>
+                <li>Masuk ke menu "Wireless", lalu pilih "Basic Settings".</li>
+                <li>Untuk mengubah nama WiFi, ubah isian pada kolom "Wireless Network Name (SSID)".</li>
+                <li>klik "Save" untuk menyimpan perubahan.</li>
             </ol>
         </section>
 
@@ -131,11 +129,11 @@
             <ol>
                 <li>Hubungkan perangkat ke modem TENDA N301.</li>
                 <li>Buka browser dan ketik <code>192.168.0.1</code>.</li>
-                <li>Login dengan password <code>admin</code> (username biasanya tidak diminta).</li>
-                <li>Masuk ke menu "Wireless Settings" atau "Pengaturan Nirkabel".</li>
+                <li>Login dengan password <code>admin</code> atau <code>admin123</code> (username biasanya tidak diminta).</li>
+                <li>Masuk ke menu "Wireless Settings".</li>
                 <li>Ubah nama WiFi di kolom "WiFi Name (SSID)".</li>
-                <li>Ubah password di kolom "WiFi Password" atau "Security Key".</li>
-                <li>Klik "OK" atau "Save". Modem akan menyimpan pengaturan dan mungkin akan restart.</li>
+                <li>Ubah password di kolom "WiFi Password".</li>
+                <li>Klik "OK". Modem akan menyimpan pengaturan.</li>
             </ol>
         </section>
 
