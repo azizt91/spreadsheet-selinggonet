@@ -100,7 +100,7 @@ export async function sendCustomerPaymentNotification(customerData, invoiceData,
         .replace(/{jumlah_dibayar}/g, formatter.format(invoiceData.amount))
         .replace(/{sisa_tagihan}/g, formatter.format(invoiceData.remaining_amount || 0))
         .replace(/{metode_pembayaran}/g, paymentMethodText)
-        .replace(/{app_url}/g, settings.app_url || 'http://selinggonet.netlify.app/')
+        .replace(/{app_url}/g, settings.app_url || 'https://selinggonet.web.id/')
         .replace(/{email_pelanggan}/g, customerEmail);
 
     return await invokeWhatsappFunction(target, message);

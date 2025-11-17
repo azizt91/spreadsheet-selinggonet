@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="id">
+<html class="light" lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Dashboard Pelanggan - Selinggonet</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#5324e0">
+    <meta name="theme-color" content="#135bec">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
@@ -18,188 +18,113 @@
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Fonts and Tailwind CSS -->
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#135bec",
+                "background-light": "#f6f6f8",
+                "background-dark": "#101622",
+              },
+              fontFamily: {
+                "display": ["Manrope", "sans-serif"]
+              },
+              borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+            },
+          },
+        }
+    </script>
     <style>
-        /* Custom gradients and colors for customer dashboard */
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        
-        .gradient-card-1 {
-            /* Total Belum Dibayar: Ungu Senja ke Biru Malam (sama dengan dashboard) */
-            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
+        .material-symbols-outlined.fill {
+          font-variation-settings: 'FILL' 1;
         }
-         
-        .gradient-card-2 {
-            /* Berlangganan Sejak: Biru Cerah ke Navy (sama dengan dashboard) */
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        }
-         
-        .gradient-card-3 {
-            /* Total Belum Dibayar: Ungu Senja ke Biru Malam (sama dengan dashboard) */
-            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
-        }
-         
-        .gradient-card-4 {
-            /* Total Lunas: Biru Malam yang Elegan (sama dengan dashboard) */
-            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-        }
-        
-        /* Modern glass effect */
-        .glass-card {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Custom animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        /* Hover effects */
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        /* Skeleton loading */
-        @keyframes skeleton-loading {
-            0% {
-                background-position: -200px 0;
-            }
-            100% {
-                background-position: calc(200px + 100%) 0;
-            }
-        }
-        
-        .skeleton-line {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200px 100%;
-            animation: skeleton-loading 1.5s infinite;
-        }
-        
-        .skeleton-card {
-            pointer-events: none;
-        }
-        
-        /* Header gradient */
-                .header-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
-        }
-        
-        /* Bottom navigation glass effect */
-        .nav-glass {
-            backdrop-filter: blur(20px);
-            background: rgba(249, 248, 251, 0.95);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Responsive grid improvements */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-        }
-        
-        @media (max-width: 640px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        body {
+          min-height: max(884px, 100dvh);
         }
     </style>
 </head>
-<body>
-    <div class="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-50 to-indigo-50" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-      
-      <!-- Main Content with bottom padding for fixed navigation -->
-      <div class="flex-1 pb-24">
-        
-        <!-- Modern Header with gradient - mobile optimized -->
-        <header class="header-gradient shadow-lg">
-          <div class="flex items-center justify-between px-4 py-6">
-            <div class="flex items-center gap-4">
-              <div id="user-avatar" class="w-12 h-12 rounded-full bg-cover bg-center bg-white/30 shadow-inner"></div>
-              <div>
-                <h2 id="welcome-text" class="text-white text-xl font-bold leading-tight">Hallo, Pelanggan</h2>
-                <p id="customer-email" class="text-white/80 text-xs">...</p>
-              </div>
+<body class="font-display">
+    <div id="loading-overlay" class="fixed inset-0 bg-background-light dark:bg-background-dark z-50 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+    </div>
+
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+        <header class="flex items-center p-4 pb-2 justify-between sticky top-0 z-10 bg-background-light dark:bg-background-dark">
+            <div class="flex items-center gap-3">
+                <div id="user-avatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"></div>
+                <h1 id="welcome-text" class="text-slate-900 dark:text-white text-lg font-bold">Halo, ...</h1>
             </div>
-            <button id="customer-logout-btn" class="w-10 h-10 flex items-center justify-center text-white rounded-full hover:bg-white/20 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L184.69,108H104a8,8,0,0,0,0,16h80.69l-14.35,14.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path></svg>
+            <button id="logout-btn" class="flex items-center justify-center rounded-full h-12 w-12 text-slate-900 dark:text-white">
+                <span class="material-symbols-outlined text-2xl">logout</span>
             </button>
-          </div>
-          <div class="px-4 pb-6 text-center">
-              <p class="text-white/80 text-xs" id="current-datetime">Loading...</p>
-          </div>
         </header>
 
-        <!-- Stats Cards Container with improved spacing -->
-        <div class="px-6 py-6">
-          <div id="cards-container" class="grid grid-cols-2 gap-4">
-              <!-- Cards will be dynamically inserted here by pelanggan_dashboard.js -->
-          </div>
-        </div>
-      </div>
+        <main class="flex-1 flex flex-col gap-4 p-4 pb-20">
+            <!-- Tagihan Section -->
+            <div id="tagihan-card" class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] bg-white dark:bg-slate-800 p-5">
+                <!-- Content will be dynamically inserted by JS -->
+            </div>
 
-        <!-- Fixed Bottom Navigation -->
+            <!-- Paket Aktif Section -->
+            <div id="paket-aktif-card" class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] bg-white dark:bg-slate-800 p-5">
+                <!-- Content will be dynamically inserted by JS -->
+            </div>
+
+            <!-- Riwayat Pembayaran Section -->
+            <div class="flex flex-col items-stretch gap-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-slate-900 dark:text-white text-base font-bold">Riwayat Pembayaran</h2>
+                    <a href="pelanggan_riwayat_lunas.html" class="text-primary text-sm font-bold">Lihat Semua</a>
+                </div>
+                <div id="riwayat-pembayaran-list" class="flex flex-col rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] bg-white dark:bg-slate-800">
+                    <!-- History items will be dynamically inserted by JS -->
+                </div>
+            </div>
+        </main>
+
         <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
             <div class="flex gap-2 px-4 pb-3 pt-2">
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-[#5324e0]" href="pelanggan_dashboard.html">
-                    <div class="text-[#5324e0] flex h-8 items-center justify-center">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="pelanggan_dashboard.html">
+                    <div class="text-primary flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
+                    </div>
+                    <p class="text-primary text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
+                </a>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_riwayat_lunas.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
+                            <path d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z"></path>
                         </svg>
                     </div>
-                    <p class="text-[#5324e0] text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan_riwayat_lunas.html">
-                    <div class="text-[#625095] flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"></path>
-                        </svg>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="menu_bantuan.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path><path d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z"></path><circle cx="128" cy="180" r="12"></circle></svg>
                     </div>
-                    <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Bantuan</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan_info.html">
-                    <div class="text-[#625095] flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Zm-16-24a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h32A8,8,0,0,1,208,168Zm-64,0a8,8,0,0,1-8,8H120a8,8,0,0,1,0-16h16A8,8,0,0,1,144,168Z"></path>
-                        </svg>
-                    </div>
-                    <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Info Bayar</p>
-                </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan_profile.html">
-                    <div class="text-[#625095] flex h-8 items-center justify-center">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_profile.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                             <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
                         </svg>
                     </div>
-                    <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Profile</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Akun</p>
                 </a>
             </div>
         </footer>
@@ -207,7 +132,63 @@
 
     <script type="module" src="supabase-client.js"></script>
     <script type="module" src="auth.js"></script>
-    <script src="datetime-display.js"></script>
+    <script type="module" src="apply-settings.js"></script>
     <script type="module" src="pelanggan_dashboard.js"></script>
+
+    <!-- Payment Modal -->
+    <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 invisible transition-all duration-300 ease-in-out z-[150]">
+        <span id="toast-message"></span>
+    </div>
+
+    <div id="payment-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 hidden backdrop-blur-sm">
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md m-4 transform transition-all duration-300 ease-out scale-95 opacity-0" id="modal-content">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t-2xl bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-800">Pilih Metode Pembayaran</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Invoice Details -->
+            <div class="p-4 bg-indigo-50 border-b border-gray-200">
+                <p class="text-sm text-gray-600">Tagihan untuk:</p>
+                <p id="modal-invoice-period" class="font-bold text-gray-800 text-lg"></p>
+                <p id="modal-invoice-amount" class="font-semibold text-indigo-600 text-2xl"></p>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-200 mb-4">
+                    <button id="qris-tab" class="payment-tab active flex-1 py-2 text-center font-medium text-indigo-600 border-b-2 border-indigo-600">QRIS</button>
+                    <button id="transfer-tab" class="payment-tab flex-1 py-2 text-center font-medium text-gray-500">Transfer Manual</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="qris-content" class="payment-content">
+                    <p class="text-center text-gray-600 mb-4 text-sm">Scan QR code di bawah ini menggunakan aplikasi pembayaran favorit Anda.</p>
+                    <div class="flex justify-center">
+                         <img id="qris-image" src="assets/qris.jpeg" alt="QRIS Code" class="w-auto h-auto max-w-xs max-h-80 object-contain rounded-lg shadow-md">
+                    </div>
+                    <p class="text-center text-xs text-gray-500 mt-4">QRIS ini statis. Pastikan jumlah transfer sesuai dengan tagihan.</p>
+                </div>
+
+                <div id="transfer-content" class="payment-content hidden">
+                    <div id="payment-methods-container" class="space-y-3">
+                        <!-- Dynamic bank accounts will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl">
+                <button id="confirm-payment-btn" class="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
+                    <svg fill="#ffffff" width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z"></path><path d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z"></path></g></svg>
+                    Konfirmasi via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

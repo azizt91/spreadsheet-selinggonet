@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="light" lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Pusat Bantuan</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#135bec",
+                "background-light": "#f6f6f8",
+                "background-dark": "#101622",
+              },
+              fontFamily: {
+                "display": ["Manrope", "sans-serif"]
+              },
+              borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+          font-size: 24px;
+        }
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+    <!-- Top App Bar -->
+    <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between">
+        <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Pusat Bantuan</h2>
+    </div>
+    <!-- Search Bar -->
+    <div class="px-4 py-3">
+        <label class="flex flex-col min-w-40 h-14 w-full">
+            <div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
+                <div class="text-slate-500 dark:text-slate-400 flex bg-white dark:bg-slate-800 items-center justify-center pl-4 rounded-l-xl border-y border-l border-slate-200 dark:border-slate-700">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+                <input id="search-bantuan" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary focus:ring-inset border-y border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 text-base font-normal leading-normal" placeholder="Cari topik bantuan..." value=""/>
+            </div>
+        </label>
+    </div>
+    <div class="h-4 bg-background-light dark:bg-background-dark"></div>
+    
+    <div id="help-content">
+        <!-- List Items Section -->
+        <div class="help-section flex flex-col px-4 space-y-3">
+            <!-- Pertanyaan Umum (FAQ) -->
+            <a href="faq_wifi_modem.html" class="help-item flex items-center gap-4 bg-white dark:bg-slate-800/50 p-4 min-h-[72px] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/50 cursor-pointer">
+                <div class="flex items-center gap-4 flex-grow">
+                    <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-12">
+                        <span class="material-symbols-outlined">help_outline</span>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Pertanyaan Umum (FAQ)</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal line-clamp-2">Temukan jawaban untuk pertanyaan yang sering diajukan</p>
+                    </div>
+                </div>
+                <div class="shrink-0">
+                    <div class="text-slate-400 dark:text-slate-500 flex size-7 items-center justify-center">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </div>
+                </div>
+            </a>
+            <!-- Panduan & Tutorial -->
+            <a href="tutorial_ganti_wifi.html" class="help-item flex items-center gap-4 bg-white dark:bg-slate-800/50 p-4 min-h-[72px] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/50 cursor-pointer">
+                <div class="flex items-center gap-4 flex-grow">
+                    <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-12">
+                        <span class="material-symbols-outlined">menu_book</span>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Panduan &amp; Tutorial</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal line-clamp-2">Pelajari cara mengatasi masalah umum</p>
+                    </div>
+                </div>
+                <div class="shrink-0">
+                    <div class="text-slate-400 dark:text-slate-500 flex size-7 items-center justify-center">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="h-6 bg-background-light dark:bg-background-dark"></div>
+        <!-- Hubungi Kami Section -->
+        <div class="help-section flex flex-col px-4 space-y-4">
+            <h3 class="text-slate-800 dark:text-slate-200 text-base font-bold px-1">Butuh Bantuan Lebih Lanjut?</h3>
+            <!-- Card Hubungi Kami -->
+            <div class="flex flex-col gap-1 bg-white dark:bg-slate-800/50 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/50">
+                <!-- Live Chat -->
+                <a href="https://wa.me/+6281914170701" target="_blank" class="help-item flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-4">
+                        <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+                            <span class="material-symbols-outlined">chat_bubble</span>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <p class="text-slate-800 dark:text-slate-100 text-base font-medium leading-normal">Live Chat</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Tersedia 24/7</p>
+                        </div>
+                    </div>
+                    <div class="shrink-0">
+                        <button class="bg-primary/10 text-primary text-sm font-bold py-2 px-4 rounded-full hover:bg-primary/20 transition-colors">Mulai Chat</button>
+                    </div>
+                </a>
+                <hr class="border-slate-200 dark:border-slate-700 mx-3"/>
+                <!-- Telepon -->
+                <a href="tel:+6281914170701" class="help-item flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-4">
+                        <div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+                            <span class="material-symbols-outlined">call</span>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <p class="text-slate-800 dark:text-slate-100 text-base font-medium leading-normal">Panggilan Telepon</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Hubungi layanan pelanggan</p>
+                        </div>
+                    </div>
+                    <div class="shrink-0 text-slate-400 dark:text-slate-500">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="h-5 bg-background-light dark:bg-background-dark"></div>
+    </div>
+    <div id="no-results" class="hidden text-center py-10 px-4">
+        <p class="text-slate-500 dark:text-slate-400">Topik bantuan tidak ditemukan.</p>
+    </div>
+</div>
+<footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
+    <div class="flex gap-2 px-4 pb-3 pt-2">
+        <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_dashboard.html">
+            <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
+            </div>
+            <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
+        </a>
+        <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_riwayat_lunas.html">
+            <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z"></path>
+                </svg>
+            </div>
+            <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
+        </a>
+        <a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="menu_bantuan.html">
+            <div class="text-primary flex h-8 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path><path d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z"></path><circle cx="128" cy="180" r="12"></circle></svg>
+            </div>
+            <p class="text-primary text-xs font-medium leading-normal tracking-[0.015em]">Bantuan</p>
+        </a>
+        <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_profile.html">
+            <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                </svg>
+            </div>
+            <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Akun</p>
+        </a>
+    </div>
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-bantuan');
+        const helpContent = document.getElementById('help-content');
+        const noResults = document.getElementById('no-results');
+        const helpItems = document.querySelectorAll('.help-item');
+        const helpSections = document.querySelectorAll('.help-section');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let hasResults = false;
+
+            helpItems.forEach(function(item) {
+                const itemText = item.textContent.toLowerCase();
+                if (itemText.includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                    hasResults = true;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            helpSections.forEach(function(section) {
+                const visibleItems = section.querySelectorAll('.help-item:not(.hidden)');
+                if (visibleItems.length === 0) {
+                    section.classList.add('hidden');
+                } else {
+                    section.classList.remove('hidden');
+                }
+            });
+
+            if (hasResults) {
+                noResults.classList.add('hidden');
+            } else {
+                noResults.classList.remove('hidden');
+            }
+        });
+    });
+</script>
+</body>
+</html>

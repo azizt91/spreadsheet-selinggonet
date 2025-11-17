@@ -146,6 +146,27 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // ===============================================
+    // Sticky Header Management
+    // ===============================================
+    function initializeStickyHeader() {
+        const stickyElement = document.querySelector('.search-filter-sticky');
+        if (!stickyElement) return;
+        
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.intersectionRatio < 1) {
+                    stickyElement.classList.add('is-sticky');
+                } else {
+                    stickyElement.classList.remove('is-sticky');
+                }
+            },
+            { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
+        );
+        
+        observer.observe(stickyElement);
+    }
+
+    // ===============================================
     // Event Listeners Setup
     // ===============================================
     function initializeEventListeners() {
@@ -186,36 +207,65 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const amount = payButton.dataset.amount;
                 const amountFormatted = payButton.dataset.amountFormatted;
                 showPaymentModal(period, amount, amountFormatted);
+                return;
             }
-        });
 
-        confirmPaymentBtn.addEventListener('click', handlePaymentConfirmation);
-
-        // Add event listener for detail buttons
-        contentList.addEventListener('click', (event) => {
-            const detailBtn = event.target.closest('.detail-btn');
-            if (detailBtn) {
-                const invoiceId = detailBtn.dataset.invoiceId;
+            const detailCard = event.target.closest('.detail-card');
+            if (detailCard) {
+                const invoiceId = detailCard.dataset.invoiceId;
                 const invoice = paidData.find(item => item.id === invoiceId);
                 if (invoice) {
                     navigateToPaymentDetail(invoice);
                 }
             }
         });
+
+        confirmPaymentBtn.addEventListener('click', handlePaymentConfirmation);
     }
 
     async function initializePage() {
         initializeEventListeners();
+        initializeStickyHeader();
         
+        // Check for a specific invoice ID from the dashboard
+        const detailInvoiceId = sessionStorage.getItem('showDetailForInvoiceId');
+        if (detailInvoiceId) {
+            sessionStorage.removeItem('showDetailForInvoiceId'); // Clean up immediately
+            
+            showLoading();
+            try {
+                const { data: invoice, error } = await supabase
+                    .from('invoices')
+                    .select(`*, profiles (full_name, idpl, whatsapp_number)`)
+                    .eq('id', detailInvoiceId)
+                    .single();
+
+                if (error) throw error;
+                if (invoice) {
+                    await navigateToPaymentDetail(invoice);
+                } else {
+                    throw new Error('Tagihan tidak ditemukan.');
+                }
+            } catch (error) {
+                console.error('Gagal memuat detail tagihan:', error);
+                showToast('Gagal memuat detail tagihan.', 'error');
+                // Fallback to normal page load
+                switchTab(currentTab);
+                await fetchData();
+            } finally {
+                hideLoading();
+            }
+            return; // Stop further execution
+        }
+
         // Check for activeTab from sessionStorage (from dashboard navigation)
         const activeTabFromStorage = sessionStorage.getItem('activeTab');
         if (activeTabFromStorage && (activeTabFromStorage === 'paid' || activeTabFromStorage === 'unpaid')) {
             currentTab = activeTabFromStorage;
-            switchTab(currentTab);
-            // Clear the sessionStorage after using it
-            sessionStorage.removeItem('activeTab');
+            sessionStorage.removeItem('activeTab'); // Clean up
         }
         
+        switchTab(currentTab);
         await fetchData();
     }
 
@@ -228,11 +278,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Set unpaid tab as active
             unpaidTab.classList.add('active');
             unpaidTab.classList.remove('border-b-transparent');
-            unpaidTab.classList.add('border-b-[#5324e0]', 'text-[#110e1b]');
+            unpaidTab.classList.add('border-b-primary', 'text-[#110e1b]');
             
             // Set paid tab as inactive
             paidTab.classList.remove('active');
-            paidTab.classList.remove('border-b-[#5324e0]', 'text-[#110e1b]');
+            paidTab.classList.remove('border-b-primary', 'text-[#110e1b]');
             paidTab.classList.add('border-b-transparent', 'text-[#625095]');
             
             searchInput.placeholder = 'Cari tagihan belum dibayar...';
@@ -240,11 +290,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Set paid tab as active
             paidTab.classList.add('active');
             paidTab.classList.remove('border-b-transparent');
-            paidTab.classList.add('border-b-[#5324e0]', 'text-[#110e1b]');
+            paidTab.classList.add('border-b-primary', 'text-[#110e1b]');
             
             // Set unpaid tab as inactive
             unpaidTab.classList.remove('active');
-            unpaidTab.classList.remove('border-b-[#5324e0]', 'text-[#110e1b]');
+            unpaidTab.classList.remove('border-b-primary', 'text-[#110e1b]');
             unpaidTab.classList.add('border-b-transparent', 'text-[#625095]');
             
             searchInput.placeholder = 'Cari riwayat pembayaran...';
@@ -256,334 +306,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Loading Management Functions
     // ===============================================
     function showLoading() {
-        contentList.innerHTML = '';
-        
-        // Create skeleton loading items
-        for (let i = 0; i < 10; i++) {
-            const skeletonItem = document.createElement('div');
-            skeletonItem.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
-            skeletonItem.innerHTML = `
-                <div class="flex flex-col justify-center flex-1 gap-2">
-                    <div class="bg-gray-200 h-4 w-3/4 rounded skeleton-shimmer"></div>
-                    <div class="bg-gray-200 h-3 w-1/2 rounded skeleton-shimmer"></div>
-                </div>
-                <div class="shrink-0">
-                    <div class="bg-gray-200 h-4 w-20 rounded skeleton-shimmer"></div>
-                </div>
-            `;
-            contentList.appendChild(skeletonItem);
-        }
-        
-        // Add skeleton animation styles
-        if (!document.getElementById('skeleton-styles')) {
-            const style = document.createElement('style');
-            style.id = 'skeleton-styles';
-            style.textContent = `
-                @keyframes skeleton-loading {
-                    0% { background-color: #e0e0e0; }
-                    50% { background-color: #f0f0f0; }
-                    100% { background-color: #e0e0e0; }
-                }
-                .skeleton-shimmer {
-                    animation: skeleton-loading 1.5s infinite;
-                }
-            `;
-            document.head.appendChild(style);
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
         }
     }
 
     function hideLoading() {
-        const skeletonStyles = document.getElementById('skeleton-styles');
-        if (skeletonStyles) {
-            skeletonStyles.remove();
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
         }
-    }
-
-    // ===============================================
-    // Utility Functions
-    // ===============================================
-    function calculateDueDate(invoicePeriod, installationDate) {
-        console.log('calculateDueDate called with:', { invoicePeriod, installationDate });
-        
-        if (!installationDate || !invoicePeriod) {
-            console.log('Missing data:', { installationDate, invoicePeriod });
-            return null;
-        }
-        
-        let year, month;
-        
-        // Parse invoice period - handle both "YYYY-MM" and "Month YYYY" formats
-        if (invoicePeriod.includes('-')) {
-            // Format: "YYYY-MM"
-            [year, month] = invoicePeriod.split('-');
-            month = parseInt(month);
-        } else {
-            // Format: "Month YYYY" (e.g., "September 2025")
-            const monthNames = {
-                'January': 1, 'Januari': 1,
-                'February': 2, 'Februari': 2,
-                'March': 3, 'Maret': 3,
-                'April': 4,
-                'May': 5, 'Mei': 5,
-                'June': 6, 'Juni': 6,
-                'July': 7, 'Juli': 7,
-                'August': 8, 'Agustus': 8,
-                'September': 9,
-                'October': 10, 'Oktober': 10,
-                'November': 11,
-                'December': 12, 'Desember': 12
-            };
-            
-            const parts = invoicePeriod.trim().split(' ');
-            if (parts.length >= 2) {
-                const monthName = parts[0];
-                year = parts[1];
-                month = monthNames[monthName];
-                
-                if (!month) {
-                    console.log('Unknown month name:', monthName);
-                    return null;
-                }
-            } else {
-                console.log('Invalid invoice period format:', invoicePeriod);
-                return null;
-            }
-        }
-        
-        if (!year || !month) {
-            console.log('Could not parse year/month from:', invoicePeriod);
-            return null;
-        }
-        
-        // Get installation day
-        const installDate = new Date(installationDate);
-        if (isNaN(installDate.getTime())) {
-            console.log('Invalid installation date:', installationDate);
-            return null;
-        }
-        
-        const installDay = installDate.getDate();
-        console.log('Installation day:', installDay);
-        
-        // Create due date using installation day
-        const dueDate = new Date(parseInt(year), month - 1, installDay);
-        console.log('Calculated due date:', dueDate);
-        
-        return dueDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
-    }
-
-    // ===============================================
-    // Data Fetching Functions
-    // ===============================================
-    async function fetchData() {
-        showLoading();
-        
-        try {
-            console.log('Fetching payment history for user:', currentUser.id);
-            console.log('Current profile:', currentProfile);
-            
-            // First, get customer profile to get installation_date
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('installation_date')
-                .eq('id', currentUser.id)
-                .single();
-
-            if (profileError) {
-                throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
-            }
-
-            console.log('Customer profile loaded:', profile);
-            console.log('Installation date from profile:', profile?.installation_date);
-            
-            // Fetch unpaid bills (invoices with status='unpaid' or 'partially_paid')
-            const { data: unpaidBills, error: unpaidError } = await supabase
-                .from('invoices')
-                .select(`
-                    id,
-                    invoice_period,
-                    amount,
-                    total_due,
-                    amount_paid,
-                    status,
-                    paid_at,
-                    due_date,
-                    created_at
-                `)
-                .eq('customer_id', currentUser.id)
-                .in('status', ['unpaid', 'partially_paid'])
-                .order('invoice_period', { ascending: false });
-
-            if (unpaidError) {
-                throw new Error(`Gagal mengambil data tagihan: ${unpaidError.message}`);
-            }
-
-            // Calculate due dates for unpaid bills based on installation_date
-            const unpaidBillsWithDueDate = unpaidBills.map(bill => {
-                const calculatedDate = calculateDueDate(bill.invoice_period, profile.installation_date);
-                console.log(`Bill ${bill.invoice_period}: calculated_due_date = ${calculatedDate}`);
-                return {
-                    ...bill,
-                    calculated_due_date: calculatedDate
-                };
-            });
-
-            console.log('Unpaid bills loaded:', unpaidBillsWithDueDate);
-
-            // Fetch paid bills (invoices with status='paid')
-            const { data: paidBills, error: paidError } = await supabase
-                .from('invoices')
-                .select(`
-                    id,
-                    invoice_period,
-                    amount,
-                    total_due,
-                    amount_paid,
-                    status,
-                    paid_at,
-                    payment_method,
-                    due_date,
-                    created_at,
-                    profiles (
-                        full_name,
-                        idpl,
-                        whatsapp_number
-                    )
-                `)
-                .eq('customer_id', currentUser.id)
-                .eq('status', 'paid')
-                .order('paid_at', { ascending: false });
-
-            if (paidError) {
-                throw new Error(`Gagal mengambil data riwayat: ${paidError.message}`);
-            }
-
-            console.log('Paid bills loaded:', paidBills);
-            console.log('Unpaid bills loaded:', unpaidBillsWithDueDate);
-
-            unpaidData = unpaidBillsWithDueDate || [];
-            paidData = paidBills || [];
-
-            console.log('Final data - unpaidData:', unpaidData.length, 'paidData:', paidData.length);
-            console.log('Current tab:', currentTab);
-
-            renderList();
-
-        } catch (error) {
-            console.error('Error fetching payment history:', error);
-            contentList.innerHTML = `
-                <div class="p-4">
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                        <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        <p class="text-red-700 mb-4">Gagal memuat data: ${error.message}</p>
-                        <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Coba Lagi</button>
-                    </div>
-                </div>
-            `;
-        } finally {
-            hideLoading();
-        }
-    }
-
-    // ===============================================
-    // Render Functions
-    // ===============================================
-    function renderList() {
-        contentList.innerHTML = '';
-        const searchTerm = searchInput.value.toLowerCase();
-        const data = currentTab === 'unpaid' ? unpaidData : paidData;
-
-        if (!Array.isArray(data)) {
-            contentList.innerHTML = '<p class="text-center text-red-500 p-4">Error: Format data tidak valid</p>';
-            return;
-        }
-
-        const filteredData = data.filter(item => {
-            if (!item) return false;
-            return (item.invoice_period && item.invoice_period.toLowerCase().includes(searchTerm)) ||
-                   (item.amount && item.amount.toString().includes(searchTerm));
-        });
-
-        if (filteredData.length === 0) {
-            const emptyMessage = currentTab === 'unpaid' ? 
-                'Tidak ada tagihan belum dibayar' : 'Belum ada riwayat pembayaran';
-            contentList.innerHTML = '<p class="text-center text-gray-500 p-4">' + emptyMessage + '</p>';
-            return;
-        }
-
-        const formatter = new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        });
-
-        filteredData.forEach(item => {
-            if (!item) return;
-
-            // Determine amount based on tab and data structure
-            let amount = 'N/A';
-            if (currentTab === 'unpaid') {
-                // For unpaid bills, show remaining amount (amount) or total_due
-                amount = item.amount ? formatter.format(item.amount) : 
-                        (item.total_due ? formatter.format(item.total_due) : 'N/A');
-            } else {
-                // For paid bills, show amount_paid (actual payment) or total_due
-                amount = item.amount_paid ? formatter.format(item.amount_paid) : 
-                        (item.total_due ? formatter.format(item.total_due) : 
-                        (item.amount ? formatter.format(item.amount) : 'N/A'));
-            }
-            
-            const period = item.invoice_period || 'Periode tidak tersedia';
-
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
-
-            if (currentTab === 'unpaid') {
-                // Use calculated_due_date based on installation_date, fallback to original due_date
-                let dueDate = 'Tanggal tidak tersedia';
-                
-                if (item.calculated_due_date) {
-                    dueDate = formatDate(item.calculated_due_date);
-                } else if (item.due_date) {
-                    dueDate = formatDate(item.due_date);
-                }
-                
-                const rawAmount = item.amount || item.total_due || 0;
-                itemDiv.innerHTML = 
-                    '<div class="flex flex-col justify-center">' +
-                        '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
-                        '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ' + dueDate + '</p>' +
-                        '<p class="text-red-600 text-sm font-medium">' + amount + '</p>' +
-                    '</div>' +
-                    '<div class="shrink-0">' +
-                        '<button class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#5324e0] text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]" data-period="' + period + '" data-amount="' + rawAmount + '" data-amount-formatted="' + amount + '">' +
-                            '<span class="truncate">Bayar</span>' +
-                        '</button>' +
-                    '</div>';
-            } else {
-                const paymentDate = item.paid_at ? 
-                    formatDate(item.paid_at) : 'Tanggal tidak tersedia';
-                itemDiv.innerHTML = 
-                    '<div class="flex flex-col justify-center flex-1">' +
-                        '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
-                        '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Dibayar: ' + paymentDate + '</p>' +
-                    '</div>' +
-                    '<div class="shrink-0 flex items-center gap-3">' +
-                        '<div class="text-right">' +
-                            '<p class="text-[#110e1b] text-base font-medium leading-normal">' + amount + '</p>' +
-                            '<p class="text-green-600 text-xs font-medium">✓ Lunas</p>' +
-                        '</div>' +
-                        '<button class="detail-btn flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 transition-colors" data-invoice-id="' + item.id + '" title="Lihat Detail">' +
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">' +
-                                '<path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>' +
-                            '</svg>' +
-                        '</button>' +
-                    '</div>';
-            }
-            contentList.appendChild(itemDiv);
-        });
     }
 
     // ===============================================
@@ -650,20 +383,284 @@ document.addEventListener('DOMContentLoaded', async function() {
         const customerName = currentProfile ? currentProfile.full_name : currentUser.email;
         const customerIdpl = currentProfile ? currentProfile.idpl : 'N/A';
 
-        const message = `Halo Admin Selinggonet, saya ingin mengkonfirmasi pembayaran tagihan:
-
-- *Nama:* ${customerName}
-- *ID Pelanggan:* ${customerIdpl}
-- *Periode:* ${period}
-- *Jumlah:* ${amount}
-
-Saya sudah melakukan pembayaran. Mohon untuk diverifikasi. Terima kasih.`;
+        const message = `Halo Admin Selinggonet, saya ingin mengkonfirmasi pembayaran tagihan:\n\n- *Nama:* ${customerName}\n- *ID Pelanggan:* ${customerIdpl}\n- *Periode:* ${period}\n- *Jumlah:* ${amount}\n\nSaya sudah melakukan pembayaran. Mohon untuk diverifikasi. Terima kasih.`;
 
         const whatsappNumber = getWhatsAppNumber(); // Get from app settings
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
         window.open(whatsappUrl, '_blank');
+    }
+
+    // ===============================================
+    // Utility Functions
+    // ===============================================
+    function calculateDueDate(invoicePeriod, installationDate) {
+        if (!installationDate || !invoicePeriod) {
+            return null;
+        }
+        
+        let year, month;
+        
+        // Parse invoice period - handle both "YYYY-MM" and "Month YYYY" formats
+        if (invoicePeriod.includes('-')) {
+            // Format: "YYYY-MM"
+            [year, month] = invoicePeriod.split('-');
+            month = parseInt(month);
+        } else {
+            // Format: "Month YYYY" (e.g., "September 2025")
+            const monthNames = {
+                'January': 1, 'Januari': 1,
+                'February': 2, 'Februari': 2,
+                'March': 3, 'Maret': 3,
+                'April': 4,
+                'May': 5, 'Mei': 5,
+                'June': 6, 'Juni': 6,
+                'July': 7, 'Juli': 7,
+                'August': 8, 'Agustus': 8,
+                'September': 9,
+                'October': 10, 'Oktober': 10,
+                'November': 11,
+                'December': 12, 'Desember': 12
+            };
+            
+            const parts = invoicePeriod.trim().split(' ');
+            if (parts.length >= 2) {
+                const monthName = parts[0];
+                year = parts[1];
+                month = monthNames[monthName];
+                
+                if (!month) {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+        
+        if (!year || !month) {
+            return null;
+        }
+        
+        // Get installation day
+        const installDate = new Date(installationDate);
+        if (isNaN(installDate.getTime())) {
+            return null;
+        }
+        
+        const installDay = installDate.getDate();
+        
+        // Create due date using installation day
+        const dueDate = new Date(parseInt(year), month - 1, installDay);
+        
+        return dueDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+    }
+
+    // ===============================================
+    // Data Fetching Functions
+    // ===============================================
+    async function fetchData() {
+        showLoading();
+        
+        try {
+            // First, get customer profile to get installation_date
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('installation_date')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (profileError) {
+                throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
+            }
+            
+            // Fetch unpaid bills (invoices with status='unpaid' or 'partially_paid')
+            const { data: unpaidBills, error: unpaidError } = await supabase
+                .from('invoices')
+                .select(`
+                    id,
+                    invoice_period,
+                    amount,
+                    total_due,
+                    amount_paid,
+                    status,
+                    paid_at,
+                    due_date,
+                    created_at
+                `)
+                .eq('customer_id', currentUser.id)
+                .in('status', ['unpaid', 'partially_paid'])
+                .order('invoice_period', { ascending: false });
+
+            if (unpaidError) {
+                throw new Error(`Gagal mengambil data tagihan: ${unpaidError.message}`);
+            }
+
+            // Calculate due dates for unpaid bills based on installation_date
+            const unpaidBillsWithDueDate = unpaidBills.map(bill => {
+                const calculatedDate = calculateDueDate(bill.invoice_period, profile.installation_date);
+                return {
+                    ...bill,
+                    calculated_due_date: calculatedDate
+                };
+            });
+
+            // Fetch paid bills (invoices with status='paid')
+            const { data: paidBills, error: paidError } = await supabase
+                .from('invoices')
+                .select(`
+                    id,
+                    invoice_period,
+                    amount,
+                    total_due,
+                    amount_paid,
+                    status,
+                    paid_at,
+                    payment_method,
+                    due_date,
+                    created_at,
+                    profiles (
+                        full_name,
+                        idpl,
+                        whatsapp_number
+                    )
+                `)
+                .eq('customer_id', currentUser.id)
+                .eq('status', 'paid')
+                .order('paid_at', { ascending: false });
+
+            if (paidError) {
+                throw new Error(`Gagal mengambil data riwayat: ${paidError.message}`);
+            }
+
+            unpaidData = unpaidBillsWithDueDate || [];
+            paidData = paidBills || [];
+
+            renderList();
+
+        } catch (error) {
+            console.error('Error fetching payment history:', error);
+            contentList.innerHTML = `
+                <div class="p-4">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                        <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-red-700 mb-4">Gagal memuat data: ${error.message}</p>
+                        <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Coba Lagi</button>
+                    </div>
+                </div>
+            `;
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // ===============================================
+    // Render Functions
+    // ===============================================
+    function renderList() {
+        contentList.innerHTML = '';
+        const searchTerm = searchInput.value.toLowerCase();
+        const data = currentTab === 'unpaid' ? unpaidData : paidData;
+
+        if (!Array.isArray(data)) {
+            contentList.innerHTML = '<p class="text-center text-red-500 p-4">Error: Format data tidak valid</p>';
+            return;
+        }
+
+        const filteredData = data.filter(item => {
+            if (!item) return false;
+            return (item.invoice_period && item.invoice_period.toLowerCase().includes(searchTerm)) ||
+                   (item.amount && item.amount.toString().includes(searchTerm));
+        });
+
+        if (filteredData.length === 0) {
+            const emptyMessage = currentTab === 'unpaid' ? 
+                'Tidak ada tagihan belum dibayar' : 'Belum ada riwayat pembayaran';
+            contentList.innerHTML = '<p class="text-center text-gray-500 p-4">' + emptyMessage + '</p>';
+            return;
+        }
+
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+
+        // Add gap-3 to contentList for paid items
+        if (currentTab === 'paid') {
+            contentList.classList.add('flex', 'flex-col', 'gap-3');
+        } else {
+            contentList.classList.remove('flex', 'flex-col', 'gap-3');
+        }
+
+        filteredData.forEach(item => {
+            if (!item) return;
+
+            // Determine amount based on tab and data structure
+            let amount = 'N/A';
+            if (currentTab === 'unpaid') {
+                // For unpaid bills, show remaining amount (amount) or total_due
+                amount = item.amount ? formatter.format(item.amount) : 
+                        (item.total_due ? formatter.format(item.total_due) : 'N/A');
+            } else {
+                // For paid bills, show amount_paid (actual payment) or total_due
+                amount = item.amount_paid ? formatter.format(item.amount_paid) : 
+                        (item.total_due ? formatter.format(item.total_due) : 
+                        (item.amount ? formatter.format(item.amount) : 'N/A'));
+            }
+            
+            const period = item.invoice_period || 'Periode tidak tersedia';
+
+            const itemDiv = document.createElement('div');
+            
+
+            if (currentTab === 'unpaid') {
+                itemDiv.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
+                // Use calculated_due_date based on installation_date, fallback to original due_date
+                let dueDate = 'Tanggal tidak tersedia';
+                
+                if (item.calculated_due_date) {
+                    dueDate = formatDate(item.calculated_due_date);
+                } else if (item.due_date) {
+                    dueDate = formatDate(item.due_date);
+                }
+                
+                const rawAmount = item.amount || item.total_due || 0;
+                itemDiv.innerHTML = 
+                    '<div class="flex flex-col justify-center">' +
+                        '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
+                        '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ' + dueDate + '</p>' +
+                        '<p class="text-red-600 text-sm font-medium">' + amount + '</p>' +
+                    '</div>' +
+                    '<div class="shrink-0">' +
+                        '<button class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]" data-period="' + period + '" data-amount="' + rawAmount + '" data-amount-formatted="' + amount + '">' +
+                            '<span class="truncate">Bayar</span>' +
+                        '</button>' +
+                    '</div>';
+            } else {
+                itemDiv.className = 'detail-card flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] cursor-pointer';
+                itemDiv.setAttribute('data-invoice-id', item.id);
+
+                const paymentDate = item.paid_at ? 
+                    formatDate(item.paid_at) : 'Tanggal tidak tersedia';
+                itemDiv.innerHTML = 
+                    '<div class="flex items-center gap-4 pointer-events-none">' +
+                        '<div class="flex items-center justify-center size-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50">' +
+                            '<span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400">check_circle</span>' +
+                        '</div>' +
+                        '<div>' +
+                            '<p class="font-bold text-slate-900 dark:text-white text-sm">Pembayaran ' + period + '</p>' +
+                            '<p class="text-slate-500 dark:text-slate-400 text-xs">' + paymentDate + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-3 pointer-events-none">' +
+                        '<p class="font-semibold text-slate-900 dark:text-white text-sm">' + amount + '</p>' +
+                    '</div>';
+            }
+            contentList.appendChild(itemDiv);
+        });
     }
 
     // ===============================================
