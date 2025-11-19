@@ -1,32 +1,43 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pengaturan WiFi - Selinggonet</title>
-    
+
     <meta name="theme-color" content="#f9f8fc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
     <meta name="description" content="Ganti SSID dan Password WiFi">
-    
+
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
     <link rel="manifest" href="manifest.json">
-    
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+<link rel="stylesheet" href="assets/css/fonts.css">
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
+
 <body>
-    <div class="relative flex size-full min-h-screen flex-col bg-[#f9f8fc] group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-        
+    <div class="relative flex size-full min-h-screen flex-col bg-[#f9f8fc] group/design-root overflow-x-hidden"
+        style='font-family: Manrope, "Noto Sans", sans-serif;'>
+
         <!-- Header (Sticky) -->
-        <header class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
-            <button id="back-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+        <header
+            class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
+            <button id="back-btn"
+                class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                        d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                    </path>
+                </svg>
             </button>
-            <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pengaturan WiFi</h2>
+            <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pengaturan
+                WiFi</h2>
             <div class="w-10"></div>
         </header>
 
@@ -35,7 +46,12 @@
             <div class="p-4">
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
                     <div class="flex gap-3">
-                        <svg class="text-blue-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path></svg>
+                        <svg class="text-blue-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="20px"
+                            height="20px" fill="currentColor" viewBox="0 0 256 256">
+                            <path
+                                d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z">
+                            </path>
+                        </svg>
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-blue-900 mb-1">Informasi Penting</p>
                             <p class="text-xs text-blue-700 leading-relaxed">
@@ -54,28 +70,44 @@
                     <h3 class="text-sm font-semibold text-gray-700 mb-3">Informasi WiFi Saat Ini</h3>
                     <div class="space-y-2">
                         <div class="flex items-center gap-2">
-                            <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M247.89,80.91a15.93,15.93,0,0,0-6.17-10.81A186.67,186.67,0,0,0,128,32,186.67,186.67,0,0,0,14.28,70.1,15.93,15.93,0,0,0,8.11,80.91,15.65,15.65,0,0,0,11.65,92.8l104,125.43A15.93,15.93,0,0,0,128,224h0a15.93,15.93,0,0,0,12.31-5.77l104-125.43A15.65,15.65,0,0,0,247.89,80.91ZM128,208,24.09,82.74A170.76,170.76,0,0,1,128,48,170.76,170.76,0,0,1,231.91,82.74Z"></path></svg>
+                            <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                fill="currentColor" viewBox="0 0 256 256">
+                                <path
+                                    d="M247.89,80.91a15.93,15.93,0,0,0-6.17-10.81A186.67,186.67,0,0,0,128,32,186.67,186.67,0,0,0,14.28,70.1,15.93,15.93,0,0,0,8.11,80.91,15.65,15.65,0,0,0,11.65,92.8l104,125.43A15.93,15.93,0,0,0,128,224h0a15.93,15.93,0,0,0,12.31-5.77l104-125.43A15.65,15.65,0,0,0,247.89,80.91ZM128,208,24.09,82.74A170.76,170.76,0,0,1,128,48,170.76,170.76,0,0,1,231.91,82.74Z">
+                                </path>
+                            </svg>
                             <div class="flex-1">
                                 <p class="text-xs text-gray-500">Nama WiFi (SSID)</p>
                                 <p id="current-ssid" class="text-sm font-medium text-gray-800">Memuat...</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="text-gray-400" viewBox="0 0 16 16"><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.354.146H7.465A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h4.63l.894.894a.5.5 0 0 1-.353.854H7.163A3 3 0 1 0 4 5z"/><path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                class="text-gray-400" viewBox="0 0 16 16">
+                                <path
+                                    d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.354.146H7.465A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h4.63l.894.894a.5.5 0 0 1-.353.854H7.163A3 3 0 1 0 4 5z" />
+                                <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                            </svg>
                             <div class="flex-1">
                                 <p class="text-xs text-gray-500">Password WiFi</p>
                                 <p id="current-password" class="text-sm font-medium text-gray-800">Memuat...</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M48,56V200a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0Zm84,54.5L112,117V96a8,8,0,0,0-16,0v21l-20-6.49a8,8,0,0,0-4.95,15.22L96,136.5v35l-20-6.49a8,8,0,0,0-4.95,15.22l24,7.79a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,8-8V144.5l20,6.49A8.13,8.13,0,0,0,128,151a8,8,0,0,0,2.48-15.6L112,128.5V93l18.52,6a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,2.48-15.6ZM246,115.64A8,8,0,0,0,236,110.36l-20,6.49V93l18.52,6a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,2.48-15.6L216,76.5V56a8,8,0,0,0-16,0v21l-20-6.49a8,8,0,0,0-4.95,15.22L200,96.5v35l-20-6.49a8,8,0,0,0-4.95,15.22l24,7.79a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,8-8V104.5l20,6.49A8,8,0,0,0,246,115.64Z"></path></svg>
+                            <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                fill="currentColor" viewBox="0 0 256 256">
+                                <path
+                                    d="M48,56V200a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0Zm84,54.5L112,117V96a8,8,0,0,0-16,0v21l-20-6.49a8,8,0,0,0-4.95,15.22L96,136.5v35l-20-6.49a8,8,0,0,0-4.95,15.22l24,7.79a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,8-8V144.5l20,6.49A8.13,8.13,0,0,0,128,151a8,8,0,0,0,2.48-15.6L112,128.5V93l18.52,6a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,2.48-15.6ZM246,115.64A8,8,0,0,0,236,110.36l-20,6.49V93l18.52,6a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,2.48-15.6L216,76.5V56a8,8,0,0,0-16,0v21l-20-6.49a8,8,0,0,0-4.95,15.22L200,96.5v35l-20-6.49a8,8,0,0,0-4.95,15.22l24,7.79a8.13,8.13,0,0,0,2.48.4,8,8,0,0,0,8-8V104.5l20,6.49A8,8,0,0,0,246,115.64Z">
+                                </path>
+                            </svg>
                             <div class="flex-1">
                                 <p class="text-xs text-gray-500">IP Address</p>
                                 <p id="current-ip" class="text-sm font-medium text-gray-800">Memuat...</p>
                             </div>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-2">* SSID saat ini mungkin tidak dapat diambil karena keterbatasan akses. Anda tetap dapat mengganti WiFi dengan mengisi form di bawah.</p>
+                    <p class="text-xs text-gray-400 mt-2">* SSID saat ini mungkin tidak dapat diambil karena
+                        keterbatasan akses. Anda tetap dapat mengganti WiFi dengan mengisi form di bawah.</p>
                 </div>
             </div>
 
@@ -98,17 +130,13 @@
             <div class="px-4">
                 <form id="wifi-form" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
                     <h3 class="text-sm font-semibold text-gray-700 mb-3">Ganti SSID & Password</h3>
-                    
+
                     <!-- SSID Baru -->
                     <label class="flex flex-col">
                         <p class="text-[#110e1b] text-sm font-medium pb-1">Nama WiFi Baru (SSID)</p>
-                        <input 
-                            id="new-ssid" 
-                            type="text" 
-                            class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" 
-                            placeholder="Contoh: WiFi-Rumah-Saya (opsional)" 
-                            maxlength="32"
-                        />
+                        <input id="new-ssid" type="text"
+                            class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm"
+                            placeholder="Contoh: WiFi-Rumah-Saya (opsional)" maxlength="32" />
                         <small class="text-xs text-gray-400 mt-1">Kosongkan jika tidak ingin mengganti SSID</small>
                     </label>
 
@@ -116,43 +144,36 @@
                     <label class="flex flex-col">
                         <p class="text-[#110e1b] text-sm font-medium pb-1">Password WiFi Baru</p>
                         <div class="relative">
-                            <input 
-                                id="new-password" 
-                                type="password" 
-                                class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 pr-10 text-sm" 
-                                placeholder="Minimal 8 karakter (opsional)" 
-                                minlength="8"
-                            />
-                            <button 
-                                type="button" 
-                                id="toggle-password" 
-                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                            >
-                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path></svg>
+                            <input id="new-password" type="password"
+                                class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 pr-10 text-sm"
+                                placeholder="Minimal 8 karakter (opsional)" minlength="8" />
+                            <button type="button" id="toggle-password"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px"
+                                    fill="currentColor" viewBox="0 0 256 256">
+                                    <path
+                                        d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z">
+                                    </path>
+                                </svg>
                             </button>
                         </div>
-                        <small class="text-xs text-gray-400 mt-1">Kosongkan jika tidak ingin mengganti password. Minimal 8 karakter jika diisi.</small>
+                        <small class="text-xs text-gray-400 mt-1">Kosongkan jika tidak ingin mengganti password. Minimal
+                            8 karakter jika diisi.</small>
                     </label>
 
                     <!-- Konfirmasi Password -->
                     <label class="flex flex-col">
                         <p class="text-[#110e1b] text-sm font-medium pb-1">Konfirmasi Password</p>
-                        <input 
-                            id="confirm-password" 
-                            type="password" 
-                            class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm" 
-                            placeholder="Ketik ulang password (jika diisi)" 
-                            minlength="8"
-                        />
-                        <small id="password-match-error" class="text-xs text-red-600 mt-1 hidden">Password tidak cocok</small>
+                        <input id="confirm-password" type="password"
+                            class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm"
+                            placeholder="Ketik ulang password (jika diisi)" minlength="8" />
+                        <small id="password-match-error" class="text-xs text-red-600 mt-1 hidden">Password tidak
+                            cocok</small>
                     </label>
 
                     <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        id="submit-btn"
-                        class="w-full rounded-lg h-12 px-5 bg-[#683fe4] text-white text-base font-bold hover:bg-[#501ee6] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                    >
+                    <button type="submit" id="submit-btn"
+                        class="w-full rounded-lg h-12 px-5 bg-[#683fe4] text-white text-base font-bold hover:bg-[#501ee6] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
                         <span id="submit-text">SIMPAN</span>
                         <span id="submit-loading" class="hidden">Memproses...</span>
                     </button>
@@ -177,4 +198,5 @@
     <script type="module" src="apply-settings.js"></script>
     <script type="module" src="ganti-wifi.js"></script>
 </body>
+
 </html>

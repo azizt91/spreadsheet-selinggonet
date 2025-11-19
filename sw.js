@@ -1,5 +1,5 @@
 // Service Worker untuk PWA Selinggonet
-const CACHE_NAME = 'selinggonet-v1.5.2';
+const CACHE_NAME = 'selinggonet-v1.5.4';
 const urlsToCache = [
   '/',
   '/app-settings.html',
@@ -22,6 +22,23 @@ const urlsToCache = [
   '/profile.html',
   '/tutorial_ganti_wifi.html',
   '/style.css',
+  '/assets/css/main.css',
+  '/assets/css/fonts.css',
+  '/assets/fonts/Manrope-Regular.ttf',
+  '/assets/fonts/Manrope-Medium.ttf',
+  '/assets/fonts/Manrope-SemiBold.ttf',
+  '/assets/fonts/Manrope-Bold.ttf',
+  '/assets/fonts/Manrope-ExtraBold.ttf',
+  '/assets/fonts/NotoSans-Regular.ttf',
+  '/assets/fonts/NotoSans-Medium.ttf',
+  '/assets/fonts/NotoSans-Bold.ttf',
+  '/assets/fonts/NotoSans-Black.ttf',
+  '/assets/fonts/Poppins-Light.ttf',
+  '/assets/fonts/Poppins-Regular.ttf',
+  '/assets/fonts/Poppins-Medium.ttf',
+  '/assets/fonts/Poppins-SemiBold.ttf',
+  '/assets/fonts/Poppins-Bold.ttf',
+  '/assets/fonts/MaterialSymbolsOutlined.ttf',
   '/app-settings.js',
   '/apply-settings.js',
   '/csv-import.js',
@@ -51,7 +68,6 @@ const urlsToCache = [
   '/assets/no_data.png',
   '/assets/sn-blue.png',
   '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'
 ];
 
@@ -157,7 +173,7 @@ self.addEventListener('push', (event) => {
         primaryKey: 1
       }
     };
-    
+
     event.waitUntil(
       self.registration.showNotification('Selinggonet', options)
     );
@@ -168,7 +184,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   console.log('Notification clicked, opening notification center.');
   event.notification.close();
-  
+
   // Arahkan ke HALAMAN NOTIFIKASI BARU
   event.waitUntil(
     clients.openWindow('/notifikasi.html')

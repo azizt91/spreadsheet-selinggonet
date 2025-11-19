@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeStickyHeader(); // Initialize sticky header behavior
     checkURLParameters(); // Check for URL parameters first
     fetchInitialData();
-    
+
     // Initialize CSV Import
     initializeCSVImport(fetchData);
 
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function checkURLParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const statusParam = urlParams.get('status');
-        
+
         if (statusParam) {
             // Map status parameter to filter
             if (statusParam === 'AKTIF') {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentFilter = 'inactive';
                 setActiveFilterButton('inactive');
             }
-            
+
             // Remove URL parameter after processing (optional)
             // window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function initializeStickyHeader() {
         const stickyElement = document.querySelector('.search-filter-sticky');
         if (!stickyElement) return;
-        
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.intersectionRatio < 1) {
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             },
             { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
         );
-        
+
         observer.observe(stickyElement);
     }
 
@@ -213,9 +213,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             searchInput.focus();    // (Opsional) Fokuskan kembali ke input
         });
         customerForm.addEventListener('submit', handleFormSubmit);
-        
+
         // Churn Date Logic - Show/Hide based on status
-        document.getElementById('customer-status').addEventListener('change', function() {
+        document.getElementById('customer-status').addEventListener('change', function () {
             const churnDateContainer = document.getElementById('churn-date-container');
             if (this.value === 'NONAKTIF') {
                 churnDateContainer.classList.remove('hidden');
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 Object.values(filterButtons).forEach(btn => {
                     btn.classList.remove('bg-[#683fe4]', 'text-white'); // Hapus kelas aktif
                     btn.classList.add('bg-[#eae8f3]'); // Kembalikan warna latar non-aktif
-                    
+
                     // Ambil elemen <p> di dalam tombol
                     const textElement = btn.querySelector('p');
                     if (textElement) {
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Terapkan kelas aktif pada tombol yang baru diklik
                 activeButton.classList.remove('bg-[#eae8f3]');
                 activeButton.classList.add('bg-[#683fe4]', 'text-white');
-                
+
                 // Terapkan warna teks aktif pada elemen <p> di dalamnya
                 const activeText = activeButton.querySelector('p');
                 if (activeText) {
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showLoading();
         await fetchPackages();
         await fetchData();
-        
+
         // Only set "Semua" as active if no URL parameter was processed
         if (currentFilter === 'all') {
             setActiveFilterButton('all');
@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!data || data.length === 0) {
             customerList.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 px-4">
-                    <img src="assets/no_data.png" alt="No Data" class="w-64 h-64 mb-4 opacity-80">
+                    <span class="material-symbols-outlined text-gray-300 mb-4" style="font-size: 96px;">person_off</span>
                     <p class="text-center text-gray-500 text-base font-medium">Tidak ada pelanggan ditemukan</p>
                     <p class="text-center text-gray-400 text-sm mt-2">Coba ubah filter atau kata kunci pencarian</p>
                 </div>
@@ -321,14 +321,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         data.forEach(profile => {
             // Status pills styling
-            const statusBadge = profile.status === 'AKTIF' 
+            const statusBadge = profile.status === 'AKTIF'
                 ? '<span class="px-3 py-1 rounded-full bg-green-500 text-white text-xs font-semibold">Aktif</span>'
                 : '<span class="px-3 py-1 rounded-full bg-red-500 text-white text-xs font-semibold">Cabut</span>';
-            
+
             // Untuk pelanggan nonaktif, tampilkan tanggal cabut. Untuk aktif, tampilkan tanggal terdaftar
             let dateInfo;
             if (profile.status === 'NONAKTIF') {
-                const churnDate = profile.churn_date 
+                const churnDate = profile.churn_date
                     ? new Date(profile.churn_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
                     : 'Belum diatur'; // Teks pengganti jika tanggal kosong
                 dateInfo = `Cabut: ${churnDate}`;
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const installDate = profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
                 dateInfo = `Terdaftar: ${installDate}`;
             }
-            
+
             const customerItem = document.createElement('div');
             customerItem.className = "flex items-center gap-4 bg-white px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50";
             customerItem.innerHTML = `
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             paketSelect.innerHTML += `<option value="${pkg.id}" data-price="${pkg.price}">${pkg.package_name} - ${pkg.speed_mbps} Mbps</option>`;
         });
     }
-    
+
     function handlePaketChange(event) {
         const selectedOption = event.target.options[event.target.selectedIndex];
         const price = selectedOption.dataset.price || '0';
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Get user email for editing
         const { data: userEmail } = await supabase.rpc('get_user_email', { user_id: profile.id });
-        
+
         document.getElementById('customer-name').value = profile.full_name || '';
         document.getElementById('customer-address').value = profile.address || '';
         document.getElementById('customer-whatsapp').value = profile.whatsapp_number || '';
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('customer-status').value = profile.status || 'AKTIF';
         document.getElementById('customer-device').value = profile.device_type || '';
         document.getElementById('customer-ip').value = profile.ip_static_pppoe || '';
-        
+
         // Populate installation date (convert ISO string to YYYY-MM-DD)
         if (profile.installation_date) {
             const installDate = new Date(profile.installation_date);
@@ -410,25 +410,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             document.getElementById('customer-installation-date').value = '';
         }
-        
+
         document.getElementById('customer-latitude').value = profile.latitude || '';
         document.getElementById('customer-longitude').value = profile.longitude || '';
         document.getElementById('edit-customer-email').value = userEmail || '';
         document.getElementById('edit-customer-password').value = '';
-        
+
         // Churn Date Logic - Show/Hide and populate based on status
         const churnDateContainer = document.getElementById('churn-date-container');
         const churnDateInput = document.getElementById('customer-churn-date');
-        
+
         if (profile.status === 'NONAKTIF') {
             churnDateContainer.classList.remove('hidden');
         } else {
             churnDateContainer.classList.add('hidden');
         }
-        
+
         // Fill churn_date if exists
         churnDateInput.value = profile.churn_date || '';
-        
+
         const { data: invoice } = await supabase.from('invoices').select('package_id, packages(price)').eq('customer_id', profile.id).order('invoice_period', { ascending: false }).limit(1).single();
         if (invoice) {
             document.getElementById('customer-package').value = invoice.package_id;
@@ -533,134 +533,134 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error('Error deleting customer:', error);
             alert(`❌ Gagal menghapus pelanggan:\n${error.message}`);
-            
+
             // Re-enable button
             const deleteBtn = document.getElementById('delete-customer-icon-btn');
             if (deleteBtn) deleteBtn.disabled = false;
         }
     }
 
-        async function openDetailView(profileId) {
-    lastView = 'list';
-    switchView('detail');
-    
-    // Tampilkan status loading
-    const profileImage = document.getElementById('detail-profile-image');
-    const customerName = document.getElementById('detail-customer-name');
-    const customerId = document.getElementById('detail-customer-id');
-    
-    if (customerName) customerName.textContent = 'Memuat...';
-    if (customerId) customerId.textContent = 'Memuat...';
+    async function openDetailView(profileId) {
+        lastView = 'list';
+        switchView('detail');
 
-    // 1. Ambil data profil pelanggan
-    const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', profileId).single();
+        // Tampilkan status loading
+        const profileImage = document.getElementById('detail-profile-image');
+        const customerName = document.getElementById('detail-customer-name');
+        const customerId = document.getElementById('detail-customer-id');
 
-    if (error || !profile) {
-        console.error('Error fetching profile detail:', error);
-        if (customerName) customerName.textContent = 'Gagal memuat data';
-        if (customerId) customerId.textContent = 'Error';
-        return;
-    }
-    
-    currentEditingProfileId = profile.id;
+        if (customerName) customerName.textContent = 'Memuat...';
+        if (customerId) customerId.textContent = 'Memuat...';
 
-    // ==========================================================
-    // === PERBAIKAN DIMULAI DI SINI ===
-    // ==========================================================
+        // 1. Ambil data profil pelanggan
+        const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', profileId).single();
 
-    // 2. Ambil data paket berdasarkan 'package_id' dari profil (SUMBER DATA YANG BENAR)
-    let customerPackage = null;
-    if (profile.package_id) {
-        const { data: packageData, error: packageError } = await supabase
-            .from('packages')
-            .select('*')
-            .eq('id', profile.package_id)
-            .single();
-        if (!packageError) {
-            customerPackage = packageData;
-        } else {
-            console.error('Error fetching package details:', packageError);
+        if (error || !profile) {
+            console.error('Error fetching profile detail:', error);
+            if (customerName) customerName.textContent = 'Gagal memuat data';
+            if (customerId) customerId.textContent = 'Error';
+            return;
         }
-    }
 
-    // 3. Ambil email pengguna
-    const { data: userEmail, error: emailError } = await supabase.rpc('get_user_email', { user_id: profile.id });
-    if (emailError) console.error('Gagal mengambil email:', emailError);
+        currentEditingProfileId = profile.id;
 
-    // ==========================================================
-    // === PERBAIKAN SELESAI ===
-    // ==========================================================
+        // ==========================================================
+        // === PERBAIKAN DIMULAI DI SINI ===
+        // ==========================================================
 
-    // Update UI dengan data yang sudah benar
-    if (profileImage) {
-        profileImage.style.backgroundImage = `url('${profile.photo_url || 'assets/login_illustration.svg'}')`;
-    }
-    if (customerName) customerName.textContent = profile.full_name || '-';
-    if (customerId) customerId.textContent = profile.idpl || '-';
-
-    // Update detail elemen menggunakan data paket dari profil
-    const detailElements = {
-        'detail-idpl': profile.idpl,
-        'detail-nama': profile.full_name,
-        'detail-alamat': profile.address,
-        'detail-gender': profile.gender,
-        'detail-whatsapp': profile.whatsapp_number,
-        'detail-email': userEmail || '-',
-        'detail-paket': customerPackage ? customerPackage.package_name : 'Belum diatur',
-        'detail-tagihan': customerPackage ? 
-            new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(customerPackage.price) : 
-            'N/A',
-        'detail-status': profile.status,
-        'detail-tanggal-pasang': (() => {
-            if (profile.status === 'NONAKTIF') {
-                return profile.churn_date ? new Date(profile.churn_date).toLocaleDateString('id-ID') : 'Belum diset';
+        // 2. Ambil data paket berdasarkan 'package_id' dari profil (SUMBER DATA YANG BENAR)
+        let customerPackage = null;
+        if (profile.package_id) {
+            const { data: packageData, error: packageError } = await supabase
+                .from('packages')
+                .select('*')
+                .eq('id', profile.package_id)
+                .single();
+            if (!packageError) {
+                customerPackage = packageData;
             } else {
-                return profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID') : '-';
+                console.error('Error fetching package details:', packageError);
             }
-        })(),
-        'detail-jenis-perangkat': profile.device_type,
-        'detail-ip-static': profile.ip_static_pppoe
-    };
-    
-    Object.entries(detailElements).forEach(([elementId, value]) => {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = value || '-';
         }
-    });
-    
-    // Handle Location Section
-    const locationSection = document.getElementById('location-section');
-    const detailLocation = document.getElementById('detail-location');
-    const openMapsBtn = document.getElementById('open-maps-btn');
-    
-    if (profile.latitude && profile.longitude) {
-        locationSection?.classList.remove('hidden');
-        if (detailLocation) {
-            detailLocation.textContent = `${profile.latitude}, ${profile.longitude}`;
-        }
-        if (openMapsBtn) {
-            const mapsUrl = `https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`;
-            openMapsBtn.href = mapsUrl;
-            openMapsBtn.classList.remove('hidden');
-        }
-    } else {
-        locationSection?.classList.add('hidden');
-    }
-    
-    // Update label tanggal (tetap sama)
-    const tanggalPasangLabel = document.evaluate("//p[contains(text(), 'TANGGAL PASANG') or contains(text(), 'TANGGAL CABUT')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-    if (tanggalPasangLabel) {
-        tanggalPasangLabel.textContent = profile.status === 'NONAKTIF' ? 'TANGGAL CABUT' : 'TANGGAL PASANG';
-    }
 
-    // Load tagihan belum lunas (tetap sama)
-    const unpaidBillsSection = document.getElementById('unpaid-bills-section');
-    if (unpaidBillsSection) {
-        unpaidBillsSection.classList.remove('hidden');
-    }
-    
-    loadUnpaidBills(profile.id);
+        // 3. Ambil email pengguna
+        const { data: userEmail, error: emailError } = await supabase.rpc('get_user_email', { user_id: profile.id });
+        if (emailError) console.error('Gagal mengambil email:', emailError);
+
+        // ==========================================================
+        // === PERBAIKAN SELESAI ===
+        // ==========================================================
+
+        // Update UI dengan data yang sudah benar
+        if (profileImage) {
+            profileImage.style.backgroundImage = `url('${profile.photo_url || 'assets/login_illustration.svg'}')`;
+        }
+        if (customerName) customerName.textContent = profile.full_name || '-';
+        if (customerId) customerId.textContent = profile.idpl || '-';
+
+        // Update detail elemen menggunakan data paket dari profil
+        const detailElements = {
+            'detail-idpl': profile.idpl,
+            'detail-nama': profile.full_name,
+            'detail-alamat': profile.address,
+            'detail-gender': profile.gender,
+            'detail-whatsapp': profile.whatsapp_number,
+            'detail-email': userEmail || '-',
+            'detail-paket': customerPackage ? customerPackage.package_name : 'Belum diatur',
+            'detail-tagihan': customerPackage ?
+                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(customerPackage.price) :
+                'N/A',
+            'detail-status': profile.status,
+            'detail-tanggal-pasang': (() => {
+                if (profile.status === 'NONAKTIF') {
+                    return profile.churn_date ? new Date(profile.churn_date).toLocaleDateString('id-ID') : 'Belum diset';
+                } else {
+                    return profile.installation_date ? new Date(profile.installation_date).toLocaleDateString('id-ID') : '-';
+                }
+            })(),
+            'detail-jenis-perangkat': profile.device_type,
+            'detail-ip-static': profile.ip_static_pppoe
+        };
+
+        Object.entries(detailElements).forEach(([elementId, value]) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value || '-';
+            }
+        });
+
+        // Handle Location Section
+        const locationSection = document.getElementById('location-section');
+        const detailLocation = document.getElementById('detail-location');
+        const openMapsBtn = document.getElementById('open-maps-btn');
+
+        if (profile.latitude && profile.longitude) {
+            locationSection?.classList.remove('hidden');
+            if (detailLocation) {
+                detailLocation.textContent = `${profile.latitude}, ${profile.longitude}`;
+            }
+            if (openMapsBtn) {
+                const mapsUrl = `https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`;
+                openMapsBtn.href = mapsUrl;
+                openMapsBtn.classList.remove('hidden');
+            }
+        } else {
+            locationSection?.classList.add('hidden');
+        }
+
+        // Update label tanggal (tetap sama)
+        const tanggalPasangLabel = document.evaluate("//p[contains(text(), 'TANGGAL PASANG') or contains(text(), 'TANGGAL CABUT')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (tanggalPasangLabel) {
+            tanggalPasangLabel.textContent = profile.status === 'NONAKTIF' ? 'TANGGAL CABUT' : 'TANGGAL PASANG';
+        }
+
+        // Load tagihan belum lunas (tetap sama)
+        const unpaidBillsSection = document.getElementById('unpaid-bills-section');
+        if (unpaidBillsSection) {
+            unpaidBillsSection.classList.remove('hidden');
+        }
+
+        loadUnpaidBills(profile.id);
     }
 
     async function handleFormSubmit(event) {
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isEditing) {
             if (!confirm('Yakin ingin menyimpan perubahan?')) return;
             setButtonLoading(saveBtn, true, 'Update');
-            
+
             const statusValue = document.getElementById('customer-status').value;
             const churnDateValue = document.getElementById('customer-churn-date').value;
             const gender = document.getElementById('customer-gender').value;
@@ -687,14 +687,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Get latitude/longitude
             const latitudeValue = document.getElementById('customer-latitude').value.trim();
             const longitudeValue = document.getElementById('customer-longitude').value.trim();
-            
+
             // Get installation date
             const installationDateInput = document.getElementById('customer-installation-date').value;
             let installationDate = null;
             if (installationDateInput) {
                 installationDate = new Date(installationDateInput).toISOString();
             }
-            
+
             const profileData = {
                 full_name: document.getElementById('customer-name').value,
                 address: document.getElementById('customer-address').value,
@@ -773,40 +773,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             // }
 
             if (newPackageId && newAmount) {
-            // 1. Update package_id di tabel profiles
-            const { error: packageUpdateError } = await supabase
-                .from('profiles')
-                .update({ package_id: parseInt(newPackageId) })
-                .eq('id', currentEditingProfileId);
+                // 1. Update package_id di tabel profiles
+                const { error: packageUpdateError } = await supabase
+                    .from('profiles')
+                    .update({ package_id: parseInt(newPackageId) })
+                    .eq('id', currentEditingProfileId);
 
-            if (packageUpdateError) {
-                console.error('Error updating package in profile:', packageUpdateError);
-                showErrorNotification('Gagal memperbarui paket pelanggan: ' + packageUpdateError.message);
-                // Lanjutkan proses meskipun gagal update di profile, karena update invoice lebih penting
+                if (packageUpdateError) {
+                    console.error('Error updating package in profile:', packageUpdateError);
+                    showErrorNotification('Gagal memperbarui paket pelanggan: ' + packageUpdateError.message);
+                    // Lanjutkan proses meskipun gagal update di profile, karena update invoice lebih penting
+                }
+
+                // 2. Update tagihan bulan ini (jika ada)
+                const now = new Date();
+                const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
+                const currentYear = now.getFullYear();
+                const currentPeriod = `${currentMonthName} ${currentYear}`;
+
+                const { error: invoiceUpdateError } = await supabase
+                    .from('invoices')
+                    .update({
+                        package_id: parseInt(newPackageId),
+                        amount: parseFloat(newAmount), // Sisa tagihan
+                        total_due: parseFloat(newAmount) // Total tagihan
+                    })
+                    .eq('customer_id', currentEditingProfileId)
+                    .eq('invoice_period', currentPeriod)
+                    .eq('status', 'unpaid'); // Hanya update jika belum dibayar
+
+                if (invoiceUpdateError) {
+                    console.error('Error updating this month invoice:', invoiceUpdateError);
+                    // Tidak perlu menampilkan error jika invoice bulan ini tidak ada
+                }
             }
-
-            // 2. Update tagihan bulan ini (jika ada)
-            const now = new Date();
-            const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
-            const currentYear = now.getFullYear();
-            const currentPeriod = `${currentMonthName} ${currentYear}`;
-
-            const { error: invoiceUpdateError } = await supabase
-                .from('invoices')
-                .update({
-                    package_id: parseInt(newPackageId),
-                    amount: parseFloat(newAmount), // Sisa tagihan
-                    total_due: parseFloat(newAmount) // Total tagihan
-                })
-                .eq('customer_id', currentEditingProfileId)
-                .eq('invoice_period', currentPeriod)
-                .eq('status', 'unpaid'); // Hanya update jika belum dibayar
-
-            if (invoiceUpdateError) {
-                console.error('Error updating this month invoice:', invoiceUpdateError);
-                // Tidak perlu menampilkan error jika invoice bulan ini tidak ada
-            }
-        }
 
             // Update email and password if provided
             const newEmail = document.getElementById('edit-customer-email').value;
@@ -844,14 +844,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const genderElement = document.getElementById('customer-gender');
             const gender = genderElement.value;
             let photoUrl = '';
-            
+
             // Set photo_url based on gender
             if (gender === 'LAKI-LAKI') {
                 photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-2.png';
             } else if (gender === 'PEREMPUAN') {
                 photoUrl = 'https://sb-admin-pro.startbootstrap.com/assets/img/illustrations/profiles/profile-1.png';
             }
-            
+
             // Generate IDPL berurut
             let idpl = 'CST001'; // Default jika belum ada data
 
@@ -888,7 +888,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Get latitude/longitude
             const latitudeValue = document.getElementById('customer-latitude').value.trim();
             const longitudeValue = document.getElementById('customer-longitude').value.trim();
-            
+
             // Get installation date (use input value or default to today)
             const installationDateInput = document.getElementById('customer-installation-date').value;
             let installationDate;
@@ -899,7 +899,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Default to today
                 installationDate = new Date().toISOString();
             }
-            
+
             const customerData = {
                 email: document.getElementById('customer-email').value,
                 password: document.getElementById('customer-password').value,
@@ -969,7 +969,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function loadUnpaidBills(profileId) {
         const unpaidBillsList = document.getElementById('unpaid-bills-list');
         unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Memuat tagihan...</p>';
-        
+
         // const { data, error } = await supabase.from('invoices').select('*').eq('customer_id', profileId).eq('status', 'unpaid');
         const { data, error } = await supabase.from('invoices').select('*, profiles!inner(*), packages(price)').eq('customer_id', profileId).eq('status', 'unpaid');
 
@@ -994,7 +994,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             unpaidBillsList.innerHTML = '<p class="text-sm text-gray-500 px-4">Tidak ada tagihan yang belum dibayar.</p>';
         }
     }
-    
+
     function setButtonLoading(button, isLoading, originalText) {
         const span = button.querySelector('span');
         if (span) {

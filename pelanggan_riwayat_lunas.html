@@ -1,71 +1,55 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Lunas - Pelanggan</title>
-    
+
     <meta name="theme-color" content="#f9f8fc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
     <meta name="description" content="Riwayat pembayaran pelanggan ISP">
-    
+
     <link rel="icon" type="image/png" href="assets/logo_192x192.png">
-    <link rel="manifest" href="manifest.json">
-    
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                "primary": "#135bec",
-                "background-light": "#f6f6f8",
-                "background-dark": "#101622",
-              },
-              fontFamily: {
-                "display": ["Manrope", "sans-serif"]
-              },
-            },
-          },
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <!-- <style>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/fonts.css">
+
+    <style>
         .search-filter-sticky {
             position: -webkit-sticky;
             position: sticky;
             top: 0;
             z-index: 30;
         }
-        
+
         .search-filter-sticky.is-sticky {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         #list-view {
             overflow: visible !important;
         }
-    </style> -->
+    </style>
 
     <style>
         /* CSS Sticky yang Diperbaiki */
         .search-filter-sticky {
-            position: -webkit-sticky; /* Untuk Safari */
+            position: -webkit-sticky;
+            /* Untuk Safari */
             position: sticky;
             top: 0;
-            z-index: 40; /* Z-index tinggi agar di atas list */
-            background-color: #f9f8fc; /* PENTING: Background agar tidak transparan */
+            z-index: 40;
+            /* Z-index tinggi agar di atas list */
+            background-color: #f9f8fc;
+            /* PENTING: Background agar tidak transparan */
             padding-bottom: 1px;
         }
-        
+
         /* Shadow halus saat sticky (opsional) */
         .search-filter-sticky.is-sticky {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         /* Memastikan list tidak memotong sticky element */
@@ -78,54 +62,75 @@
             border-bottom-color: #135bec !important;
             color: #110e1b !important;
         }
+
         .tab-button.active p {
             color: #110e1b !important;
         }
+
         .tab-button:not(.active) {
             border-bottom-color: transparent !important;
             color: #625095 !important;
         }
+
         .tab-button:not(.active) p {
             color: #625095 !important;
         }
-        
+
         /* Skeleton animation */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
         }
+
         @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
     </style>
 </head>
-<body style="overflow-x: hidden;"> <div id="loading-overlay" class="fixed inset-0 bg-background-light dark:bg-background-dark z-50 flex items-center justify-center">
+
+<body style="overflow-x: hidden;">
+    <div id="loading-overlay"
+        class="fixed inset-0 bg-background-light dark:bg-background-dark z-50 flex items-center justify-center">
         <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
     </div>
 
-    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root"
+        style='font-family: Manrope, "Noto Sans", sans-serif;'>
         <div>
             <div id="list-view">
-                
+
                 <div class="search-filter-sticky">
-                    
+
                     <div class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between border-none shadow-none">
-                        <div class="text-[#110e1b] flex size-12 shrink-0 items-center cursor-pointer" onclick="window.history.back()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                                <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                        <div class="text-[#110e1b] flex size-12 shrink-0 items-center cursor-pointer"
+                            onclick="window.history.back()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                                viewBox="0 0 256 256">
+                                <path
+                                    d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                                </path>
                             </svg>
                         </div>
-                        <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Riwayat Tagihan</h2>
+                        <h2
+                            class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+                            Riwayat Tagihan</h2>
                     </div>
 
                     <div class="pb-3 bg-[#f9f8fc]">
                         <div class="flex border-b border-[#d6d1e6] px-4 gap-8">
-                            <button id="paidTab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-primary text-[#110e1b] pb-[13px] pt-4 tab-button active">
+                            <button id="paidTab"
+                                class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-primary text-[#110e1b] pb-[13px] pt-4 tab-button active">
                                 <p class="text-sm font-bold leading-normal tracking-[0.015em]">Dibayar</p>
                             </button>
-                            <button id="unpaidTab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
+                            <button id="unpaidTab"
+                                class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#625095] pb-[13px] pt-4 tab-button">
                                 <p class="text-sm font-bold leading-normal tracking-[0.015em]">Belum Dibayar</p>
                             </button>
                         </div>
@@ -134,33 +139,47 @@
                     <div class="px-4 py-3 bg-[#f9f8fc]">
                         <label class="flex flex-col min-w-40 h-12 w-full">
                             <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-                                <div class="text-[#625095] flex border-none bg-[#eae8f3] items-center justify-center pl-4 rounded-l-lg border-r-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                                        <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+                                <div
+                                    class="text-[#625095] flex border-none bg-[#eae8f3] items-center justify-center pl-4 rounded-l-lg border-r-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
+                                        fill="currentColor" viewBox="0 0 256 256">
+                                        <path
+                                            d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z">
+                                        </path>
                                     </svg>
                                 </div>
-                                <input id="search-input" placeholder="Cari riwayat pembayaran..." class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-full placeholder:text-[#625095] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" value="" />
+                                <input id="search-input" placeholder="Cari riwayat pembayaran..."
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] focus:border-none h-full placeholder:text-[#625095] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                                    value="" />
                             </div>
                         </label>
                     </div>
                 </div>
                 <div id="content-list" class="pb-20 px-4 pt-2">
-                    </div>
+                </div>
             </div>
 
             <div id="detail-view" class="hidden">
-                 <div class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between border-none shadow-none">
+                <div class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between border-none shadow-none">
                     <div class="text-[#110e1b] flex size-12 shrink-0 items-center cursor-pointer" id="back-from-detail">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                            </path>
                         </svg>
                     </div>
-                    <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Detail Pembayaran</h2>
+                    <h2
+                        class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+                        Detail Pembayaran</h2>
                 </div>
                 <div class="mb-6 flex justify-center px-4 pt-4">
                     <div class="bg-green-100 text-green-800 px-6 py-3 rounded-full flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34Z">
+                            </path>
                         </svg>
                         <span class="text-lg font-bold">LUNAS</span>
                     </div>
@@ -203,7 +222,8 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-[#625095] text-sm font-medium">Status</span>
-                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">LUNAS</span>
+                            <span
+                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">LUNAS</span>
                         </div>
                     </div>
                 </div>
@@ -212,35 +232,60 @@
 
         <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
             <div class="flex gap-2 px-4 pb-3 pt-2">
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_dashboard.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_dashboard.html">
                     <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z">
+                            </path>
                         </svg>
                     </div>
-                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Home</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-primary" href="pelanggan_riwayat_lunas.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-primary"
+                    href="pelanggan_riwayat_lunas.html">
                     <div class="text-primary flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z">
+                            </path>
                         </svg>
                     </div>
                     <p class="text-primary text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="menu_bantuan.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="menu_bantuan.html">
                     <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path><path d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z"></path><circle cx="128" cy="180" r="12"></circle></svg>
-                    </div>
-                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Bantuan</p>
-                </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_profile.html">
-                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M230.93,220a8,8,0,0,1-6.93,4H32a8,8,0,0,1-6.92-12c15.23-26.33,38.7-45.21,66.09-54.16a72,72,0,1,1,73.66,0c27.39,8.95,50.86,27.83,66.09,54.16A8,8,0,0,1,230.93,220Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z">
+                            </path>
+                            <path
+                                d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z">
+                            </path>
+                            <circle cx="128" cy="180" r="12"></circle>
                         </svg>
                     </div>
-                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Akun</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Bantuan</p>
+                </a>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_profile.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M230.93,220a8,8,0,0,1-6.93,4H32a8,8,0,0,1-6.92-12c15.23-26.33,38.7-45.21,66.09-54.16a72,72,0,1,1,73.66,0c27.39,8.95,50.86,27.83,66.09,54.16A8,8,0,0,1,230.93,220Z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Akun</p>
                 </a>
             </div>
         </footer>
@@ -253,17 +298,24 @@
 
     <!-- Payment Modal -->
     <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 invisible transition-all duration-300 ease-in-out z-[150]">
+    <div id="toast"
+        class="fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 invisible transition-all duration-300 ease-in-out z-[150]">
         <span id="toast-message"></span>
     </div>
 
-    <div id="payment-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 hidden backdrop-blur-sm">
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md m-4 transform transition-all duration-300 ease-out scale-95 opacity-0" id="modal-content">
+    <div id="payment-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 hidden backdrop-blur-sm">
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md m-4 transform transition-all duration-300 ease-out scale-95 opacity-0"
+            id="modal-content">
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t-2xl bg-gray-50">
                 <h3 class="text-lg font-semibold text-gray-800">Pilih Metode Pembayaran</h3>
                 <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
 
@@ -278,17 +330,22 @@
             <div class="p-6">
                 <!-- Tabs -->
                 <div class="flex border-b border-gray-200 mb-4">
-                    <button id="qris-tab" class="payment-tab active flex-1 py-2 text-center font-medium text-indigo-600 border-b-2 border-indigo-600">QRIS</button>
-                    <button id="transfer-tab" class="payment-tab flex-1 py-2 text-center font-medium text-gray-500">Transfer Manual</button>
+                    <button id="qris-tab"
+                        class="payment-tab active flex-1 py-2 text-center font-medium text-indigo-600 border-b-2 border-indigo-600">QRIS</button>
+                    <button id="transfer-tab"
+                        class="payment-tab flex-1 py-2 text-center font-medium text-gray-500">Transfer Manual</button>
                 </div>
 
                 <!-- Tab Content -->
                 <div id="qris-content" class="payment-content">
-                    <p class="text-center text-gray-600 mb-4 text-sm">Scan QR code di bawah ini menggunakan aplikasi pembayaran favorit Anda.</p>
+                    <p class="text-center text-gray-600 mb-4 text-sm">Scan QR code di bawah ini menggunakan aplikasi
+                        pembayaran favorit Anda.</p>
                     <div class="flex justify-center">
-                         <img src="assets/qris.jpeg" alt="QRIS Code" class="w-auto h-auto max-w-xs max-h-80 object-contain rounded-lg shadow-md">
+                        <img src="assets/qris.jpeg" alt="QRIS Code"
+                            class="w-auto h-auto max-w-xs max-h-80 object-contain rounded-lg shadow-md">
                     </div>
-                    <p class="text-center text-xs text-gray-500 mt-4">QRIS ini statis. Pastikan jumlah transfer sesuai dengan tagihan.</p>
+                    <p class="text-center text-xs text-gray-500 mt-4">QRIS ini statis. Pastikan jumlah transfer sesuai
+                        dengan tagihan.</p>
                 </div>
 
                 <div id="transfer-content" class="payment-content hidden">
@@ -300,8 +357,16 @@
                                 <p id="seabank-number" class="font-mono text-gray-700">901307925714</p>
                                 <p class="text-xs text-gray-500">a.n. TAUFIQ AZIZ</p>
                             </div>
-                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200" onclick="copyToClipboard('seabank-number', this)">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z"></path><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z" clip-rule="evenodd"></path></svg>
+                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                                onclick="copyToClipboard('seabank-number', this)">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z">
+                                    </path>
+                                    <path fill-rule="evenodd"
+                                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
                             </button>
                         </div>
                         <!-- BCA -->
@@ -311,8 +376,16 @@
                                 <p id="bca-number" class="font-mono text-gray-700">3621053653</p>
                                 <p class="text-xs text-gray-500">a.n. TAUFIQ AZIZ</p>
                             </div>
-                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200" onclick="copyToClipboard('bca-number', this)">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z"></path><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z" clip-rule="evenodd"></path></svg>
+                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                                onclick="copyToClipboard('bca-number', this)">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z">
+                                    </path>
+                                    <path fill-rule="evenodd"
+                                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
                             </button>
                         </div>
                         <!-- BSI -->
@@ -322,8 +395,16 @@
                                 <p id="bsi-number" class="font-mono text-gray-700">7211806138</p>
                                 <p class="text-xs text-gray-500">a.n. TAUFIQ AZIZ</p>
                             </div>
-                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200" onclick="copyToClipboard('bsi-number', this)">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z"></path><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z" clip-rule="evenodd"></path></svg>
+                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                                onclick="copyToClipboard('bsi-number', this)">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z">
+                                    </path>
+                                    <path fill-rule="evenodd"
+                                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
                             </button>
                         </div>
                         <!-- DANA -->
@@ -333,8 +414,16 @@
                                 <p id="dana-number" class="font-mono text-gray-700">089609497390</p>
                                 <p class="text-xs text-gray-500">a.n. TAUFIQ AZIZ</p>
                             </div>
-                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200" onclick="copyToClipboard('dana-number', this)">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z"></path><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z" clip-rule="evenodd"></path></svg>
+                            <button class="copy-btn p-2 rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                                onclick="copyToClipboard('dana-number', this)">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z">
+                                    </path>
+                                    <path fill-rule="evenodd"
+                                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -343,46 +432,65 @@
 
             <!-- Modal Footer -->
             <div class="px-6 py-4 bg-gray-50 rounded-b-2xl">
-                <button id="confirm-payment-btn" class="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
-                    <svg fill="#ffffff" width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z"></path><path d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z"></path></g></svg>
+                <button id="confirm-payment-btn"
+                    class="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
+                    <svg fill="#ffffff" width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
+                        stroke="#ffffff">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path
+                                d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z">
+                            </path>
+                            <path
+                                d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z">
+                            </path>
+                        </g>
+                    </svg>
                     Konfirmasi via WhatsApp
                 </button>
             </div>
         </div>
     </div>
-    
+
     <style>
         /* Tab Styles */
         .tab-button.active {
-            border-bottom-color: #135bec !important; /* Using primary color directly */
+            border-bottom-color: #135bec !important;
+            /* Using primary color directly */
             color: #110e1b !important;
         }
+
         .tab-button.active p {
             color: #110e1b !important;
         }
+
         .tab-button:not(.active) {
             border-bottom-color: transparent !important;
             color: #625095 !important;
         }
+
         .tab-button:not(.active) p {
             color: #625095 !important;
         }
-        
+
         /* Skeleton loading animation */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
         }
-        
+
         @keyframes loading {
             0% {
                 background-position: 200% 0;
             }
+
             100% {
                 background-position: -200% 0;
             }
         }
     </style>
 </body>
+
 </html>

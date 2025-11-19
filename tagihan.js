@@ -3,7 +3,7 @@ import { getCurrentAdminName, showNotificationResult, sendCustomerPaymentNotific
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     // ===============================================
     // State Management & Global Variables
     // ===============================================
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const installmentTab = document.getElementById('installment-tab');
     const paidTab = document.getElementById('paid-tab');
     const addInvoiceBtn = document.getElementById('add-invoice-btn');
-    
+
     // Filter Elements
     const filterBtn = document.getElementById('filter-btn');
     const filterModal = document.getElementById('filter-modal');
@@ -40,28 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalContainer = document.getElementById('total-container');
     const totalDisplay = document.getElementById('total-display');
     const filterInfo = document.getElementById('filter-info');
-    
+
     // Detail view elements - akan diinisialisasi saat dibutuhkan
-    let detailCustomerName, detailCustomerId, detailCustomerWhatsapp, 
-        detailInvoicePeriod, detailInvoiceAmount, detailPaidDate, 
+    let detailCustomerName, detailCustomerId, detailCustomerWhatsapp,
+        detailInvoicePeriod, detailInvoiceAmount, detailPaidDate,
         detailPaymentMethod, detailAdminName;
 
     // ===============================================
     // View Management
     // ===============================================
     function initializeViews() {
-        views = { 
-            list: document.getElementById('list-view'), 
-            detail: document.getElementById('detail-view') 
+        views = {
+            list: document.getElementById('list-view'),
+            detail: document.getElementById('detail-view')
         };
-        
+
     }
 
     // Sticky Header Management
     function initializeStickyHeader() {
         const stickyElement = document.querySelector('.search-filter-sticky');
         if (!stickyElement) return;
-        
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.intersectionRatio < 1) {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
         );
-        
+
         observer.observe(stickyElement);
     }
 
@@ -81,16 +81,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!views.list || !views.detail) {
             initializeViews();
         }
-        
+
         // Add null safety
         Object.values(views).forEach(view => {
             if (view) view.classList.add('hidden');
         });
-        
+
         if (views[viewName]) {
             views[viewName].classList.remove('hidden');
         }
-        
+
         window.scrollTo(0, 0);
     }
 
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         detailPaidDate = document.getElementById('detail-paid-date');
         detailPaymentMethod = document.getElementById('detail-payment-method');
         detailAdminName = document.getElementById('detail-admin-name');
-        
+
     }
 
     // ===============================================
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 switchTab('paid');
             }
         });
-        
+
         invoiceList.addEventListener('click', handleInvoiceListClick);
 
         if (addInvoiceBtn) {
@@ -239,16 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     function handleApplyFilter() {
         const customerName = customerNameInput.value.trim();
-        
+
         // Get selected payment methods from checkboxes (query di sini agar DOM sudah ready)
         const paymentMethodCheckboxes = document.querySelectorAll('.payment-method-checkbox');
         const selectedPaymentMethods = Array.from(paymentMethodCheckboxes)
             .filter(checkbox => checkbox.checked)
             .map(checkbox => checkbox.value);
-        
+
         const startDate = startDateInput.value;
         const endDate = endDateInput.value;
-        
+
         // Apply filter only to paid tab
         if (currentTab === 'paid') {
             applyPaidFilter(customerName, selectedPaymentMethods, startDate, endDate);
@@ -256,28 +256,28 @@ document.addEventListener('DOMContentLoaded', () => {
             totalContainer.classList.remove('hidden');
             updateTotal();
         }
-        
+
         filterModal.classList.add('hidden');
     }
 
     function handleResetFilter() {
         customerNameInput.value = '';
-        
+
         // Uncheck all payment method checkboxes (query di sini agar DOM sudah ready)
         const paymentMethodCheckboxes = document.querySelectorAll('.payment-method-checkbox');
         paymentMethodCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
         });
-        
+
         startDateInput.value = '';
         endDateInput.value = '';
-        
+
         if (currentTab === 'paid') {
             filteredPaidData = [...allPaidData];
             renderList();
             updateTotal();
         }
-        
+
         totalContainer.classList.add('hidden');
         filterInfo.textContent = '';
         filterModal.classList.add('hidden');
@@ -289,14 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (customerName && !invoice.profiles?.full_name?.toLowerCase().includes(customerName.toLowerCase())) {
                 return false;
             }
-            
+
             // Filter by payment methods (multi-select)
             if (paymentMethods && paymentMethods.length > 0) {
                 if (!paymentMethods.includes(invoice.payment_method)) {
                     return false;
                 }
             }
-            
+
             // Filter by date range
             if (startDate || endDate) {
                 const paidDate = new Date(invoice.paid_at);
@@ -307,16 +307,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     return false;
                 }
             }
-            
+
             return true;
         });
-        
+
         renderList();
     }
 
     function updateFilterInfo(customerName, paymentMethods, startDate, endDate) {
         const filters = [];
-        
+
         if (customerName) filters.push(`Nama: ${customerName}`);
         if (paymentMethods && paymentMethods.length > 0) {
             // Capitalize first letter of each method for display
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const end = endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '...';
             filters.push(`${start} - ${end}`);
         }
-        
+
         if (filters.length > 0) {
             filterInfo.textContent = `Filter aktif: ${filters.join(', ')}`;
         } else {
@@ -345,11 +345,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Use total_due for paid invoices as it represents the full amount
             return sum + (invoice.total_due || invoice.amount_paid || invoice.amount || 0);
         }, 0);
-        
-        const formatter = new Intl.NumberFormat('id-ID', { 
-            style: 'currency', 
-            currency: 'IDR', 
-            minimumFractionDigits: 0 
+
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
         });
         totalDisplay.textContent = formatter.format(total);
     }
@@ -378,9 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isFiltering) {
                 const namaBulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 const targetPeriode = `${namaBulan[parseInt(filterBulan, 10)]} ${filterTahun}`;
-                
+
                 console.log(`Filtering data for period: ${targetPeriode}`); // Untuk debugging
-                
+
                 searchInput.placeholder = `Disaring: ${targetPeriode}`;
                 searchInput.disabled = true;
 
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Ambil data Paid tanpa filter (dan paginasi)
-                 let allPaid = [];
+                let allPaid = [];
                 let page = 0;
                 const CHUNK_SIZE = 1000;
                 while (true) {
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 details: error.details,
                 hint: error.hint
             });
-            
+
             let errorMessage = 'Gagal memuat data tagihan';
             if (error.message) {
                 errorMessage += `: ${error.message}`;
@@ -517,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (error.code) {
                 errorMessage += ` (Code: ${error.code})`;
             }
-            
+
             invoiceList.innerHTML = `<p class="text-center text-red-500 p-4">${errorMessage}</p>`;
             unpaidData = [];
             installmentData = [];
@@ -526,18 +526,18 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoading();
         }
     }
-    
+
     // ... SISA KODE DARI SINI KE BAWAH TETAP SAMA DAN TIDAK PERLU DIUBAH ...
     // Pastikan semua fungsi lainnya (switchTab, renderList, markAsPaid, dll.) tetap ada.
 
     function switchTab(tab) {
         currentTab = tab;
-        
+
         // Reset semua tab
         unpaidTab.classList.remove('active');
         installmentTab.classList.remove('active');
         paidTab.classList.remove('active');
-        
+
         // Aktifkan tab yang dipilih
         if (tab === 'unpaid') {
             unpaidTab.classList.add('active');
@@ -551,14 +551,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show filter button only on paid tab
             if (filterBtn) filterBtn.classList.remove('hidden');
         }
-        
+
         // Hide filter button on other tabs
         if (tab !== 'paid' && filterBtn) {
             filterBtn.classList.add('hidden');
             // Hide total container when switching away from paid tab
             if (totalContainer) totalContainer.classList.add('hidden');
         }
-        
+
         renderList();
     }
 
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             clearSearchBtn.classList.add('hidden');
         }
-        
+
         if (currentTab === 'unpaid') {
             data = unpaidData;
         } else if (currentTab === 'installment') {
@@ -591,13 +591,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!item || !item.profiles) return false;
             if (searchInput.disabled) return true;
             return (item.profiles.full_name && item.profiles.full_name.toLowerCase().includes(searchTerm)) ||
-                   (item.invoice_period && item.invoice_period.toLowerCase().includes(searchTerm));
+                (item.invoice_period && item.invoice_period.toLowerCase().includes(searchTerm));
         });
 
         if (filteredData.length === 0) {
             let message = 'Tidak ada tagihan ditemukan';
             let submessage = 'Coba ubah filter atau kata kunci pencarian';
-            
+
             if (currentTab === 'unpaid') {
                 message = 'Tidak ada tagihan belum dibayar';
                 submessage = searchTerm ? 'Tidak ada hasil untuk pencarian Anda' : 'Semua tagihan sudah dibayar atau belum ada tagihan';
@@ -608,10 +608,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 message = 'Tidak ada tagihan yang dibayar';
                 submessage = searchTerm ? 'Tidak ada hasil untuk pencarian Anda' : 'Belum ada tagihan yang lunas';
             }
-            
+
             invoiceList.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 px-4">
-                    <img src="assets/no_data.png" alt="No Data" class="w-64 h-64 mb-4 opacity-80">
+                    <span class="material-symbols-outlined text-gray-300 mb-4" style="font-size: 96px;">receipt_long</span>
                     <p class="text-center text-gray-500 text-base font-medium">${message}</p>
                     <p class="text-center text-gray-400 text-sm mt-2">${submessage}</p>
                 </div>
@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             } else if (currentTab === 'installment') {
                 const progressPercentage = ((item.amount_paid || 0) / (item.total_due || 1)) * 100;
-                
+
                 invoiceDiv.innerHTML = `
                     <div class="flex flex-col justify-center flex-1 gap-1">
                         <p class="text-[#110e1b] text-base font-medium leading-normal">${customerName}</p>
@@ -687,27 +687,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             } else { // Tab 'paid'
-    // Siapkan variabel untuk tanggal pembayaran
-    let paymentDateHtml = '<div class="w-12 shrink-0"></div>'; // Placeholder jika tanggal tidak ada
+                // Siapkan variabel untuk tanggal pembayaran
+                let paymentDateHtml = '<div class="w-12 shrink-0"></div>'; // Placeholder jika tanggal tidak ada
 
-    // Cek apakah ada data paid_at
-    if (item.paid_at) {
-        const paidDate = new Date(item.paid_at);
-        const day = paidDate.getDate().toString().padStart(2, '0');
-        const month = paidDate.toLocaleString('id-ID', { month: 'short' });
-        const year = paidDate.getFullYear();
-        
-        paymentDateHtml = `
+                // Cek apakah ada data paid_at
+                if (item.paid_at) {
+                    const paidDate = new Date(item.paid_at);
+                    const day = paidDate.getDate().toString().padStart(2, '0');
+                    const month = paidDate.toLocaleString('id-ID', { month: 'short' });
+                    const year = paidDate.getFullYear();
+
+                    paymentDateHtml = `
             <div class="flex flex-col items-center justify-center w-12 shrink-0 text-center">
                 <p class="text-lg font-bold text-gray-800">${day}</p>
                 <p class="text-xs text-gray-500">${month}</p>
                 <p class="text-xs text-gray-500">${year}</p>
             </div>
         `;
-    }
+                }
 
-    // Gabungkan semua bagian menjadi satu
-    invoiceDiv.innerHTML = `
+                // Gabungkan semua bagian menjadi satu
+                invoiceDiv.innerHTML = `
         ${paymentDateHtml}
         <div class="flex flex-col justify-center gap-1 flex-1 cursor-pointer" data-invoice-id="${invoiceId}" data-click-type="detail">
             <p class="text-[#110e1b] text-base font-medium leading-normal">${customerName}</p>
@@ -727,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         </div>
     `;
-}
+            }
             invoiceList.appendChild(invoiceDiv);
         });
     }
@@ -738,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (button) {
             const invoiceId = button.dataset.invoiceId;
             if (!invoiceId) return;
-            
+
             // Cari data di semua array berdasarkan tab aktif
             let targetItem;
             if (currentTab === 'unpaid') {
@@ -748,12 +748,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 targetItem = paidData.find(item => item.id === invoiceId);
             }
-            
+
             if (!targetItem) {
                 showErrorNotification('Data tagihan tidak ditemukan.');
                 return;
             }
-            
+
             if (button.classList.contains('mark-paid-btn')) {
                 markAsPaid(targetItem);
             } else if (button.classList.contains('whatsapp-btn')) {
@@ -765,46 +765,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return;
         }
-        
+
         // Check for detail area click (like pelanggan.js - click anywhere on card)
         const detailArea = event.target.closest('[data-click-type="detail"]');
         if (detailArea && currentTab === 'paid') {
             const invoiceId = detailArea.dataset.invoiceId;
             if (!invoiceId) return;
-            
+
             const targetItem = paidData.find(item => item.id === invoiceId);
             if (!targetItem) {
                 showErrorNotification('Data tagihan tidak ditemukan.');
                 return;
             }
-            
+
             navigateToPaymentDetail(targetItem);
         }
     }
-    
+
     async function navigateToPaymentDetail(invoice) {
         if (!invoice || !invoice.id) {
             showErrorNotification('Error: Data tagihan tidak lengkap.');
             return;
         }
-        
+
         // Store current detail data
         currentDetailData = invoice;
-        
+
         // Ensure DOM is ready with a small delay
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         // Populate detail view
         await displayPaymentDetail(invoice);
-        
+
         // Switch to detail view
         switchView('detail');
     }
-    
+
     async function displayPaymentDetail(invoiceData) {
         // Initialize detail elements first
         initializeDetailElements();
-        
+
         // Format currency
         const formatter = new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -836,7 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (detailCustomerWhatsapp) detailCustomerWhatsapp.textContent = invoiceData.profiles?.whatsapp_number || 'Tidak tersedia';
         if (detailInvoicePeriod) detailInvoicePeriod.textContent = invoiceData.invoice_period || 'Tidak tersedia';
         // For paid invoices, use total_due or amount_paid instead of amount (which is remaining)
-        const displayAmount = invoiceData.status === 'paid' 
+        const displayAmount = invoiceData.status === 'paid'
             ? (invoiceData.total_due || invoiceData.amount_paid || invoiceData.amount)
             : invoiceData.amount;
         if (detailInvoiceAmount) detailInvoiceAmount.textContent = formatter.format(displayAmount || 0);
@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (detailPaymentMethod) detailPaymentMethod.textContent = invoiceData.payment_method || 'Tidak diketahui';
         if (detailAdminName) detailAdminName.textContent = currentAdmin || 'Admin';
     }
-    
+
     async function handleInstallmentPayment(invoice) {
         if (!invoice || !invoice.id) {
             showErrorNotification('Error: Data tagihan tidak lengkap.');
@@ -950,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showErrorNotification(`❌ Gagal membatalkan pembayaran: ${error.message}`);
         }
     }
-    
+
     function sendWhatsAppMessage(rowData) {
         if (!rowData || !rowData.profiles) {
             showErrorNotification('Data pelanggan tidak valid untuk mengirim WhatsApp');
@@ -980,29 +980,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentMonthName = new Date().toLocaleString('id-ID', { month: 'long' });
         const currentYear = new Date().getFullYear();
         const confirmMessage = `Apakah Anda yakin ingin membuat tagihan untuk bulan ${currentMonthName} ${currentYear}? Proses ini akan dijalankan untuk semua pelanggan aktif yang belum memiliki tagihan bulan ini.`;
-    
+
         if (!confirm(confirmMessage)) {
             return;
         }
-    
+
         showPaymentLoading('Membuat tagihan bulanan...');
-    
+
         try {
             const { data, error } = await supabase.rpc('create_monthly_invoices_v2');
-    
+
             hidePaymentLoading();
-    
+
             if (error) {
                 throw new Error(error.message);
             }
-    
+
             if (data && data.status === 'success') {
                 showSuccessNotification(data.message);
                 fetchData();
             } else {
                 throw new Error(data.message || 'Terjadi kesalahan di server.');
             }
-    
+
         } catch (error) {
             hidePaymentLoading();
             console.error('Error creating invoices:', error);
@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skeletonItems = document.querySelectorAll('.skeleton-item');
         skeletonItems.forEach(item => item.remove());
     }
-    
+
     function showPaymentLoading(text = 'Memproses...') {
         const loadingOverlay = document.createElement('div');
         loadingOverlay.id = 'payment-loading-overlay';
@@ -1059,22 +1059,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingOverlay = document.getElementById('payment-loading-overlay');
         if (loadingOverlay) loadingOverlay.remove();
     }
-    
+
     function showSuccessNotification(message) {
         showNotification(message, '#28a745', '✓');
     }
-    
+
     function showErrorNotification(message) {
         showNotification(message, '#dc3545', '⚠');
     }
-    
+
     function showInstallmentModal(invoiceData) {
         // Hapus modal yang sudah ada jika ada
         const existingModal = document.getElementById('installment-modal');
         if (existingModal) existingModal.remove();
 
         const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
-        
+
         const modal = document.createElement('div');
         modal.id = 'installment-modal';
         modal.style.cssText = `
@@ -1082,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', () => {
             background-color: rgba(0, 0, 0, 0.5); display: flex; 
             justify-content: center; align-items: center; z-index: 1001;
         `;
-        
+
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
                 <div class="flex justify-between items-center mb-4">
@@ -1147,19 +1147,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Event listeners untuk modal
         document.getElementById('close-installment-modal').addEventListener('click', () => modal.remove());
         document.getElementById('cancel-payment').addEventListener('click', () => modal.remove());
         document.getElementById('process-payment').addEventListener('click', () => processInstallmentPayment(invoiceData, modal));
-        
+
         // Close modal saat klik di luar
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.remove();
         });
-        
+
         // Focus ke input amount
         setTimeout(() => {
             document.getElementById('payment-amount').focus();
@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existingModal) existingModal.remove();
 
         const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
-        
+
         const modal = document.createElement('div');
         modal.id = 'full-payment-modal';
         modal.style.cssText = `
@@ -1180,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             background-color: rgba(0, 0, 0, 0.5); display: flex; 
             justify-content: center; align-items: center; z-index: 1001;
         `;
-        
+
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
                 <div class="flex justify-between items-center mb-4">
@@ -1255,46 +1255,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Event listeners untuk modal
         document.getElementById('close-full-payment-modal').addEventListener('click', () => modal.remove());
         document.getElementById('cancel-full-payment').addEventListener('click', () => modal.remove());
         document.getElementById('process-full-payment').addEventListener('click', () => processFullPayment(invoiceData, modal));
-        
+
         // Close modal saat klik di luar
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.remove();
         });
-        
+
         // Focus ke select method
         setTimeout(() => {
             document.getElementById('full-payment-method').focus();
         }, 100);
     }
-    
+
     async function processInstallmentPayment(invoiceData, modal) {
         const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
         const paymentMethod = document.getElementById('payment-method').value;
         const paymentNote = document.getElementById('payment-note').value;
-        
+
         // Validasi input
         if (!paymentAmount || paymentAmount <= 0) {
             showErrorNotification('Masukkan jumlah pembayaran yang valid');
             return;
         }
-        
+
         if (paymentAmount > invoiceData.remainingAmount) {
             showErrorNotification(`Jumlah pembayaran tidak boleh melebihi sisa tagihan (${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(invoiceData.remainingAmount)})`);
             return;
         }
-        
+
         showPaymentLoading('Memproses pembayaran cicilan...');
-        
+
         try {
             const adminName = await getCurrentAdminName();
-            
+
             const { data, error } = await supabase.rpc('process_installment_payment', {
                 p_invoice_id: invoiceData.invoiceId,
                 p_payment_amount: paymentAmount,
@@ -1302,21 +1302,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 p_payment_method: paymentMethod,
                 p_note: paymentNote
             });
-            
+
             if (error) throw error;
-            
+
             if (!data.success) {
                 throw new Error(data.message);
             }
-            
+
             hidePaymentLoading();
             modal.remove();
             showSuccessNotification(data.message);
-            
+
             // Send WhatsApp notification untuk cicilan
             try {
                 const adminName = await getCurrentAdminName();
-                
+
                 // Ambil data customer dari invoice untuk notifikasi
                 const { data: invoiceWithCustomer, error: customerError } = await supabase
                     .from('invoices')
@@ -1329,7 +1329,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `)
                     .eq('id', invoiceData.invoiceId)
                     .single();
-                
+
                 if (customerError) {
                     console.error('Error fetching customer data:', customerError);
                 } else if (invoiceWithCustomer && invoiceWithCustomer.profiles && invoiceWithCustomer.profiles.whatsapp_number) {
@@ -1348,9 +1348,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('WhatsApp notification error:', notificationError);
                 // Tidak perlu show error karena pembayaran sudah berhasil
             }
-            
+
             fetchData();
-            
+
         } catch (error) {
             console.error('Error processing installment payment:', error);
             hidePaymentLoading();
@@ -1362,12 +1362,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const paymentMethod = document.getElementById('full-payment-method').value;
         const paymentNote = document.getElementById('full-payment-note').value;
         const paymentAmount = invoiceData.remainingAmount; // Selalu bayar sisa tagihan
-        
+
         showPaymentLoading('Memproses pembayaran lunas...');
-        
+
         try {
             const adminName = await getCurrentAdminName();
-            
+
             const { data, error } = await supabase.rpc('process_installment_payment', {
                 p_invoice_id: invoiceData.invoiceId,
                 p_payment_amount: paymentAmount,
@@ -1375,21 +1375,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 p_payment_method: paymentMethod,
                 p_note: paymentNote || 'Pembayaran lunas langsung'
             });
-            
+
             if (error) throw error;
-            
+
             if (!data.success) {
                 throw new Error(data.message);
             }
-            
+
             hidePaymentLoading();
             modal.remove();
             showSuccessNotification(data.message);
-            
+
             // Send WhatsApp notification untuk pembayaran lunas
             try {
                 const adminName = await getCurrentAdminName();
-                
+
                 // Ambil data customer dari invoice untuk notifikasi
                 const { data: invoiceWithCustomer, error: customerError } = await supabase
                     .from('invoices')
@@ -1402,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `)
                     .eq('id', invoiceData.invoiceId)
                     .single();
-                
+
                 if (customerError) {
                     console.error('Error fetching customer data:', customerError);
                 } else if (invoiceWithCustomer && invoiceWithCustomer.profiles && invoiceWithCustomer.profiles.whatsapp_number) {
@@ -1421,9 +1421,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('WhatsApp notification error:', notificationError);
                 // Tidak perlu show error karena pembayaran sudah berhasil
             }
-            
+
             fetchData();
-            
+
         } catch (error) {
             console.error('Error processing full payment:', error);
             hidePaymentLoading();
@@ -1433,7 +1433,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function sendInstallmentWhatsAppNotification(paymentData) {
         const { customer, paymentAmount, remainingAfterPayment, totalDue, invoicePeriod, paymentMethod, isFullyPaid } = paymentData;
-        
+
         if (!customer.whatsapp_number) {
             console.warn('Customer WhatsApp number not available');
             return;
@@ -1442,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Get admin name
             const adminName = await getCurrentAdminName();
-            
+
             // Prepare customer data for notification
             const customerData = {
                 id: customer.id,
@@ -1450,7 +1450,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 idpl: customer.idpl,
                 whatsapp_number: customer.whatsapp_number
             };
-            
+
             // Prepare invoice data for notification
             const invoiceData = {
                 id: paymentData.invoiceId || 'unknown',
@@ -1461,7 +1461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 remaining_amount: remainingAfterPayment,
                 is_fully_paid: isFullyPaid
             };
-            
+
             // Send automatic WhatsApp notification to customer
             const customerNotificationResult = await sendCustomerPaymentNotification(customerData, invoiceData, paymentMethod);
 
@@ -1497,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showErrorNotification(`⚠️ Gagal mengirim notifikasi ke pelanggan: ${customerNotificationResult.message}`);
                 }
             }
-            
+
         } catch (error) {
             console.error('Error sending WhatsApp notifications:', error);
             showErrorNotification(`⚠️ Error mengirim notifikasi: ${error.message}`);

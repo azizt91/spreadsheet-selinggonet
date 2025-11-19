@@ -7,9 +7,9 @@ import { getWhatsAppNumber } from './apply-settings.js';
 let currentUser = null;
 let currentProfile = null;
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     const loadingOverlay = document.getElementById('loading-overlay');
-    
+
     // Show loading overlay immediately
     loadingOverlay.style.display = 'flex';
 
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
     }
-    
+
     await fetchAndDisplayData();
     initializeModalEventListeners();
     await loadPaymentMethods();
@@ -96,11 +96,11 @@ function displayHeader(profile) {
     const userAvatar = document.getElementById('user-avatar');
 
     welcomeText.textContent = `Halo, ${profile.full_name || 'Pelanggan'}!`;
-    
+
     if (profile.photo_url) {
         userAvatar.style.backgroundImage = `url('${profile.photo_url}')`;
     } else {
-        userAvatar.style.backgroundImage = "url('assets/no_data.png')"; // Fallback image
+        userAvatar.style.backgroundImage = "url('assets/login_illustration.svg')"; // Fallback image
     }
 }
 
@@ -143,7 +143,7 @@ function renderTagihanCard(unpaidBills, paidBills) {
             const totalAmount = unpaidBills.reduce((sum, b) => sum + b.amount, 0);
             showPaymentModal(periods, totalAmount, formatter.format(totalAmount));
         });
-    } 
+    }
     // State 2: Current month's bill is paid
     else if (paidBills && paidBills.length > 0) {
         const latestBill = paidBills[0];
@@ -208,8 +208,9 @@ function renderRiwayatPembayaran(paidBills) {
 
     if (!paidBills || paidBills.length === 0) {
         riwayatList.innerHTML = `
-            <div class="p-4 text-center text-slate-500 dark:text-slate-400">
-                Belum ada riwayat pembayaran.
+            <div class="flex flex-col items-center justify-center py-8 px-4 text-center">
+                <span class="material-symbols-outlined text-slate-300 dark:text-slate-600 mb-3" style="font-size: 48px;">history</span>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Belum ada riwayat pembayaran.</p>
             </div>
         `;
         return;
@@ -242,16 +243,16 @@ function initializeModalEventListeners() {
     const transferTab = document.getElementById('transfer-tab');
     const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
 
-    if(closeModalBtn) closeModalBtn.addEventListener('click', hidePaymentModal);
-    if(paymentModal) paymentModal.addEventListener('click', (e) => {
+    if (closeModalBtn) closeModalBtn.addEventListener('click', hidePaymentModal);
+    if (paymentModal) paymentModal.addEventListener('click', (e) => {
         if (e.target === paymentModal) {
             hidePaymentModal();
         }
     });
 
-    if(qrisTab) qrisTab.addEventListener('click', () => switchPaymentTab('qris'));
-    if(transferTab) transferTab.addEventListener('click', () => switchPaymentTab('transfer'));
-    if(confirmPaymentBtn) confirmPaymentBtn.addEventListener('click', handlePaymentConfirmation);
+    if (qrisTab) qrisTab.addEventListener('click', () => switchPaymentTab('qris'));
+    if (transferTab) transferTab.addEventListener('click', () => switchPaymentTab('transfer'));
+    if (confirmPaymentBtn) confirmPaymentBtn.addEventListener('click', handlePaymentConfirmation);
 }
 
 function showPaymentModal(period, amount, amountFormatted) {
@@ -267,16 +268,16 @@ function showPaymentModal(period, amount, amountFormatted) {
     modal.classList.remove('hidden');
     setTimeout(() => {
         modal.classList.add('opacity-100');
-        if(modalContent) modalContent.classList.remove('scale-95', 'opacity-0');
-        if(modalContent) modalContent.classList.add('scale-100', 'opacity-100');
+        if (modalContent) modalContent.classList.remove('scale-95', 'opacity-0');
+        if (modalContent) modalContent.classList.add('scale-100', 'opacity-100');
     }, 10);
 }
 
 function hidePaymentModal() {
     const modal = document.getElementById('payment-modal');
     const modalContent = document.getElementById('modal-content');
-    if(modalContent) modalContent.classList.remove('scale-100', 'opacity-100');
-    if(modalContent) modalContent.classList.add('scale-95', 'opacity-0');
+    if (modalContent) modalContent.classList.remove('scale-100', 'opacity-100');
+    if (modalContent) modalContent.classList.add('scale-95', 'opacity-0');
     setTimeout(() => {
         modal.classList.add('hidden');
         modal.classList.remove('opacity-100');
@@ -310,7 +311,7 @@ async function handlePaymentConfirmation() {
     const confirmBtn = document.getElementById('confirm-payment-btn');
     const period = confirmBtn.dataset.period;
     const amount = confirmBtn.dataset.amountFormatted;
-    
+
     const customerName = currentProfile ? currentProfile.full_name : currentUser.email;
     const customerIdpl = currentProfile ? currentProfile.idpl : 'N/A';
 
@@ -375,7 +376,7 @@ function renderPaymentMethods(methods) {
     }).join('');
 }
 
-window.copyToClipboard = function(elementId, buttonElement) {
+window.copyToClipboard = function (elementId, buttonElement) {
     const textElement = document.getElementById(elementId);
     if (!textElement) return;
 
@@ -401,7 +402,7 @@ function showToast(message, type = 'success') {
 
     toastMessage.textContent = message;
     toast.classList.remove('bg-green-500', 'bg-red-500', 'opacity-0', 'invisible');
-    
+
     if (type === 'success') {
         toast.classList.add('bg-green-500');
     } else {

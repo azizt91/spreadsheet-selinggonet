@@ -1,64 +1,86 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Info Pembayaran - Selinggonet</title>
-    
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#f9f8fc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
     <meta name="description" content="Informasi pembayaran tagihan internet Selinggonet">
-    
+
     <!-- PWA Icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
     <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
-    
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+<link rel="stylesheet" href="assets/css/fonts.css">
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
+
 <body>
-    <div class="relative flex size-full min-h-screen flex-col bg-[#f9f8fc] group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+    <div class="relative flex size-full min-h-screen flex-col bg-[#f9f8fc] group/design-root overflow-x-hidden"
+        style='font-family: Manrope, "Noto Sans", sans-serif;'>
         <div class="layout-container flex h-full grow flex-col">
             <!-- Header -->
             <div class="flex items-center bg-[#f9f8fc] p-4 pb-2 justify-between border-none shadow-none">
-                <div class="text-[#110e1b] flex size-12 shrink-0 items-center cursor-pointer" data-icon="ArrowLeft" data-size="24px" data-weight="regular" onclick="window.location.href='pelanggan_dashboard.html'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                <div class="text-[#110e1b] flex size-12 shrink-0 items-center cursor-pointer" data-icon="ArrowLeft"
+                    data-size="24px" data-weight="regular" onclick="window.location.href='pelanggan_dashboard.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                        viewBox="0 0 256 256">
+                        <path
+                            d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                        </path>
                     </svg>
                 </div>
-                <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Inforamasi Pembayaran</h2>
+                <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+                    Inforamasi Pembayaran</h2>
             </div>
 
             <!-- Payment Instructions Card -->
             <div class="px-4 pb-4">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 mb-4 shadow-sm">
+                <div
+                    class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 mb-4 shadow-sm">
                     <div class="flex items-start gap-3">
                         <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256" class="text-blue-600">
-                                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                                viewBox="0 0 256 256" class="text-blue-600">
+                                <path
+                                    d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z">
+                                </path>
                             </svg>
                         </div>
                         <div class="flex-1">
                             <h3 class="text-blue-900 font-semibold text-base mb-2">Cara Pembayaran</h3>
                             <div class="text-blue-800 text-sm leading-relaxed space-y-2">
-                                <p>Silakan lakukan pembayaran ke salah satu rekening atau qris yang tertera di bawah ini, kemudian klik tombol <span class="font-medium text-blue-900">Konfirmasi Pembayaran</span>.</p>
+                                <p>Silakan lakukan pembayaran ke salah satu rekening atau qris yang tertera di bawah
+                                    ini, kemudian klik tombol <span class="font-medium text-blue-900">Konfirmasi
+                                        Pembayaran</span>.</p>
                                 <div class="bg-white bg-opacity-60 rounded-lg p-3 mt-3 border border-blue-100">
                                     <div class="flex items-start gap-2">
-                                        <div class="flex-shrink-0 w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center mt-0.5">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" fill="currentColor" viewBox="0 0 256 256" class="text-orange-600">
-                                                <path d="M128,64a64,64,0,1,0,64,64A64.07,64.07,0,0,0,128,64Zm0,120a56,56,0,1,1,56-56A56.06,56.06,0,0,1,128,184ZM176,16H80A16,16,0,0,0,64,32V224a16,16,0,0,0,16,16h96a16,16,0,0,0,16-16V32A16,16,0,0,0,176,16Zm0,208H80V32h96V224Z"></path>
+                                        <div
+                                            class="flex-shrink-0 w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center mt-0.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px"
+                                                fill="currentColor" viewBox="0 0 256 256" class="text-orange-600">
+                                                <path
+                                                    d="M128,64a64,64,0,1,0,64,64A64.07,64.07,0,0,0,128,64Zm0,120a56,56,0,1,1,56-56A56.06,56.06,0,0,1,128,184ZM176,16H80A16,16,0,0,0,64,32V224a16,16,0,0,0,16,16h96a16,16,0,0,0,16-16V32A16,16,0,0,0,176,16Zm0,208H80V32h96V224Z">
+                                                </path>
                                             </svg>
                                         </div>
                                         <div class="text-sm">
                                             <p class="font-medium text-gray-800 mb-1">Pembayaran Offline</p>
-                                            <p class="text-gray-700">Anda juga dapat melakukan pembayaran secara langsung di rumah <span id="offline-payment-name" class="font-medium">Bapak Karsadi dan Ibu Sopiyah</span>, beralamat di <span id="offline-payment-address" class="font-medium">Dukuh Sekiyong RT 04/RW 07, Desa Pamutih</span>.</p>
+                                            <p class="text-gray-700">Anda juga dapat melakukan pembayaran secara
+                                                langsung di rumah <span id="offline-payment-name"
+                                                    class="font-medium">Bapak Karsadi dan Ibu Sopiyah</span>, beralamat
+                                                di <span id="offline-payment-address" class="font-medium">Dukuh Sekiyong
+                                                    RT 04/RW 07, Desa Pamutih</span>.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -74,7 +96,8 @@
                 <div class="bg-white p-4 rounded-lg mb-3 border border-[#e7edf3] text-center">
                     <p class="text-[#110e1b] text-sm font-semibold leading-normal mb-2">Pembayaran via QRIS</p>
                     <div class="flex justify-center mb-2">
-                        <img id="qris-image" src="assets/qris.jpeg" alt="QRIS Code" class="w-auto h-auto max-w-xs max-h-64 object-contain rounded-md shadow-sm cursor-pointer hover:opacity-80 transition-opacity">
+                        <img id="qris-image" src="assets/qris.jpeg" alt="QRIS Code"
+                            class="w-auto h-auto max-w-xs max-h-64 object-contain rounded-md shadow-sm cursor-pointer hover:opacity-80 transition-opacity">
                     </div>
                     <p class="text-xs text-gray-500">Ketuk gambar untuk memperbesar.</p>
                 </div>
@@ -85,9 +108,13 @@
                     <!-- Loading state -->
                     <div class="flex items-center justify-center py-8">
                         <div class="animate-pulse text-gray-400">
-                            <svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg class="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
                             </svg>
                         </div>
                     </div>
@@ -95,7 +122,9 @@
 
                 <!-- Confirm Payment Button -->
                 <div class="px-0 py-3">
-                    <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-[#6366f1] text-white text-base font-bold leading-normal tracking-[0.015em] w-full" id="confirm-transfer-btn">
+                    <button
+                        class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-[#6366f1] text-white text-base font-bold leading-normal tracking-[0.015em] w-full"
+                        id="confirm-transfer-btn">
                         <span class="truncate">Konfirmasi Pembayaran</span>
                     </button>
                 </div>
@@ -105,34 +134,50 @@
         <!-- Fixed Bottom Navigation -->
         <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
             <div class="flex gap-2 px-4 pb-3 pt-2">
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan_dashboard.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]"
+                    href="pelanggan_dashboard.html">
                     <div class="text-[#625095] flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z">
+                            </path>
                         </svg>
                     </div>
                     <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan_riwayat_lunas.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]"
+                    href="pelanggan_riwayat_lunas.html">
                     <div class="text-[#625095] flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z">
+                            </path>
                         </svg>
                     </div>
                     <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-[#5324e0]" href="pelanggan_info.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-[#5324e0]"
+                    href="pelanggan_info.html">
                     <div class="text-[#5324e0] flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Zm-16-24a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h32A8,8,0,0,1,208,168Zm-64,0a8,8,0,0,1-8,8H120a8,8,0,0,1,0-16h16A8,8,0,0,1,144,168Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Zm-16-24a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h32A8,8,0,0,1,208,168Zm-64,0a8,8,0,0,1-8,8H120a8,8,0,0,1,0-16h16A8,8,0,0,1,144,168Z">
+                            </path>
                         </svg>
                     </div>
                     <p class="text-[#5324e0] text-xs font-medium leading-normal tracking-[0.015em]">Info Bayar</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]" href="pelanggan_profile.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-[#625095]"
+                    href="pelanggan_profile.html">
                     <div class="text-[#625095] flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+                            </path>
                         </svg>
                     </div>
                     <p class="text-[#625095] text-xs font-medium leading-normal tracking-[0.015em]">Profile</p>
@@ -140,25 +185,33 @@
             </div>
         </footer>
     </div>
-    
+
     <!-- Toast Notification -->
     <div id="toast" class="toast">
         <span id="toast-message"></span>
     </div>
-    
+
     <script type="module" src="supabase-client.js"></script>
     <script type="module" src="auth.js"></script>
     <script type="module" src="apply-settings.js"></script>
     <script type="module" src="pelanggan_info.js"></script>
 
     <!-- QRIS Fullscreen Modal -->
-    <div id="qris-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 hidden backdrop-blur-sm p-4">
+    <div id="qris-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 hidden backdrop-blur-sm p-4">
         <div class="relative">
-            <img src="assets/qris.jpeg" alt="QRIS Code Fullscreen" class="max-w-full max-h-[80vh] object-contain rounded-lg">
-            <button id="close-qris-modal" class="absolute -top-4 -right-4 text-white bg-gray-800 rounded-full p-1 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <img src="assets/qris.jpeg" alt="QRIS Code Fullscreen"
+                class="max-w-full max-h-[80vh] object-contain rounded-lg">
+            <button id="close-qris-modal"
+                class="absolute -top-4 -right-4 text-white bg-gray-800 rounded-full p-1 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
             </button>
         </div>
     </div>
 </body>
+
 </html>

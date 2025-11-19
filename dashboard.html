@@ -1,452 +1,491 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Selinggonet</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#5324e0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Selinggonet">
-    <meta name="description" content="Dashboard sistem manajemen pelanggan ISP">
-    
-    <!-- PWA Icons -->
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Fonts and Tailwind CSS -->
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        #charts-wrapper {
-            display: none;
-        }
-        
-        /* Sticky Header Styles */
-        .header-sticky {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            z-index: 40;
-        }
-        
-        .header-sticky.is-sticky {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-    </style>
-    
-    <style>
-        /* Custom gradients and colors */
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .gradient-card-1 {
-            /* Profit: Biru Navy ke Ungu Tua */
-            background: linear-gradient(135deg, #9969C7 0%, #6A359C 100%);
-        }
-         
-        .gradient-card-2 {
-            /* Pendapatan: Biru Laut Dalam */
-            background: linear-gradient(135deg, #004e92 0%, #000428 100%);
-        }
-         
-        .gradient-card-3 {
-            /* Pengeluaran: Abu-abu Metalik Gelap */
-            background: linear-gradient(135deg, #485563 0%, #29323c 100%);
-        }
-         
-        .gradient-card-4 {
-            /* Pelanggan Aktif: Biru Cerah ke Navy */
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        }
-         
-        .gradient-card-5 {
-            /* Pelanggan Tdk Aktif: Ungu Pudar ke Biru Redup */
-            background: linear-gradient(135deg, #614385 0%, #516395 100%);
-        }
-         
-        .gradient-card-6 {
-            /* Belum Dibayar: Ungu Senja ke Biru Malam */
-            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
-        }
-         
-        .gradient-card-7 {
-            /* Dibayar: Biru Malam yang Elegan */
-            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-        }
-        
-        /* Modern glass effect */
-        .glass-card {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Custom animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        /* Hover effects */
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        /* Custom select styling */
-        .modern-select {
-            background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 fill=%27rgb(255,255,255)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z%27%3e%3c/path%3e%3c/svg%3e');
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            background-size: 16px;
-            padding-right: 48px;
-        }
-        
-        /* Skeleton loading */
-        @keyframes skeleton-loading {
-            0% {
-                background-position: -200px 0;
-            }
-            100% {
-                background-position: calc(200px + 100%) 0;
-            }
-        }
-        
-        .skeleton-line {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200px 100%;
-            animation: skeleton-loading 1.5s infinite;
-        }
-        
-        .skeleton-card {
-            pointer-events: none;
-        }
-        
-        /* Header gradient */
-        .header-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
-        }
-        
-        /* Bottom navigation glass effect */
-        .nav-glass {
-            backdrop-filter: blur(20px);
-            background: rgba(249, 248, 251, 0.95);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Responsive grid improvements */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-        }
-        
-        @media (max-width: 640px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Selinggonet</title>
 
-        /* Chart container responsive styles */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#5324e0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Selinggonet">
+  <meta name="description" content="Dashboard sistem manajemen pelanggan ISP">
 
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 250px;
-            }
-            
-            /* Stack charts vertically on mobile */
-            .charts-grid {
-                grid-template-columns: 1fr !important;
-            }
-        }
+  <!-- PWA Icons -->
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
 
-        /* Chart loading animation */
-        .chart-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 200px;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+  <!-- Fonts and Tailwind CSS -->
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+<link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    #charts-wrapper {
+      display: none;
+    }
 
-        /* Chart loading skeleton */
-        .chart-loading-skeleton {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-        }
+    /* Sticky Header Styles */
+    .header-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
 
-        /* Eye toggle button */
-        .eye-toggle-btn {
-            opacity: 0.8;
-            transition: opacity 0.3s ease, transform 0.2s ease;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
-        }
+    .header-sticky.is-sticky {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  </style>
 
-        .eye-toggle-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.2);
-        }
+  <style>
+    /* Custom gradients and colors */
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
 
-        .eye-toggle-btn:active {
-            transform: scale(0.95);
-        }
+    .gradient-card-1 {
+      /* Profit: Biru Navy ke Ungu Tua */
+      background: linear-gradient(135deg, #9969C7 0%, #6A359C 100%);
+    }
 
-        /* Value blur transition */
-        .value-transition {
-            transition: filter 0.3s ease;
-        }
+    .gradient-card-2 {
+      /* Pendapatan: Biru Laut Dalam */
+      background: linear-gradient(135deg, #004e92 0%, #000428 100%);
+    }
 
-        .value-hidden {
-            filter: blur(0px);
-        }
-    </style>
+    .gradient-card-3 {
+      /* Pengeluaran: Abu-abu Metalik Gelap */
+      background: linear-gradient(135deg, #485563 0%, #29323c 100%);
+    }
+
+    .gradient-card-4 {
+      /* Pelanggan Aktif: Biru Cerah ke Navy */
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+
+    .gradient-card-5 {
+      /* Pelanggan Tdk Aktif: Ungu Pudar ke Biru Redup */
+      background: linear-gradient(135deg, #614385 0%, #516395 100%);
+    }
+
+    .gradient-card-6 {
+      /* Belum Dibayar: Ungu Senja ke Biru Malam */
+      background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
+    }
+
+    .gradient-card-7 {
+      /* Dibayar: Biru Malam yang Elegan */
+      background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+    }
+
+    /* Modern glass effect */
+    .glass-card {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Custom animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Hover effects */
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom select styling */
+    .modern-select {
+      background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 fill=%27rgb(255,255,255)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z%27%3e%3c/path%3e%3c/svg%3e');
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 16px;
+      padding-right: 48px;
+    }
+
+    /* Skeleton loading */
+    @keyframes skeleton-loading {
+      0% {
+        background-position: -200px 0;
+      }
+
+      100% {
+        background-position: calc(200px + 100%) 0;
+      }
+    }
+
+    .skeleton-line {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200px 100%;
+      animation: skeleton-loading 1.5s infinite;
+    }
+
+    .skeleton-card {
+      pointer-events: none;
+    }
+
+    /* Header gradient */
+    .header-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
+    }
+
+    /* Bottom navigation glass effect */
+    .nav-glass {
+      backdrop-filter: blur(20px);
+      background: rgba(249, 248, 251, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive grid improvements */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Chart container responsive styles */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 250px;
+      }
+
+      /* Stack charts vertically on mobile */
+      .charts-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* Chart loading animation */
+    .chart-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes loading {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    /* Chart loading skeleton */
+    .chart-loading-skeleton {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+    }
+
+    /* Eye toggle button */
+    .eye-toggle-btn {
+      opacity: 0.8;
+      transition: opacity 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .eye-toggle-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .eye-toggle-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Value blur transition */
+    .value-transition {
+      transition: filter 0.3s ease;
+    }
+
+    .value-hidden {
+      filter: blur(0px);
+    }
+  </style>
 </head>
-<body style="overflow-x: hidden;">
-    <div class="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-50 to-indigo-50" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-      
-      <!-- Main Content with bottom padding for fixed navigation -->
-      <div class="flex-1 pb-24">
-        
-        <!-- Modern Header with gradient - mobile optimized - Sticky -->
-        <header class="header-gradient header-sticky shadow-lg rounded-b-3xl">
-          <div class="flex items-center justify-between px-4 py-6">
-            <div class="flex items-center gap-4">
-              <div id="user-avatar" class="w-12 h-12 rounded-full bg-cover bg-center bg-white/30 shadow-inner"></div>
-              <div>
-                <h2 id="user-greeting" class="text-white text-xl font-bold leading-tight">Memuat...</h2>
-                <p id="user-email" class="text-white/80 text-xs">...</p>
-              </div>
-            </div>
-    
-            <div class="flex items-center gap-2">
-                <a href="notifikasi.html" id="notification-bell" class="relative w-10 h-10 flex items-center justify-center text-white rounded-full hover:bg-white/20 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path></svg>
-                    <!-- <span id="notification-badge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full hidden"></span> -->
-                    <span id="notification-badge" class="absolute bg-red-500 rounded-full hidden"></span>
-                </a>
-                <button id="dashboard-logout-btn" class="w-10 h-10 flex items-center justify-center text-white rounded-full hover:bg-white/20 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L184.69,108H104a8,8,0,0,0,0,16h80.69l-14.35,14.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path></svg>
-                </button>
-            </div>
-          </div>
-          
-          <!-- Date time and Filters -->
-          <div class="px-4 pb-6 text-center">
-             <p class="text-white/80 text-xs mb-4" id="current-datetime">Loading...</p>
-             <div class="flex gap-4 max-w-md mx-auto">
-              <div class="flex-1">
-                <select id="filter-bulan" class="modern-select w-full h-14 px-6 bg-white/20 border-0 rounded-2xl text-white text-sm font-medium placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 appearance-none backdrop-blur-sm">
-                  <!-- Options will be populated by JavaScript -->
-                </select>
-              </div>
-              <div class="flex-1">
-                <select id="filter-tahun" class="modern-select w-full h-14 px-6 bg-white/20 border-0 rounded-2xl text-white text-sm font-medium placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 appearance-none backdrop-blur-sm">
-                  <!-- Options will be populated by JavaScript -->
-                </select>
-              </div>
-            </div>
-          </div>
-        </header>
 
-        <!-- Stats Cards Container with improved spacing -->
-        <div class="px-6 py-6">
-          <div id="cards-container" class="grid grid-cols-2 gap-4">
-              <!-- Cards will be dynamically inserted here by dashboard.js -->
+<body style="overflow-x: hidden;">
+  <div class="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-50 to-indigo-50"
+    style='font-family: Manrope, "Noto Sans", sans-serif;'>
+
+    <!-- Main Content with bottom padding for fixed navigation -->
+    <div class="flex-1 pb-24">
+
+      <!-- Modern Header with gradient - mobile optimized - Sticky -->
+      <header class="header-gradient header-sticky shadow-lg rounded-b-3xl">
+        <div class="flex items-center justify-between px-4 py-6">
+          <div class="flex items-center gap-4">
+            <div id="user-avatar" class="w-12 h-12 rounded-full bg-cover bg-center bg-white/30 shadow-inner"></div>
+            <div>
+              <h2 id="user-greeting" class="text-white text-xl font-bold leading-tight">Memuat...</h2>
+              <p id="user-email" class="text-white/80 text-xs">...</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a href="notifikasi.html" id="notification-bell"
+              class="relative w-10 h-10 flex items-center justify-center text-white rounded-full hover:bg-white/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
+                <path
+                  d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z">
+                </path>
+              </svg>
+              <!-- <span id="notification-badge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full hidden"></span> -->
+              <span id="notification-badge" class="absolute bg-red-500 rounded-full hidden"></span>
+            </a>
+            <button id="dashboard-logout-btn"
+              class="w-10 h-10 flex items-center justify-center text-white rounded-full hover:bg-white/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
+                <path
+                  d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L184.69,108H104a8,8,0,0,0,0,16h80.69l-14.35,14.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z">
+                </path>
+              </svg>
+            </button>
           </div>
         </div>
 
-        <!-- Charts Section -->
-        <div class="px-6 py-4">
-          <!-- <h3 class="text-lg font-bold text-gray-800 mb-4">📊 Analytics</h3> -->
-          
-          <!-- Charts Grid -->
-          <!-- <div class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6"> -->
-          <div id="charts-wrapper" class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6" style="display: none;">  
-            <!-- Revenue & Profit Chart -->
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="text-base font-semibold text-gray-800">Pendapatan & Profit</h4>
-                <div class="flex items-center gap-2">
-                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="text-xs text-gray-600">6 bulan terakhir</span>
-                </div>
-              </div>
-              <div class="chart-container">
-                <canvas id="revenueChart"></canvas>
-              </div>
+        <!-- Date time and Filters -->
+        <div class="px-4 pb-6 text-center">
+          <p class="text-white/80 text-xs mb-4" id="current-datetime">Loading...</p>
+          <div class="flex gap-4 max-w-md mx-auto">
+            <div class="flex-1">
+              <select id="filter-bulan"
+                class="modern-select w-full h-14 px-6 bg-white/20 border-0 rounded-2xl text-white text-sm font-medium placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 appearance-none backdrop-blur-sm">
+                <!-- Options will be populated by JavaScript -->
+              </select>
             </div>
-
-            <!-- Payment Status Chart -->
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="text-base font-semibold text-gray-800">Status Pembayaran</h4>
-                <div class="flex items-center gap-2">
-                  <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span class="text-xs text-gray-600">Bulan ini</span>
-                </div>
-              </div>
-              <div class="chart-container">
-                <canvas id="paymentStatusChart"></canvas>
-              </div>
+            <div class="flex-1">
+              <select id="filter-tahun"
+                class="modern-select w-full h-14 px-6 bg-white/20 border-0 rounded-2xl text-white text-sm font-medium placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 appearance-none backdrop-blur-sm">
+                <!-- Options will be populated by JavaScript -->
+              </select>
             </div>
-
-            <!-- Customer Growth Chart (New vs Churn) -->
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="text-base font-semibold text-gray-800">Pertumbuhan Pelanggan Bersih</h4>
-                <div class="flex items-center gap-2">
-                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span class="text-xs text-gray-600">Baru vs Cabut</span>
-                </div>
-              </div>
-              <div class="chart-container">
-                <canvas id="customerGrowthChart"></canvas>
-              </div>
-            </div>
-
-            <!-- Total Active Customers Chart -->
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="text-base font-semibold text-gray-800">Total Pelanggan Aktif</h4>
-                <div class="flex items-center gap-2">
-                  <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <span class="text-xs text-gray-600">Kumulatif 6 bulan</span>
-                </div>
-              </div>
-              <div class="chart-container">
-                <canvas id="customerTotalChart"></canvas>
-              </div>
-            </div>
-
           </div>
-          <div id="charts-skeleton-container" class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
-          </div>
+        </div>
+      </header>
+
+      <!-- Stats Cards Container with improved spacing -->
+      <div class="px-6 py-6">
+        <div id="cards-container" class="grid grid-cols-2 gap-4">
+          <!-- Cards will be dynamically inserted here by dashboard.js -->
         </div>
       </div>
-      
-      <!-- Modern Fixed Bottom Navigation with glass effect -->
-     <style>
-        .fab-container {
-            position: relative;
-            width: 64px; /* Lebar container FAB */
-            display: flex;
-            justify-content: center;
-        }
 
-        .fab {
-            position: absolute;
-            bottom: -16px; /* Jarak dari bawah nav bar disesuaikan agar lebih rendah */
-            height: 64px;
-            width: 64px;
-            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease-in-out;
-        }
+      <!-- Charts Section -->
+      <div class="px-6 py-4">
+        <!-- <h3 class="text-lg font-bold text-gray-800 mb-4">📊 Analytics</h3> -->
 
-        .fab:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-     </style>
-     <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
-        <div class="flex items-center justify-around h-16">
-          <!-- Menu Item 1: Dasbor -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#5324e0]" href="dashboard.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
-            <p class="text-xs font-medium">Dasbor</p>
-          </a>
-
-          <!-- Menu Item 2: Pelanggan -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pelanggan.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path></svg>
-            <p class="text-xs font-medium">Pelanggan</p>
-          </a>
-
-          <!-- FAB Container -->
-          <div class="fab-container">
-            <a href="tagihan.html" class="fab">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="#FFFFFF" viewBox="0 0 256 256"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path></svg>
-            </a>
+        <!-- Charts Grid -->
+        <!-- <div class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6"> -->
+        <div id="charts-wrapper" class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6" style="display: none;">
+          <!-- Revenue & Profit Chart -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-base font-semibold text-gray-800">Pendapatan & Profit</h4>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-xs text-gray-600">6 bulan terakhir</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="revenueChart"></canvas>
+            </div>
           </div>
 
-          <!-- Menu Item 4: Pengeluaran -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pengeluaran.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path></svg>
-            <p class="text-xs font-medium">Pengeluaran</p>
-          </a>
+          <!-- Payment Status Chart -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-base font-semibold text-gray-800">Status Pembayaran</h4>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span class="text-xs text-gray-600">Bulan ini</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="paymentStatusChart"></canvas>
+            </div>
+          </div>
 
-          <!-- Menu Item 5: Profil -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="profile.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
-            <p class="text-xs font-medium">Profil</p>
-          </a>
+          <!-- Customer Growth Chart (New vs Churn) -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-base font-semibold text-gray-800">Pertumbuhan Pelanggan Bersih</h4>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-xs text-gray-600">Baru vs Cabut</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="customerGrowthChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Total Active Customers Chart -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-base font-semibold text-gray-800">Total Pelanggan Aktif</h4>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <span class="text-xs text-gray-600">Kumulatif 6 bulan</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="customerTotalChart"></canvas>
+            </div>
+          </div>
+
         </div>
-      </footer>
+        <div id="charts-skeleton-container" class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
+        </div>
+      </div>
     </div>
 
-    <script type="module" src="supabase-client.js"></script>
-    <script type="module" src="auth.js"></script>
-    <script src="datetime-display.js"></script>
-    <script type="module" src="dashboard.js"></script>
-    <script src="pwa-installer.js"></script>
+    <!-- Modern Fixed Bottom Navigation with glass effect -->
+    <style>
+      .fab-container {
+        position: relative;
+        width: 64px;
+        /* Lebar container FAB */
+        display: flex;
+        justify-content: center;
+      }
+
+      .fab {
+        position: absolute;
+        bottom: -16px;
+        /* Jarak dari bawah nav bar disesuaikan agar lebih rendah */
+        height: 64px;
+        width: 64px;
+        background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease-in-out;
+      }
+
+      .fab:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+    </style>
+    <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
+      <div class="flex items-center justify-around h-16">
+        <!-- Menu Item 1: Dasbor -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#5324e0]" href="dashboard.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Dasbor</p>
+        </a>
+
+        <!-- Menu Item 2: Pelanggan -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pelanggan.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Pelanggan</p>
+        </a>
+
+        <!-- FAB Container -->
+        <div class="fab-container">
+          <a href="tagihan.html" class="fab">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="#FFFFFF" viewBox="0 0 256 256">
+              <path
+                d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z">
+              </path>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Menu Item 4: Pengeluaran -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pengeluaran.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Pengeluaran</p>
+        </a>
+
+        <!-- Menu Item 5: Profil -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="profile.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Profil</p>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="supabase-client.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script src="datetime-display.js"></script>
+  <script type="module" src="dashboard.js"></script>
+  <script src="pwa-installer.js"></script>
 </body>
+
 </html>

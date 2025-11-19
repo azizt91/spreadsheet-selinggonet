@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html class="light" lang="id">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>FAQ Wi-Fi Modem - Selinggonet</title>
 
     <!-- PWA Meta Tags -->
@@ -11,81 +12,78 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
     <meta name="description" content="FAQ Wi-Fi Modem">
-    
+
     <!-- PWA Icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
     <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
     <link rel="manifest" href="manifest.json">
-    
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                "primary": "#135bec",
-                "background-light": "#f6f6f8",
-                "background-dark": "#101622",
-              },
-              fontFamily: {
-                "display": ["Manrope", "sans-serif"]
-              },
-              borderRadius: {
-                "DEFAULT": "0.25rem",
-                "lg": "0.5rem",
-                "xl": "0.75rem",
-                "full": "9999px"
-              },
-            },
-          },
-        }
-    </script>
+
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/fonts.css">
+
     <style>
         .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-          font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
         }
+
         body {
-          min-height: max(884px, 100dvh);
+            min-height: max(884px, 100dvh);
         }
+
         .faq-item {
-            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+            border-bottom: 1px solid #e2e8f0;
+            /* slate-200 */
         }
+
         .faq-item:last-child {
             border-bottom: none;
         }
     </style>
 </head>
-<body class="font-display" style="overflow-x: hidden;"> <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
-        
-        <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-30 shadow-sm">
-            <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
+
+<body class="font-display" style="overflow-x: hidden;">
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
+
+        <div
+            class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-30 shadow-sm">
+            <button
+                class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors"
+                onclick="window.history.back()">
                 <span class="material-symbols-outlined">arrow_back</span>
             </button>
-            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">FAQ Wi-Fi Modem</h2>
+            <h2
+                class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">
+                FAQ Wi-Fi Modem</h2>
         </div>
 
         <main class="flex-1 flex flex-col gap-4 p-4">
             <div class="flex flex-col rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] bg-white dark:bg-slate-800">
                 <!-- FAQ Item 1 -->
                 <div class="faq-item">
-                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none" onclick="toggleFaq(this)">
-                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Bagaimana cara merestart modem Wi-Fi saya?</p>
-                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
+                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none"
+                        onclick="toggleFaq(this)">
+                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Bagaimana cara merestart
+                            modem Wi-Fi saya?</p>
+                        <span
+                            class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
                     </button>
                     <div class="faq-answer hidden px-4 pb-4 text-slate-600 dark:text-slate-300 text-sm">
-                        <p>Untuk merestart modem Wi-Fi Anda, cabut kabel daya modem dari stopkontak, tunggu sekitar 10-15 detik, lalu colokkan kembali. Tunggu beberapa menit hingga semua lampu indikator modem menyala stabil.</p>
+                        <p>Untuk merestart modem Wi-Fi Anda, cabut kabel daya modem dari stopkontak, tunggu sekitar
+                            10-15 detik, lalu colokkan kembali. Tunggu beberapa menit hingga semua lampu indikator modem
+                            menyala stabil.</p>
                     </div>
                 </div>
 
                 <!-- FAQ Item 2 -->
                 <div class="faq-item">
-                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none" onclick="toggleFaq(this)">
-                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Apa yang harus saya lakukan jika Wi-Fi saya lambat?</p>
-                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
+                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none"
+                        onclick="toggleFaq(this)">
+                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Apa yang harus saya
+                            lakukan jika Wi-Fi saya lambat?</p>
+                        <span
+                            class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
                     </button>
                     <div class="faq-answer hidden px-4 pb-4 text-slate-600 dark:text-slate-300 text-sm">
                         <p>Jika Wi-Fi Anda lambat, coba beberapa langkah berikut:</p>
@@ -101,29 +99,40 @@
 
                 <!-- FAQ Item 3 -->
                 <div class="faq-item">
-                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none" onclick="toggleFaq(this)">
-                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Bagaimana cara mengubah nama dan kata sandi Wi-Fi saya?</p>
-                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
+                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none"
+                        onclick="toggleFaq(this)">
+                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Bagaimana cara mengubah
+                            nama dan kata sandi Wi-Fi saya?</p>
+                        <span
+                            class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
                     </button>
                     <div class="faq-answer hidden px-4 pb-4 text-slate-600 dark:text-slate-300 text-sm">
-                        <p>Biasanya, Anda dapat mengubah nama (SSID) dan kata sandi Wi-Fi melalui antarmuka web modem/router Anda. Buka browser, ketik alamat IP default modem (misalnya, 192.168.1.1 atau 192.168.0.1), lalu masuk dengan nama pengguna dan kata sandi admin. Cari bagian pengaturan Wi-Fi atau Nirkabel untuk melakukan perubahan.</p>
+                        <p>Biasanya, Anda dapat mengubah nama (SSID) dan kata sandi Wi-Fi melalui antarmuka web
+                            modem/router Anda. Buka browser, ketik alamat IP default modem (misalnya, 192.168.1.1 atau
+                            192.168.0.1), lalu masuk dengan nama pengguna dan kata sandi admin. Cari bagian pengaturan
+                            Wi-Fi atau Nirkabel untuk melakukan perubahan.</p>
                     </div>
                 </div>
 
                 <!-- FAQ Item 4 -->
                 <div class="faq-item">
-                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none" onclick="toggleFaq(this)">
-                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Mengapa lampu indikator modem saya berkedip merah?</p>
-                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
+                    <button class="flex items-center justify-between w-full p-4 text-left focus:outline-none"
+                        onclick="toggleFaq(this)">
+                        <p class="text-slate-800 dark:text-slate-100 text-base font-semibold">Mengapa lampu indikator
+                            modem saya berkedip merah?</p>
+                        <span
+                            class="material-symbols-outlined text-slate-500 dark:text-slate-400 transform transition-transform duration-200">expand_more</span>
                     </button>
                     <div class="faq-answer hidden px-4 pb-4 text-slate-600 dark:text-slate-300 text-sm">
-                        <p>Lampu indikator modem yang berkedip merah seringkali menandakan masalah koneksi internet. Ini bisa berarti:</p>
+                        <p>Lampu indikator modem yang berkedip merah seringkali menandakan masalah koneksi internet. Ini
+                            bisa berarti:</p>
                         <ul class="list-disc list-inside ml-4 mt-2">
                             <li>Tidak ada sinyal dari penyedia layanan internet.</li>
                             <li>Kabel longgar atau rusak.</li>
                             <li>Masalah pada modem itu sendiri.</li>
                         </ul>
-                        <p class="mt-2">Coba restart modem Anda. Jika masalah berlanjut, periksa semua kabel dan hubungi dukungan teknis penyedia layanan internet Anda.</p>
+                        <p class="mt-2">Coba restart modem Anda. Jika masalah berlanjut, periksa semua kabel dan hubungi
+                            dukungan teknis penyedia layanan internet Anda.</p>
                     </div>
                 </div>
             </div>
@@ -131,33 +140,59 @@
 
         <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
             <div class="flex gap-2 px-4 pb-3 pt-2">
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_dashboard.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_dashboard.html">
                     <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
-                    </div>
-                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
-                </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_riwayat_lunas.html">
-                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z">
+                            </path>
                         </svg>
                     </div>
-                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Home</p>
+                </a>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_riwayat_lunas.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Riwayat</p>
                 </a>
                 <a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="menu_bantuan.html">
                     <div class="text-primary flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path><path d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z"></path><circle cx="128" cy="180" r="12"></circle></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z">
+                            </path>
+                            <path
+                                d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z">
+                            </path>
+                            <circle cx="128" cy="180" r="12"></circle>
+                        </svg>
                     </div>
                     <p class="text-primary text-xs font-medium leading-normal tracking-[0.015em]">Bantuan</p>
                 </a>
-                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_profile.html">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_profile.html">
                     <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+                            </path>
                         </svg>
                     </div>
-                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Akun</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Akun</p>
                 </a>
             </div>
         </footer>
@@ -172,4 +207,5 @@
         }
     </script>
 </body>
+
 </html>

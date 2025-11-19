@@ -1,473 +1,667 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelanggan - Selinggonet</title>
-    
-    <meta name="theme-color" content="#f9f8fb">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Selinggonet">
-    <meta name="description" content="Manajemen pelanggan ISP">
-    
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
-    
-    <link rel="manifest" href="manifest.json">
-    
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <style>
-        .search-filter-sticky {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            background-color: #f9f8fb;
-        }
-        
-        .search-filter-sticky.is-sticky {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Override parent overflow for sticky to work */
-        #list-view {
-            overflow: visible !important;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelanggan - Selinggonet</title>
 
-        /* FAB Menu Animations */
-        #fab-main-btn {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+  <meta name="theme-color" content="#f9f8fb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Selinggonet">
+  <meta name="description" content="Manajemen pelanggan ISP">
 
-        #fab-expanded-menu {
-            animation: fadeInUp 0.3s ease-out;
-        }
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
 
-        #fab-expanded-menu.hidden {
-            animation: fadeOutDown 0.2s ease-in;
-        }
+  <link rel="manifest" href="manifest.json">
 
-        #fab-backdrop {
-            transition: opacity 0.3s ease;
-        }
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+<link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .search-filter-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background-color: #f9f8fb;
+    }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .search-filter-sticky.is-sticky {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        @keyframes fadeOutDown {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-        }
+    /* Override parent overflow for sticky to work */
+    #list-view {
+      overflow: visible !important;
+    }
 
-        /* FAB Menu Item Stagger Animation */
-        #fab-expanded-menu > div:nth-child(1) {
-            animation-delay: 0.05s;
-        }
-        #fab-expanded-menu > div:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-        #fab-expanded-menu > div:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-    </style>
+    /* FAB Menu Animations */
+    #fab-main-btn {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #fab-expanded-menu {
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    #fab-expanded-menu.hidden {
+      animation: fadeOutDown 0.2s ease-in;
+    }
+
+    #fab-backdrop {
+      transition: opacity 0.3s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOutDown {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    /* FAB Menu Item Stagger Animation */
+    #fab-expanded-menu>div:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    #fab-expanded-menu>div:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    #fab-expanded-menu>div:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+  </style>
 </head>
+
 <body style="overflow-x: hidden;">
-    <div
-      class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root"
-      style='font-family: Manrope, "Noto Sans", sans-serif;'
-    >
-      <div class="flex-1 pb-24">
-        
-        <div id="list-view">
-            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
-              <div class="w-10 flex justify-center"> 
-                <!-- Button Import CSV hidden, moved to FAB menu -->
+  <div class="relative flex h-auto min-h-screen w-full flex-col bg-[#f9f8fb] group/design-root"
+    style='font-family: Manrope, "Noto Sans", sans-serif;'>
+    <div class="flex-1 pb-24">
+
+      <div id="list-view">
+        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between border-none shadow-none">
+          <div class="w-10 flex justify-center">
+            <!-- Button Import CSV hidden, moved to FAB menu -->
+          </div>
+          <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pelanggan
+          </h2>
+          <div class="w-10 flex justify-center">
+            <!-- Button Paket hidden, moved to FAB menu -->
+          </div>
+        </header>
+
+        <!-- Sticky Search & Filter Container -->
+        <div class="search-filter-sticky">
+          <div class="px-4 py-3 bg-[#f9f8fb]">
+            <label class="relative flex flex-col min-w-40 h-12 w-full">
+              <div class="flex w-full flex-1 items-stretch rounded-full h-full overflow-hidden bg-[#eae8f3]">
+                <div class="text-[#625095] flex items-center justify-center pl-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z">
+                    </path>
+                  </svg>
+                </div>
+                <input id="search-input" placeholder="Cari pelanggan..."
+                  class="form-input flex w-full min-w-0 flex-1 resize-none text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] h-full placeholder:text-[#625095] px-4 pl-2 text-base" />
               </div>
-              <h2 class="text-[#110e1b] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Pelanggan</h2>
-              <div class="w-10 flex justify-center"> 
-                <!-- Button Paket hidden, moved to FAB menu -->
-              </div>
-            </header>
-            
-            <!-- Sticky Search & Filter Container -->
-            <div class="search-filter-sticky">
-              <div class="px-4 py-3 bg-[#f9f8fb]">
-                <label class="relative flex flex-col min-w-40 h-12 w-full">
-                  <div class="flex w-full flex-1 items-stretch rounded-full h-full overflow-hidden bg-[#eae8f3]">
-                    <div class="text-[#625095] flex items-center justify-center pl-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
-                    </div>
-                    <input id="search-input" placeholder="Cari pelanggan..." class="form-input flex w-full min-w-0 flex-1 resize-none text-[#110e1b] focus:outline-0 focus:ring-0 border-none bg-[#eae8f3] h-full placeholder:text-[#625095] px-4 pl-2 text-base"/>
-                  </div>
-                  <button id="clear-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center hidden hover:bg-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111,163.51,47.51a12,12,0,0,1,17,17L145,128Z"></path></svg>
-                  </button>
-                </label>
-              </div>
-              
-              <div class="flex gap-3 p-3 pb-4 flex-wrap pr-4 bg-[#f9f8fb]">
-                <button id="filter-all" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4"><p class="text-[#110e1b] text-sm font-medium">Semua</p></button>
-                <button id="filter-active" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4"><p class="text-[#110e1b] text-sm font-medium">Aktif</p></button>
-                <button id="filter-inactive" class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4"><p class="text-[#110e1b] text-sm font-medium">Tidak Aktif</p></button>
-              </div>
+              <button id="clear-search-btn"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center hidden hover:bg-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111,163.51,47.51a12,12,0,0,1,17,17L145,128Z">
+                  </path>
+                </svg>
+              </button>
+            </label>
+          </div>
+
+          <div class="flex gap-3 p-3 pb-4 flex-wrap pr-4 bg-[#f9f8fb]">
+            <button id="filter-all"
+              class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4">
+              <p class="text-[#110e1b] text-sm font-medium">Semua</p>
+            </button>
+            <button id="filter-active"
+              class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4">
+              <p class="text-[#110e1b] text-sm font-medium">Aktif</p>
+            </button>
+            <button id="filter-inactive"
+              class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#eae8f3] pl-4 pr-4">
+              <p class="text-[#110e1b] text-sm font-medium">Tidak Aktif</p>
+            </button>
+          </div>
+        </div>
+
+        <div id="customer-list"></div>
+
+        <!-- FAB Menu Container -->
+        <div id="fab-menu-container" class="fixed bottom-[84px] right-5 z-40 flex flex-col items-end">
+          <!-- Backdrop overlay -->
+          <div id="fab-backdrop" class="fixed inset-0 bg-black bg-opacity-30 hidden" style="z-index: -1;"></div>
+
+          <!-- Expanded Menu Items (Hidden by default) -->
+          <div id="fab-expanded-menu" class="flex flex-col gap-3 mb-3 items-end hidden">
+            <!-- Button 1: Paket (Paling atas) -->
+            <div class="flex items-center gap-3">
+              <span
+                class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Kelola
+                Paket</span>
+              <a href="paket.html"
+                class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192ZM176,88a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,88Zm0,40a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Z">
+                  </path>
+                </svg>
+              </a>
             </div>
 
-            <div id="customer-list"></div>
-            
-            <!-- FAB Menu Container -->
-            <div id="fab-menu-container" class="fixed bottom-[84px] right-5 z-40 flex flex-col items-end">
-              <!-- Backdrop overlay -->
-              <div id="fab-backdrop" class="fixed inset-0 bg-black bg-opacity-30 hidden" style="z-index: -1;"></div>
-              
-              <!-- Expanded Menu Items (Hidden by default) -->
-              <div id="fab-expanded-menu" class="flex flex-col gap-3 mb-3 items-end hidden">
-                <!-- Button 1: Paket (Paling atas) -->
-                <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Kelola Paket</span>
-                  <a href="paket.html" class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                      <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192ZM176,88a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,88Zm0,40a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Z"></path>
-                    </svg>
-                  </a>
-                </div>
-                
-                <!-- Button 2: Upload CSV -->
-                <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Import CSV</span>
-                  <button id="import-csv-btn" class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                      <path d="M74.34,85.66A8,8,0,0,1,85.66,74.34L120,108.69V24a8,8,0,0,1,16,0v84.69l34.34-34.35a8,8,0,0,1,11.32,11.32l-48,48a8,8,0,0,1-11.32,0ZM240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H84.4a4,4,0,0,1,2.83,1.17L111,145a24,24,0,0,0,34,0l23.8-23.8A4,4,0,0,1,171.6,120H224A16,16,0,0,1,240,136Zm-16,0H173.54l-13,13a40,40,0,0,1-56.56,0l-13-13H32v64H224ZM192,172a12,12,0,1,0-12,12A12,12,0,0,0,192,172Z"></path>
-                    </svg>
-                  </button>
-                </div>
-                
-                <!-- Button 3: Add Pelanggan -->
-                <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Tambah Pelanggan</span>
-                  <button id="add-customer-btn" class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                      <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Main FAB Button (Info icon when collapsed, Close icon when expanded) -->
-              <button id="fab-main-btn" class="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#683fe4] text-white shadow-lg hover:shadow-xl transition-all">
-                <svg id="fab-info-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" style="position: absolute; display: block;">
-                  <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path>
-                </svg>
-                <svg id="fab-close-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" style="position: absolute; display: none;">
-                  <path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"></path>
+            <!-- Button 2: Upload CSV -->
+            <div class="flex items-center gap-3">
+              <span
+                class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Import
+                CSV</span>
+              <button id="import-csv-btn"
+                class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M74.34,85.66A8,8,0,0,1,85.66,74.34L120,108.69V24a8,8,0,0,1,16,0v84.69l34.34-34.35a8,8,0,0,1,11.32,11.32l-48,48a8,8,0,0,1-11.32,0ZM240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H84.4a4,4,0,0,1,2.83,1.17L111,145a24,24,0,0,0,34,0l23.8-23.8A4,4,0,0,1,171.6,120H224A16,16,0,0,1,240,136Zm-16,0H173.54l-13,13a40,40,0,0,1-56.56,0l-13-13H32v64H224ZM192,172a12,12,0,1,0-12,12A12,12,0,0,0,192,172Z">
+                  </path>
                 </svg>
               </button>
             </div>
-        </div>
 
-        <div id="detail-view" class="hidden">
-            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
-              <div class="w-12 flex justify-start">
-                  <button id="back-from-detail" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-                  </button>
-              </div>
-              <h2 class="text-[#110e1b] text-lg font-bold flex-1 text-center">Detail Pelanggan</h2>
-              <div class="flex items-center gap-2">
-                  <button id="delete-customer-icon-btn" class="text-red-600 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-red-50 rounded-full transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
-                  </button>
-                  <button id="edit-customer-icon-btn" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z"></path></svg>
-                  </button>
-              </div>
-            </header>
-            <div class="flex p-4"><div class="flex w-full flex-col gap-4 items-center"><div class="flex gap-4 flex-col items-center"><div id="detail-profile-image" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 bg-gray-300"></div><div class="flex flex-col items-center justify-center"><p id="detail-customer-name" class="text-[#110e1b] text-[22px] font-bold text-center">-</p><p id="detail-customer-id" class="text-[#625095] text-base text-center">-</p></div></div></div></div>
-            <div class="p-4 grid grid-cols-2 gap-0">
-                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">IDPL</p><p id="detail-idpl" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">NAMA</p><p id="detail-nama" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">ALAMAT</p><p id="detail-alamat" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">JENIS KELAMIN</p><p id="detail-gender" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">WHATSAPP</p><p id="detail-whatsapp" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">EMAIL</p><p id="detail-email" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">PAKET</p><p id="detail-paket" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">TAGIHAN</p><p id="detail-tagihan" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">STATUS</p><p id="detail-status" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">TANGGAL PASANG</p><p id="detail-tanggal-pasang" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pr-2"><p class="text-[#625095] text-sm">JENIS PERANGKAT</p><p id="detail-jenis-perangkat" class="text-[#110e1b] text-sm">-</p></div>
-                <div class="flex flex-col gap-1 border-t py-4 pl-2"><p class="text-[#625095] text-sm">IP STATIC/PPOE</p><p id="detail-ip-static" class="text-[#110e1b] text-sm">-</p></div>
-                <div id="location-section" class="flex flex-col gap-1 border-t py-4 col-span-2 hidden">
-                  <p class="text-[#625095] text-sm">LOKASI</p>
-                  <div class="flex items-center gap-2">
-                    <p id="detail-location" class="text-[#110e1b] text-sm flex-1">-</p>
-                    <a id="open-maps-btn" href="#" target="_blank" class="hidden inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold hover:bg-green-200 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
-                      </svg>
-                      Buka Maps
-                    </a>
-                  </div>
-                </div>
-            </div>
-            <div id="unpaid-bills-section" class="hidden"><h2 class="text-[#110e1b] text-xl font-bold px-4 pb-3 pt-5">Tagihan Belum Dibayar</h2><div id="unpaid-bills-list"></div></div>
-            
-        </div>
-
-        <div id="form-view" class="hidden">
-            <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
-              <div class="w-12 flex justify-start">
-                  <button id="back-from-form" class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-                  </button>
-              </div>
-              <h2 id="modal-title" class="text-[#110e1b] text-lg font-bold flex-1 text-center">Tambah Pelanggan</h2>
-              <div class="w-12 flex justify-end">
-                  <!-- Placeholder untuk symmetry -->
-              </div>
-            </header>
-            <form id="customer-form" class="p-4">
-              <div class="space-y-4">
-                  <div><input id="customer-name" placeholder="Nama Lengkap" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
-                  <div id="new-user-fields" class="hidden">
-                      <div class="mt-4"><input id="customer-email" placeholder="Email Login" type="email" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
-                      <div class="mt-4"><input id="customer-password" placeholder="Password Baru (min. 6 karakter)" type="password" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
-                  </div>
-                  <div id="edit-user-fields" class="hidden">
-                      <div class="mt-4"><input id="edit-customer-email" placeholder="Email Login" type="email" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
-                      <div class="mt-4"><input id="edit-customer-password" placeholder="Password Baru (kosongkan jika tidak ingin mengubah)" type="password" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
-                  </div>
-                  <div><input id="customer-address" placeholder="Alamat Lengkap" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
-                  <div><input id="customer-whatsapp" placeholder="Nomor WhatsApp" type="tel" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
-                  <div><select id="customer-gender" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required><option value="">Pilih Jenis Kelamin</option><option value="LAKI-LAKI">Laki-laki</option><option value="PEREMPUAN">Perempuan</option></select></div>
-                  <div><select id="customer-package" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required></select></div>
-                  <div><input id="customer-bill" placeholder="Tagihan Bulanan" type="number" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
-                  <div><select id="customer-status" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required><option value="">Pilih Status</option><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
-                  
-                  <!-- Churn Date Input (Hidden by default) -->
-                  <div id="churn-date-container" class="hidden">
-                    <label for="customer-churn-date" class="text-sm font-medium text-gray-600 mb-1 block">Tanggal Berhenti (Opsional)</label>
-                    <input id="customer-churn-date" type="date" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
-                  </div>
-                  
-                  <div><input id="customer-device" placeholder="Jenis Perangkat (Opsional)" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
-                  <div><input id="customer-ip" placeholder="IP STATIC / PPOE (Opsional)" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
-                  
-                  <!-- Tanggal Instalasi -->
-                  <div class="border-t border-gray-300 pt-4 mt-2">
-                    <label for="customer-installation-date" class="text-sm font-medium text-gray-600 mb-2 block">Tanggal Instalasi</label>
-                    <input id="customer-installation-date" type="date" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
-                    <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan tanggal hari ini</p>
-                  </div>
-                  
-                  <!-- Lokasi (Latitude & Longitude) -->
-                  <div class="border-t border-gray-300 pt-4 mt-2">
-                    <p class="text-sm font-medium text-gray-600 mb-3">Lokasi (Opsional)</p>
-                    <div class="grid grid-cols-2 gap-3">
-                      <input id="customer-latitude" placeholder="Latitude" type="number" step="any" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
-                      <input id="customer-longitude" placeholder="Longitude" type="number" step="any" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">Contoh: -6.9174639, 107.6191228</p>
-                  </div>
-              </div>
-              <div class="pt-6 grid grid-cols-2 gap-3">
-                  <button type="button" id="cancel-btn" class="w-full rounded-lg h-12 px-5 bg-gray-300 text-gray-700 text-base font-bold">Batal</button>
-                  <button type="submit" id="save-customer-btn" class="w-full rounded-lg h-12 px-5 bg-[#683fe4] text-[#f9f8fb] text-base font-bold"><span id="save-btn-text">Simpan</span></button>
-              </div>
-            </form>
-        </div>
-      </div>
-      
-      <!-- Fixed Bottom Navigation -->
-      <style>
-        .fab-container {
-            position: relative;
-            width: 64px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .fab {
-            position: absolute;
-            bottom: -16px;
-            height: 64px;
-            width: 64px;
-            background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease-in-out;
-        }
-
-        .fab:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-      </style>
-      <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
-        <div class="flex items-center justify-around h-16">
-          <!-- Menu Item 1: Dasbor -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="dashboard.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
-            <p class="text-xs font-medium">Dasbor</p>
-          </a>
-
-          <!-- Menu Item 2: Pelanggan -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#5324e0]" href="pelanggan.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path></svg>
-            <p class="text-xs font-medium">Pelanggan</p>
-          </a>
-
-          <!-- FAB Container -->
-          <div class="fab-container">
-            <a href="tagihan.html" class="fab">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="#FFFFFF" viewBox="0 0 256 256"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"></path></svg>
-            </a>
-          </div>
-
-          <!-- Menu Item 4: Pengeluaran -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pengeluaran.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path></svg>
-            <p class="text-xs font-medium">Pengeluaran</p>
-          </a>
-
-          <!-- Menu Item 5: Profil -->
-          <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="profile.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
-            <p class="text-xs font-medium">Profil</p>
-          </a>
-        </div>
-      </footer>
-    </div>
-
-    <!-- CSV Import Modal -->
-    <div id="csv-import-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <!-- Header -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 class="text-xl font-bold text-[#110e1b]">Import Data Pelanggan (CSV)</h2>
-          <button id="close-csv-modal" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
-        </div>
-        
-        <!-- Content -->
-        <div class="p-6 space-y-6">
-          <!-- Download Template -->
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-blue-600 flex-shrink-0" viewBox="0 0 256 256">
-                <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-42.34-61.66a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L120,164.69V120a8,8,0,0,1,16,0v44.69l10.34-10.35A8,8,0,0,1,157.66,154.34Z"></path>
-              </svg>
-              <div class="flex-1">
-                <h3 class="font-semibold text-blue-900 mb-1">Download Template CSV</h3>
-                <p class="text-sm text-blue-700 mb-3">Gunakan template ini untuk format yang benar</p>
-                <button id="download-template-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
-                    <path d="M74.34,85.66A8,8,0,0,1,85.66,74.34L120,108.69V24a8,8,0,0,1,16,0v84.69l34.34-34.35a8,8,0,0,1,11.32,11.32l-48,48a8,8,0,0,1-11.32,0ZM240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H84.4a4,4,0,0,1,2.83,1.17L111,145a24,24,0,0,0,34,0l23.8-23.8A4,4,0,0,1,171.6,120H224A16,16,0,0,1,240,136Zm-16,0H173.54l-13,13a40,40,0,0,1-56.56,0l-13-13H32v64H224ZM192,172a12,12,0,1,0-12,12A12,12,0,0,0,192,172Z"></path>
-                  </svg>
-                  Download Template
-                </button>
-              </div>
+            <!-- Button 3: Add Pelanggan -->
+            <div class="flex items-center gap-3">
+              <span
+                class="text-sm font-medium text-[#110e1b] bg-white px-3 py-1 rounded-full shadow-md whitespace-nowrap">Tambah
+                Pelanggan</span>
+              <button id="add-customer-btn"
+                class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-[#683fe4] shadow-lg hover:bg-gray-50 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z">
+                  </path>
+                </svg>
+              </button>
             </div>
           </div>
-          
-          <!-- Upload Area -->
-          <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#683fe4] transition-colors cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="mx-auto mb-4 text-gray-400" viewBox="0 0 256 256">
-              <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"></path>
+
+          <!-- Main FAB Button (Info icon when collapsed, Close icon when expanded) -->
+          <button id="fab-main-btn"
+            class="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#683fe4] text-white shadow-lg hover:shadow-xl transition-all">
+            <svg id="fab-info-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+              viewBox="0 0 256 256" style="position: absolute; display: block;">
+              <path
+                d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z">
+              </path>
             </svg>
-            <p class="text-lg font-semibold text-gray-700 mb-2">Pilih atau drop file CSV disini</p>
-            <p class="text-sm text-gray-500 mb-4">Maksimal 500 baris per upload</p>
-            <input type="file" id="csv-file-input" accept=".csv,.CSV,text/csv,text/comma-separated-values,application/csv,text/plain" class="hidden">
-            <label for="csv-file-input" class="inline-block px-6 py-2 bg-[#683fe4] text-white rounded-lg font-semibold hover:bg-[#5324e0] transition-colors cursor-pointer">
-              Pilih File
-            </label>
-          </div>
-          
-          <!-- Preview Section (Hidden by default) -->
-          <div id="csv-preview-section" class="hidden space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold text-[#110e1b]">Preview Data</h3>
-              <span id="csv-row-count" class="text-sm text-gray-600"></span>
-            </div>
-            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-              <table id="csv-preview-table" class="w-full text-sm">
-                <!-- Preview will be populated here -->
-              </table>
-            </div>
-          </div>
-          
-          <!-- Progress Section (Hidden by default) -->
-          <div id="import-progress-section" class="hidden space-y-3">
-            <div class="flex items-center justify-between text-sm">
-              <span class="font-medium text-gray-700">Mengimport data...</span>
-              <span id="progress-text" class="text-gray-600">0/0</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div id="progress-bar" class="bg-[#683fe4] h-full transition-all duration-300" style="width: 0%"></div>
-            </div>
-          </div>
-          
-          <!-- Summary Section (Hidden by default) -->
-          <div id="import-summary-section" class="hidden">
-            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
-              <h3 class="font-semibold text-[#110e1b]">Hasil Import</h3>
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">✓ Berhasil:</span>
-                  <span id="success-count" class="font-semibold text-green-600">0</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">✗ Gagal:</span>
-                  <span id="failed-count" class="font-semibold text-red-600">0</span>
-                </div>
-              </div>
-              <div id="error-details" class="hidden mt-3 max-h-40 overflow-y-auto bg-red-50 border border-red-200 rounded p-3 text-xs text-red-700">
-                <!-- Error details will be shown here -->
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="flex gap-3 p-6 border-t border-gray-200">
-          <button id="cancel-import-btn" class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-            Batal
-          </button>
-          <button id="start-import-btn" class="flex-1 px-4 py-3 bg-[#683fe4] text-white rounded-lg font-semibold hover:bg-[#5324e0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-            Mulai Import
+            <svg id="fab-close-icon" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+              viewBox="0 0 256 256" style="position: absolute; display: none;">
+              <path
+                d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z">
+              </path>
+            </svg>
           </button>
         </div>
       </div>
+
+      <div id="detail-view" class="hidden">
+        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
+          <div class="w-12 flex justify-start">
+            <button id="back-from-detail"
+              class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                viewBox="0 0 256 256">
+                <path
+                  d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                </path>
+              </svg>
+            </button>
+          </div>
+          <h2 class="text-[#110e1b] text-lg font-bold flex-1 text-center">Detail Pelanggan</h2>
+          <div class="flex items-center gap-2">
+            <button id="delete-customer-icon-btn"
+              class="text-red-600 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-red-50 rounded-full transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                viewBox="0 0 256 256">
+                <path
+                  d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z">
+                </path>
+              </svg>
+            </button>
+            <button id="edit-customer-icon-btn"
+              class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                viewBox="0 0 256 256">
+                <path
+                  d="M227.31,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z">
+                </path>
+              </svg>
+            </button>
+          </div>
+        </header>
+        <div class="flex p-4">
+          <div class="flex w-full flex-col gap-4 items-center">
+            <div class="flex gap-4 flex-col items-center">
+              <div id="detail-profile-image"
+                class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 bg-gray-300"></div>
+              <div class="flex flex-col items-center justify-center">
+                <p id="detail-customer-name" class="text-[#110e1b] text-[22px] font-bold text-center">-</p>
+                <p id="detail-customer-id" class="text-[#625095] text-base text-center">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 grid grid-cols-2 gap-0">
+          <div class="flex flex-col gap-1 border-t py-4 pr-2">
+            <p class="text-[#625095] text-sm">IDPL</p>
+            <p id="detail-idpl" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pl-2">
+            <p class="text-[#625095] text-sm">NAMA</p>
+            <p id="detail-nama" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pr-2">
+            <p class="text-[#625095] text-sm">ALAMAT</p>
+            <p id="detail-alamat" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pl-2">
+            <p class="text-[#625095] text-sm">JENIS KELAMIN</p>
+            <p id="detail-gender" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pr-2">
+            <p class="text-[#625095] text-sm">WHATSAPP</p>
+            <p id="detail-whatsapp" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pl-2">
+            <p class="text-[#625095] text-sm">EMAIL</p>
+            <p id="detail-email" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pr-2">
+            <p class="text-[#625095] text-sm">PAKET</p>
+            <p id="detail-paket" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pl-2">
+            <p class="text-[#625095] text-sm">TAGIHAN</p>
+            <p id="detail-tagihan" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pr-2">
+            <p class="text-[#625095] text-sm">STATUS</p>
+            <p id="detail-status" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pl-2">
+            <p class="text-[#625095] text-sm">TANGGAL PASANG</p>
+            <p id="detail-tanggal-pasang" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pr-2">
+            <p class="text-[#625095] text-sm">JENIS PERANGKAT</p>
+            <p id="detail-jenis-perangkat" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div class="flex flex-col gap-1 border-t py-4 pl-2">
+            <p class="text-[#625095] text-sm">IP STATIC/PPOE</p>
+            <p id="detail-ip-static" class="text-[#110e1b] text-sm">-</p>
+          </div>
+          <div id="location-section" class="flex flex-col gap-1 border-t py-4 col-span-2 hidden">
+            <p class="text-[#625095] text-sm">LOKASI</p>
+            <div class="flex items-center gap-2">
+              <p id="detail-location" class="text-[#110e1b] text-sm flex-1">-</p>
+              <a id="open-maps-btn" href="#" target="_blank"
+                class="hidden inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold hover:bg-green-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z">
+                  </path>
+                </svg>
+                Buka Maps
+              </a>
+            </div>
+          </div>
+        </div>
+        <div id="unpaid-bills-section" class="hidden">
+          <h2 class="text-[#110e1b] text-xl font-bold px-4 pb-3 pt-5">Tagihan Belum Dibayar</h2>
+          <div id="unpaid-bills-list"></div>
+        </div>
+
+      </div>
+
+      <div id="form-view" class="hidden">
+        <header class="flex items-center bg-[#f9f8fb] p-4 pb-2 justify-between">
+          <div class="w-12 flex justify-start">
+            <button id="back-from-form"
+              class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                viewBox="0 0 256 256">
+                <path
+                  d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
+                </path>
+              </svg>
+            </button>
+          </div>
+          <h2 id="modal-title" class="text-[#110e1b] text-lg font-bold flex-1 text-center">Tambah Pelanggan</h2>
+          <div class="w-12 flex justify-end">
+            <!-- Placeholder untuk symmetry -->
+          </div>
+        </header>
+        <form id="customer-form" class="p-4">
+          <div class="space-y-4">
+            <div><input id="customer-name" placeholder="Nama Lengkap"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
+            <div id="new-user-fields" class="hidden">
+              <div class="mt-4"><input id="customer-email" placeholder="Email Login" type="email"
+                  class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+              <div class="mt-4"><input id="customer-password" placeholder="Password Baru (min. 6 karakter)"
+                  type="password" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+            </div>
+            <div id="edit-user-fields" class="hidden">
+              <div class="mt-4"><input id="edit-customer-email" placeholder="Email Login" type="email"
+                  class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+              <div class="mt-4"><input id="edit-customer-password"
+                  placeholder="Password Baru (kosongkan jika tidak ingin mengubah)" type="password"
+                  class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+            </div>
+            <div><input id="customer-address" placeholder="Alamat Lengkap"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
+            <div><input id="customer-whatsapp" placeholder="Nomor WhatsApp" type="tel"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
+            <div><select id="customer-gender" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base"
+                required>
+                <option value="">Pilih Jenis Kelamin</option>
+                <option value="LAKI-LAKI">Laki-laki</option>
+                <option value="PEREMPUAN">Perempuan</option>
+              </select></div>
+            <div><select id="customer-package" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base"
+                required></select></div>
+            <div><input id="customer-bill" placeholder="Tagihan Bulanan" type="number"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" required /></div>
+            <div><select id="customer-status" class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base"
+                required>
+                <option value="">Pilih Status</option>
+                <option value="AKTIF">AKTIF</option>
+                <option value="NONAKTIF">NONAKTIF</option>
+              </select></div>
+
+            <!-- Churn Date Input (Hidden by default) -->
+            <div id="churn-date-container" class="hidden">
+              <label for="customer-churn-date" class="text-sm font-medium text-gray-600 mb-1 block">Tanggal Berhenti
+                (Opsional)</label>
+              <input id="customer-churn-date" type="date"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
+            </div>
+
+            <div><input id="customer-device" placeholder="Jenis Perangkat (Opsional)"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+            <div><input id="customer-ip" placeholder="IP STATIC / PPOE (Opsional)"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" /></div>
+
+            <!-- Tanggal Instalasi -->
+            <div class="border-t border-gray-300 pt-4 mt-2">
+              <label for="customer-installation-date" class="text-sm font-medium text-gray-600 mb-2 block">Tanggal
+                Instalasi</label>
+              <input id="customer-installation-date" type="date"
+                class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
+              <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan tanggal hari ini</p>
+            </div>
+
+            <!-- Lokasi (Latitude & Longitude) -->
+            <div class="border-t border-gray-300 pt-4 mt-2">
+              <p class="text-sm font-medium text-gray-600 mb-3">Lokasi (Opsional)</p>
+              <div class="grid grid-cols-2 gap-3">
+                <input id="customer-latitude" placeholder="Latitude" type="number" step="any"
+                  class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
+                <input id="customer-longitude" placeholder="Longitude" type="number" step="any"
+                  class="form-input w-full rounded-lg bg-[#eae8f3] h-14 p-4 text-base" />
+              </div>
+              <p class="text-xs text-gray-500 mt-2">Contoh: -6.9174639, 107.6191228</p>
+            </div>
+          </div>
+          <div class="pt-6 grid grid-cols-2 gap-3">
+            <button type="button" id="cancel-btn"
+              class="w-full rounded-lg h-12 px-5 bg-gray-300 text-gray-700 text-base font-bold">Batal</button>
+            <button type="submit" id="save-customer-btn"
+              class="w-full rounded-lg h-12 px-5 bg-[#683fe4] text-[#f9f8fb] text-base font-bold"><span
+                id="save-btn-text">Simpan</span></button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <!-- PapaParse Library for CSV parsing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script type="module" src="supabase-client.js?v=5"></script>
-    <script type="module" src="auth.js?v=5"></script>
-    <script type="module" src="apply-settings.js"></script>
-    <script type="module" src="pelanggan.js?v=5"></script>
+    <!-- Fixed Bottom Navigation -->
+    <style>
+      .fab-container {
+        position: relative;
+        width: 64px;
+        display: flex;
+        justify-content: center;
+      }
 
-    </body>
+      .fab {
+        position: absolute;
+        bottom: -16px;
+        height: 64px;
+        width: 64px;
+        background: linear-gradient(135deg, #667eea 0%, #5324e0 100%);
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease-in-out;
+      }
+
+      .fab:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+    </style>
+    <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fb] border-t border-[#eae8f3]">
+      <div class="flex items-center justify-around h-16">
+        <!-- Menu Item 1: Dasbor -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="dashboard.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Dasbor</p>
+        </a>
+
+        <!-- Menu Item 2: Pelanggan -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#5324e0]" href="pelanggan.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Pelanggan</p>
+        </a>
+
+        <!-- FAB Container -->
+        <div class="fab-container">
+          <a href="tagihan.html" class="fab">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28px" height="28px" fill="#FFFFFF" viewBox="0 0 256 256">
+              <path
+                d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z">
+              </path>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Menu Item 4: Pengeluaran -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="pengeluaran.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Pengeluaran</p>
+        </a>
+
+        <!-- Menu Item 5: Profil -->
+        <a class="flex flex-1 flex-col items-center justify-center gap-1 text-[#625095]" href="profile.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path
+              d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+            </path>
+          </svg>
+          <p class="text-xs font-medium">Profil</p>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- CSV Import Modal -->
+  <div id="csv-import-modal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-[#110e1b]">Import Data Pelanggan (CSV)</h2>
+        <button id="close-csv-modal" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6 space-y-6">
+        <!-- Download Template -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+              class="text-blue-600 flex-shrink-0" viewBox="0 0 256 256">
+              <path
+                d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-42.34-61.66a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L120,164.69V120a8,8,0,0,1,16,0v44.69l10.34-10.35A8,8,0,0,1,157.66,154.34Z">
+              </path>
+            </svg>
+            <div class="flex-1">
+              <h3 class="font-semibold text-blue-900 mb-1">Download Template CSV</h3>
+              <p class="text-sm text-blue-700 mb-3">Gunakan template ini untuk format yang benar</p>
+              <button id="download-template-btn"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M74.34,85.66A8,8,0,0,1,85.66,74.34L120,108.69V24a8,8,0,0,1,16,0v84.69l34.34-34.35a8,8,0,0,1,11.32,11.32l-48,48a8,8,0,0,1-11.32,0ZM240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H84.4a4,4,0,0,1,2.83,1.17L111,145a24,24,0,0,0,34,0l23.8-23.8A4,4,0,0,1,171.6,120H224A16,16,0,0,1,240,136Zm-16,0H173.54l-13,13a40,40,0,0,1-56.56,0l-13-13H32v64H224ZM192,172a12,12,0,1,0-12,12A12,12,0,0,0,192,172Z">
+                  </path>
+                </svg>
+                Download Template
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Area -->
+        <div id="upload-area"
+          class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#683fe4] transition-colors cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+            class="mx-auto mb-4 text-gray-400" viewBox="0 0 256 256">
+            <path
+              d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z">
+            </path>
+          </svg>
+          <p class="text-lg font-semibold text-gray-700 mb-2">Pilih atau drop file CSV disini</p>
+          <p class="text-sm text-gray-500 mb-4">Maksimal 500 baris per upload</p>
+          <input type="file" id="csv-file-input"
+            accept=".csv,.CSV,text/csv,text/comma-separated-values,application/csv,text/plain" class="hidden">
+          <label for="csv-file-input"
+            class="inline-block px-6 py-2 bg-[#683fe4] text-white rounded-lg font-semibold hover:bg-[#5324e0] transition-colors cursor-pointer">
+            Pilih File
+          </label>
+        </div>
+
+        <!-- Preview Section (Hidden by default) -->
+        <div id="csv-preview-section" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-[#110e1b]">Preview Data</h3>
+            <span id="csv-row-count" class="text-sm text-gray-600"></span>
+          </div>
+          <div class="overflow-x-auto border border-gray-200 rounded-lg">
+            <table id="csv-preview-table" class="w-full text-sm">
+              <!-- Preview will be populated here -->
+            </table>
+          </div>
+        </div>
+
+        <!-- Progress Section (Hidden by default) -->
+        <div id="import-progress-section" class="hidden space-y-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-gray-700">Mengimport data...</span>
+            <span id="progress-text" class="text-gray-600">0/0</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div id="progress-bar" class="bg-[#683fe4] h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Summary Section (Hidden by default) -->
+        <div id="import-summary-section" class="hidden">
+          <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+            <h3 class="font-semibold text-[#110e1b]">Hasil Import</h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">✓ Berhasil:</span>
+                <span id="success-count" class="font-semibold text-green-600">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">✗ Gagal:</span>
+                <span id="failed-count" class="font-semibold text-red-600">0</span>
+              </div>
+            </div>
+            <div id="error-details"
+              class="hidden mt-3 max-h-40 overflow-y-auto bg-red-50 border border-red-200 rounded p-3 text-xs text-red-700">
+              <!-- Error details will be shown here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex gap-3 p-6 border-t border-gray-200">
+        <button id="cancel-import-btn"
+          class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+          Batal
+        </button>
+        <button id="start-import-btn"
+          class="flex-1 px-4 py-3 bg-[#683fe4] text-white rounded-lg font-semibold hover:bg-[#5324e0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled>
+          Mulai Import
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PapaParse Library for CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script type="module" src="supabase-client.js?v=5"></script>
+  <script type="module" src="auth.js?v=5"></script>
+  <script type="module" src="apply-settings.js"></script>
+  <script type="module" src="pelanggan.js?v=5"></script>
+
+</body>
+
 </html>

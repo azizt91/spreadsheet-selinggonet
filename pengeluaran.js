@@ -4,7 +4,7 @@ import { requireRole } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Pengeluaran page loaded, checking authentication...');
-    
+
     try {
         const user = await requireRole('ADMIN');
         if (!user) {
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Authentication error:', error);
         return;
     }
-    
+
     // ===============================================
     // State Management & Global Variables
     // ===============================================
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function initializeStickyHeader() {
         const stickyElement = document.querySelector('.search-filter-sticky');
         if (!stickyElement) return;
-        
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.intersectionRatio < 1) {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             },
             { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
         );
-        
+
         observer.observe(stickyElement);
     }
 
@@ -90,15 +90,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             handleSearch();         // Panggil ulang fungsi search untuk mereset daftar
             searchInput.focus();    // (Opsional) Fokuskan kembali ke input
         });
-        
+
         addExpenseBtn.addEventListener('click', openAddExpenseModal);
         closeModalBtn.addEventListener('click', closeAddExpenseModal);
         saveExpenseBtn.addEventListener('click', handleSaveExpense);
-        
+
         addExpenseModal.addEventListener('click', (e) => {
             if (e.target === addExpenseModal) closeAddExpenseModal();
         });
-        
+
         // Filter Listeners
         filterBtn.addEventListener('click', () => filterModal.classList.remove('hidden'));
         closeFilterModalBtn.addEventListener('click', () => filterModal.classList.add('hidden'));
@@ -131,9 +131,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (error) throw new Error(error.message);
 
             allData = data || [];
-            
+
             handleSearch();
-            
+
             updateFilterInfo(startDate, endDate);
 
         } catch (error) {
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             hideLoading();
         }
     }
-    
+
     // ===============================================
     // Filtering Logic
     // ===============================================
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showErrorNotification('Tanggal awal tidak boleh melebihi tanggal akhir.');
             return;
         }
-        
+
         fetchData(startDate || null, endDate || null);
         totalExpenseContainer.classList.remove('hidden');
         filterModal.classList.add('hidden');
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         totalExpenseContainer.classList.add('hidden');
         filterModal.classList.add('hidden');
     }
-    
+
     function updateFilterInfo(startDate, endDate) {
         if (startDate || endDate) {
             const start = startDate ? new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '...';
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             clearSearchBtn.classList.add('hidden');
         }
-        
+
         if (searchTerm === '') {
             filteredData = [...allData];
         } else {
@@ -199,13 +199,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const description = (expense.description || '').toLowerCase();
                 const amount = expense.amount ? expense.amount.toString() : '';
                 const date = expense.expense_date || '';
-                
-                return description.includes(searchTerm) || 
-                       amount.includes(searchTerm) || 
-                       date.includes(searchTerm);
+
+                return description.includes(searchTerm) ||
+                    amount.includes(searchTerm) ||
+                    date.includes(searchTerm);
             });
         }
-        
+
         renderList();
     }
 
@@ -219,15 +219,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             const searchTerm = searchInput.value.trim();
             let message = 'Tidak ada data pengeluaran';
             let submessage = 'Tambahkan pengeluaran baru dengan tombol + di bawah';
-            
+
             if (searchTerm) {
                 message = 'Tidak ada pengeluaran ditemukan';
                 submessage = 'Coba ubah filter atau kata kunci pencarian';
             }
-            
+
             expenseList.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 px-4">
-                    <img src="assets/no_data.png" alt="No Data" class="w-48 h-48 mb-4 opacity-50">
+                    <span class="material-symbols-outlined text-gray-300 mb-4" style="font-size: 96px;">receipt</span>
                     <p class="text-center text-gray-500 text-lg font-medium">${message}</p>
                     <p class="text-center text-gray-400 text-sm mt-2">${submessage}</p>
                 </div>
@@ -238,10 +238,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 expenseList.appendChild(expenseItem);
             });
         }
-        
+
         updateTotalExpense();
     }
-    
+
     function createExpenseItem(item) {
         const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
         const amount = item.amount ? formatter.format(item.amount) : 'N/A';
@@ -267,13 +267,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>
         `;
-        
+
         expenseItem.querySelector('.edit-expense-btn').addEventListener('click', () => openEditExpenseModal(item));
         expenseItem.querySelector('.delete-expense-btn').addEventListener('click', () => handleDeleteExpense(item.id));
-        
+
         return expenseItem;
     }
-    
+
     function updateTotalExpense() {
         const total = filteredData.reduce((sum, item) => sum + (item.amount || 0), 0);
         const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const skeletonItems = document.querySelectorAll('.skeleton-item');
         skeletonItems.forEach(item => item.remove());
     }
-    
+
     function showPaymentLoading(text = 'Memproses...') {
         let loadingOverlay = document.getElementById('payment-loading-overlay');
         if (!loadingOverlay) {
@@ -440,16 +440,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function hidePaymentLoading() {
-    const loadingOverlay = document.getElementById('payment-loading-overlay');
+        const loadingOverlay = document.getElementById('payment-loading-overlay');
         if (loadingOverlay) {
             loadingOverlay.remove(); // Ganti menjadi .remove()
         }
     }
-    
+
     function showSuccessNotification(message) {
         showNotification(message, '#28a745');
     }
-    
+
     function showErrorNotification(message) {
         showNotification(message, '#dc3545');
     }

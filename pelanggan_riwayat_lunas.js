@@ -7,7 +7,7 @@ let currentUser = null;
 let currentProfile = null;
 let currentDetailData = null; // For storing detail view data
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     // Check authentication and require USER role
     currentUser = await requireRole('USER');
     if (!currentUser) return; // Stop if not authenticated or not USER role
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             .select('*')
             .eq('id', currentUser.id)
             .single();
-        
+
         if (!profileError && profile) {
             currentProfile = profile;
         }
@@ -33,12 +33,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     const searchInput = document.getElementById('search-input');
     const unpaidTab = document.getElementById('unpaidTab');
     const paidTab = document.getElementById('paidTab');
-    
+
     // Detail view elements - akan diinisialisasi saat dibutuhkan
-    let detailCustomerName, detailCustomerId, detailCustomerWhatsapp, 
-        detailInvoicePeriod, detailInvoiceAmount, detailPaidDate, 
+    let detailCustomerName, detailCustomerId, detailCustomerWhatsapp,
+        detailInvoicePeriod, detailInvoiceAmount, detailPaidDate,
         detailPaymentMethod;
-    
+
     // State management
     let unpaidData = [];
     let paidData = [];
@@ -51,9 +51,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // View Management
     // ===============================================
     function initializeViews() {
-        views = { 
-            list: document.getElementById('list-view'), 
-            detail: document.getElementById('detail-view') 
+        views = {
+            list: document.getElementById('list-view'),
+            detail: document.getElementById('detail-view')
         };
     }
 
@@ -62,16 +62,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!views.list || !views.detail) {
             initializeViews();
         }
-        
+
         // Add null safety
         Object.values(views).forEach(view => {
             if (view) view.classList.add('hidden');
         });
-        
+
         if (views[viewName]) {
             views[viewName].classList.remove('hidden');
         }
-        
+
         window.scrollTo(0, 0);
     }
 
@@ -91,24 +91,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             showToast('Error: Data tagihan tidak lengkap.', 'error');
             return;
         }
-        
+
         // Store current detail data
         currentDetailData = invoice;
-        
+
         // Ensure DOM is ready with a small delay
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         // Populate detail view
         await displayPaymentDetail(invoice);
-        
+
         // Switch to detail view
         switchView('detail');
     }
-    
+
     async function displayPaymentDetail(invoiceData) {
         // Initialize detail elements first
         initializeDetailElements();
-        
+
         // Format currency
         const formatter = new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // For paid invoices, use total_due or amount_paid instead of amount (which is remaining)
-        const displayAmount = invoiceData.status === 'paid' 
+        const displayAmount = invoiceData.status === 'paid'
             ? (invoiceData.total_due || invoiceData.amount_paid || invoiceData.amount)
             : invoiceData.amount;
 
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     function initializeStickyHeader() {
         const stickyElement = document.querySelector('.search-filter-sticky');
         if (!stickyElement) return;
-        
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.intersectionRatio < 1) {
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             },
             { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
         );
-        
+
         observer.observe(stickyElement);
     }
 
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         transferTab.addEventListener('click', () => switchPaymentTab('transfer'));
 
         // Use event delegation for dynamically created pay buttons
-        contentList.addEventListener('click', function(event) {
+        contentList.addEventListener('click', function (event) {
             const payButton = event.target.closest('.pay-button');
             if (payButton) {
                 const period = payButton.dataset.period;
@@ -226,12 +226,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function initializePage() {
         initializeEventListeners();
         initializeStickyHeader();
-        
+
         // Check for a specific invoice ID from the dashboard
         const detailInvoiceId = sessionStorage.getItem('showDetailForInvoiceId');
         if (detailInvoiceId) {
             sessionStorage.removeItem('showDetailForInvoiceId'); // Clean up immediately
-            
+
             showLoading();
             try {
                 const { data: invoice, error } = await supabase
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentTab = activeTabFromStorage;
             sessionStorage.removeItem('activeTab'); // Clean up
         }
-        
+
         switchTab(currentTab);
         await fetchData();
     }
@@ -279,24 +279,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             unpaidTab.classList.add('active');
             unpaidTab.classList.remove('border-b-transparent');
             unpaidTab.classList.add('border-b-primary', 'text-[#110e1b]');
-            
+
             // Set paid tab as inactive
             paidTab.classList.remove('active');
             paidTab.classList.remove('border-b-primary', 'text-[#110e1b]');
             paidTab.classList.add('border-b-transparent', 'text-[#625095]');
-            
+
             searchInput.placeholder = 'Cari tagihan belum dibayar...';
         } else {
             // Set paid tab as active
             paidTab.classList.add('active');
             paidTab.classList.remove('border-b-transparent');
             paidTab.classList.add('border-b-primary', 'text-[#110e1b]');
-            
+
             // Set unpaid tab as inactive
             unpaidTab.classList.remove('active');
             unpaidTab.classList.remove('border-b-primary', 'text-[#110e1b]');
             unpaidTab.classList.add('border-b-transparent', 'text-[#625095]');
-            
+
             searchInput.placeholder = 'Cari riwayat pembayaran...';
         }
         renderList();
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const confirmBtn = document.getElementById('confirm-payment-btn');
         const period = confirmBtn.dataset.period;
         const amount = confirmBtn.dataset.amountFormatted;
-        
+
         const customerName = currentProfile ? currentProfile.full_name : currentUser.email;
         const customerIdpl = currentProfile ? currentProfile.idpl : 'N/A';
 
@@ -399,9 +399,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!installationDate || !invoicePeriod) {
             return null;
         }
-        
+
         let year, month;
-        
+
         // Parse invoice period - handle both "YYYY-MM" and "Month YYYY" formats
         if (invoicePeriod.includes('-')) {
             // Format: "YYYY-MM"
@@ -423,13 +423,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 'November': 11,
                 'December': 12, 'Desember': 12
             };
-            
+
             const parts = invoicePeriod.trim().split(' ');
             if (parts.length >= 2) {
                 const monthName = parts[0];
                 year = parts[1];
                 month = monthNames[monthName];
-                
+
                 if (!month) {
                     return null;
                 }
@@ -437,22 +437,22 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return null;
             }
         }
-        
+
         if (!year || !month) {
             return null;
         }
-        
+
         // Get installation day
         const installDate = new Date(installationDate);
         if (isNaN(installDate.getTime())) {
             return null;
         }
-        
+
         const installDay = installDate.getDate();
-        
+
         // Create due date using installation day
         const dueDate = new Date(parseInt(year), month - 1, installDay);
-        
+
         return dueDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
     }
 
@@ -461,7 +461,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // ===============================================
     async function fetchData() {
         showLoading();
-        
+
         try {
             // First, get customer profile to get installation_date
             const { data: profile, error: profileError } = await supabase
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (profileError) {
                 throw new Error(`Gagal mengambil data profil: ${profileError.message}`);
             }
-            
+
             // Fetch unpaid bills (invoices with status='unpaid' or 'partially_paid')
             const { data: unpaidBills, error: unpaidError } = await supabase
                 .from('invoices')
@@ -572,13 +572,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         const filteredData = data.filter(item => {
             if (!item) return false;
             return (item.invoice_period && item.invoice_period.toLowerCase().includes(searchTerm)) ||
-                   (item.amount && item.amount.toString().includes(searchTerm));
+                (item.amount && item.amount.toString().includes(searchTerm));
         });
 
         if (filteredData.length === 0) {
-            const emptyMessage = currentTab === 'unpaid' ? 
+            const emptyMessage = currentTab === 'unpaid' ?
                 'Tidak ada tagihan belum dibayar' : 'Belum ada riwayat pembayaran';
-            contentList.innerHTML = '<p class="text-center text-gray-500 p-4">' + emptyMessage + '</p>';
+            const iconName = currentTab === 'unpaid' ? 'receipt_long' : 'history';
+            contentList.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 px-4">
+                    <span class="material-symbols-outlined text-gray-300 mb-4" style="font-size: 96px;">${iconName}</span>
+                    <p class="text-center text-gray-500 text-base font-medium">${emptyMessage}</p>
+                </div>
+            `;
             return;
         }
 
@@ -602,61 +608,61 @@ document.addEventListener('DOMContentLoaded', async function() {
             let amount = 'N/A';
             if (currentTab === 'unpaid') {
                 // For unpaid bills, show remaining amount (amount) or total_due
-                amount = item.amount ? formatter.format(item.amount) : 
-                        (item.total_due ? formatter.format(item.total_due) : 'N/A');
+                amount = item.amount ? formatter.format(item.amount) :
+                    (item.total_due ? formatter.format(item.total_due) : 'N/A');
             } else {
                 // For paid bills, show amount_paid (actual payment) or total_due
-                amount = item.amount_paid ? formatter.format(item.amount_paid) : 
-                        (item.total_due ? formatter.format(item.total_due) : 
+                amount = item.amount_paid ? formatter.format(item.amount_paid) :
+                    (item.total_due ? formatter.format(item.total_due) :
                         (item.amount ? formatter.format(item.amount) : 'N/A'));
             }
-            
+
             const period = item.invoice_period || 'Periode tidak tersedia';
 
             const itemDiv = document.createElement('div');
-            
+
 
             if (currentTab === 'unpaid') {
                 itemDiv.className = 'flex items-center gap-4 bg-[#f9f8fb] px-4 min-h-[72px] py-2 justify-between border-b border-gray-200';
                 // Use calculated_due_date based on installation_date, fallback to original due_date
                 let dueDate = 'Tanggal tidak tersedia';
-                
+
                 if (item.calculated_due_date) {
                     dueDate = formatDate(item.calculated_due_date);
                 } else if (item.due_date) {
                     dueDate = formatDate(item.due_date);
                 }
-                
+
                 const rawAmount = item.amount || item.total_due || 0;
-                itemDiv.innerHTML = 
+                itemDiv.innerHTML =
                     '<div class="flex flex-col justify-center">' +
-                        '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
-                        '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ' + dueDate + '</p>' +
-                        '<p class="text-red-600 text-sm font-medium">' + amount + '</p>' +
+                    '<p class="text-[#110e1b] text-base font-medium leading-normal line-clamp-1">' + period + '</p>' +
+                    '<p class="text-[#625095] text-sm font-normal leading-normal line-clamp-2">Jatuh tempo: ' + dueDate + '</p>' +
+                    '<p class="text-red-600 text-sm font-medium">' + amount + '</p>' +
                     '</div>' +
                     '<div class="shrink-0">' +
-                        '<button class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]" data-period="' + period + '" data-amount="' + rawAmount + '" data-amount-formatted="' + amount + '">' +
-                            '<span class="truncate">Bayar</span>' +
-                        '</button>' +
+                    '<button class="pay-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary text-white text-sm font-medium leading-normal w-fit hover:bg-[#4318d4]" data-period="' + period + '" data-amount="' + rawAmount + '" data-amount-formatted="' + amount + '">' +
+                    '<span class="truncate">Bayar</span>' +
+                    '</button>' +
                     '</div>';
             } else {
                 itemDiv.className = 'detail-card flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] cursor-pointer';
                 itemDiv.setAttribute('data-invoice-id', item.id);
 
-                const paymentDate = item.paid_at ? 
+                const paymentDate = item.paid_at ?
                     formatDate(item.paid_at) : 'Tanggal tidak tersedia';
-                itemDiv.innerHTML = 
+                itemDiv.innerHTML =
                     '<div class="flex items-center gap-4 pointer-events-none">' +
-                        '<div class="flex items-center justify-center size-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50">' +
-                            '<span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400">check_circle</span>' +
-                        '</div>' +
-                        '<div>' +
-                            '<p class="font-bold text-slate-900 dark:text-white text-sm">Pembayaran ' + period + '</p>' +
-                            '<p class="text-slate-500 dark:text-slate-400 text-xs">' + paymentDate + '</p>' +
-                        '</div>' +
+                    '<div class="flex items-center justify-center size-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50">' +
+                    '<span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400">check_circle</span>' +
+                    '</div>' +
+                    '<div>' +
+                    '<p class="font-bold text-slate-900 dark:text-white text-sm">Pembayaran ' + period + '</p>' +
+                    '<p class="text-slate-500 dark:text-slate-400 text-xs">' + paymentDate + '</p>' +
+                    '</div>' +
                     '</div>' +
                     '<div class="flex items-center gap-3 pointer-events-none">' +
-                        '<p class="font-semibold text-slate-900 dark:text-white text-sm">' + amount + '</p>' +
+                    '<p class="font-semibold text-slate-900 dark:text-white text-sm">' + amount + '</p>' +
                     '</div>';
             }
             contentList.appendChild(itemDiv);
@@ -666,14 +672,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     // ===============================================
     // Utility Functions
     // ===============================================
-    window.copyToClipboard = function(elementId, buttonElement) {
+    window.copyToClipboard = function (elementId, buttonElement) {
         const textElement = document.getElementById(elementId);
         if (!textElement) return;
 
         const textToCopy = textElement.textContent.trim();
         navigator.clipboard.writeText(textToCopy).then(() => {
             showToast(`Nomor rekening ${textToCopy} berhasil disalin!`);
-            
+
             // Optional: Change button icon to checkmark
             const originalIcon = buttonElement.innerHTML;
             buttonElement.innerHTML = `<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>`;
@@ -693,10 +699,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!toast || !toastMessage) return;
 
         toastMessage.textContent = message;
-        
+
         // Reset classes
         toast.classList.remove('bg-green-500', 'bg-red-500', 'opacity-0', 'invisible');
-        
+
         // Set color based on type
         if (type === 'success') {
             toast.classList.add('bg-green-500');
@@ -716,7 +722,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     function formatDate(dateString) {
         if (!dateString) return 'Tidak tersedia';
-        
+
         try {
             let date;
             if (dateString instanceof Date) {

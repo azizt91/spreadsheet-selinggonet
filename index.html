@@ -1,193 +1,201 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Selinggonet</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Selinggonet">
-    <meta name="description" content="Sistem manajemen pelanggan ISP dengan integrasi Google Sheets">
-    
-    <!-- PWA Icons -->
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Fonts and Tailwind CSS -->
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&family=Manrope%3Awght%40400%3B500%3B700%3B800&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        
-        .floating-animation {
-            animation: floating 3s ease-in-out infinite;
-        }
-        
-        @keyframes floating {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .input-focus {
-            transition: all 0.3s ease;
-        }
-        
-        .input-focus:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(80, 30, 230, 0.15);
-        }
-        
-        .btn-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .btn-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(80, 30, 230, 0.3);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Selinggonet</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#667eea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Selinggonet">
+  <meta name="description" content="Sistem manajemen pelanggan ISP dengan integrasi Google Sheets">
+
+  <!-- PWA Icons -->
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Fonts and Tailwind CSS -->
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+<link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .floating-animation {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .input-focus {
+      transition: all 0.3s ease;
+    }
+
+    .input-focus:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(80, 30, 230, 0.15);
+    }
+
+    .btn-hover {
+      transition: all 0.3s ease;
+    }
+
+    .btn-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(80, 30, 230, 0.3);
+    }
+  </style>
 
 </head>
+
 <body>
-    <div class="gradient-bg min-h-screen flex items-center justify-center p-4" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-      <div class="w-full max-w-md">
-        <!-- Logo and Brand -->
-        <div class="text-center mb-8 fade-in">
-          <div class="floating-animation">
-            <div class="w-20 h-20 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-lg p-2">
-              <img id="login-logo" src="assets/sn-blue.png" alt="Logo" class="w-12 h-12 object-contain">
-            </div>
+  <div class="gradient-bg min-h-screen flex items-center justify-center p-4"
+    style='font-family: Manrope, "Noto Sans", sans-serif;'>
+    <div class="w-full max-w-md">
+      <!-- Logo and Brand -->
+      <div class="text-center mb-8 fade-in">
+        <div class="floating-animation">
+          <div class="w-20 h-20 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-lg p-2">
+            <img id="login-logo" src="assets/sn-blue.png" alt="Logo" class="w-12 h-12 object-contain">
           </div>
-          <h1 id="login-app-name" class="text-3xl font-bold text-white mb-2">Selinggonet</h1>
+        </div>
+        <h1 id="login-app-name" class="text-3xl font-bold text-white mb-2">Selinggonet</h1>
+      </div>
+
+      <!-- Login Form -->
+      <div class="glass-effect rounded-2xl p-8 shadow-2xl fade-in">
+        <div class="text-center mb-6">
+          <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+          <p class="text-white/70 text-sm">Silakan masuk ke akun Anda</p>
         </div>
 
-        <!-- Login Form -->
-        <div class="glass-effect rounded-2xl p-8 shadow-2xl fade-in">
-          <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-            <p class="text-white/70 text-sm">Silakan masuk ke akun Anda</p>
+        <form id="login-form" class="space-y-6">
+          <!-- Email Input -->
+          <div class="space-y-2">
+            <label for="username" class="block text-sm font-medium text-white/90">Email</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <input id="email" type="email" placeholder="Masukkan email"
+                class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
+                required />
+            </div>
           </div>
 
-          <form id="login-form" class="space-y-6">
-            <!-- Email Input -->
-            <div class="space-y-2">
-              <label for="username" class="block text-sm font-medium text-white/90">Email</label>
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                </div>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Masukkan email"
-                  class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Password Input -->
-            <div class="space-y-2">
-              <label for="password" class="block text-sm font-medium text-white/90">Password</label>
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                  </svg>
-                </div>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Masukkan password"
-                  class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Login Button -->
-            <button
-              type="submit"
-              class="btn-hover w-full bg-white text-purple-600 font-bold py-3 px-4 rounded-xl hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
-            >
-              <span class="flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          <!-- Password Input -->
+          <div class="space-y-2">
+            <label for="password" class="block text-sm font-medium text-white/90">Password</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                Masuk
-              </span>
-            </button>
+              </div>
+              <input id="password" type="password" placeholder="Masukkan password"
+                class="input-focus w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
+                required />
+            </div>
+          </div>
 
-            <!-- Error Message -->
-            <p id="error-message" class="text-red-300 text-center text-sm mt-4 hidden"></p>
-          </form>
-          
-          <!-- Register Link -->
-          <div class="mt-6 text-center">
-            <p class="text-white/70 text-sm">
-              <!-- Belum punya akun admin? 
+          <!-- Login Button -->
+          <button type="submit"
+            class="btn-hover w-full bg-white text-purple-600 font-bold py-3 px-4 rounded-xl hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300">
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              Masuk
+            </span>
+          </button>
+
+          <!-- Error Message -->
+          <p id="error-message" class="text-red-300 text-center text-sm mt-4 hidden"></p>
+        </form>
+
+        <!-- Register Link -->
+        <div class="mt-6 text-center">
+          <p class="text-white/70 text-sm">
+            <!-- Belum punya akun admin? 
               <a href="register.html" class="text-white font-semibold hover:text-white/80 transition-colors">
                 Daftar Sekarang
               </a> -->
-            </p>
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="text-center mt-8 fade-in">
-          <p class="text-white/60 text-xs">
-            <!-- © 2025 Selinggonet. Semua hak dilindungi. -->
-            &copy; <span id="current-year"></span> Selinggonet. Semua hak dilindungi.
           </p>
         </div>
       </div>
 
-      <!-- Background Decoration -->
-      <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+      <!-- Footer -->
+      <div class="text-center mt-8 fade-in">
+        <p class="text-white/60 text-xs">
+          <!-- © 2025 Selinggonet. Semua hak dilindungi. -->
+          &copy; <span id="current-year"></span> Selinggonet. Semua hak dilindungi.
+        </p>
       </div>
     </div>
-    
-    <script type="module" src="supabase-client.js"></script>
-    <script type="module" src="apply-settings.js"></script>
-    <script type="module" src="login.js"></script>
-    <script src="pwa-installer.js"></script>
-    <script>
-      document.getElementById('current-year').textContent = new Date().getFullYear();
-    </script>
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+      <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl">
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="supabase-client.js"></script>
+  <script type="module" src="apply-settings.js"></script>
+  <script type="module" src="login.js"></script>
+  <script src="pwa-installer.js"></script>
+  <script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
 </body>
+
 </html>

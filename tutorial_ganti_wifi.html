@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html class="light" lang="id">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Panduan Ganti WiFi - Selinggonet</title>
 
     <!-- PWA Meta Tags -->
@@ -11,53 +12,41 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Selinggonet">
     <meta name="description" content="Panduan Ganti Wifi">
-    
+
     <!-- PWA Icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
     <link rel="apple-touch-icon" sizes="192x192" href="assets/logo_192x192.png">
     <link rel="manifest" href="manifest.json">
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                "primary": "#135bec",
-                "background-light": "#f6f6f8",
-                "background-dark": "#101622",
-              },
-              fontFamily: {
-                "display": ["Manrope", "sans-serif"]
-              },
-            },
-          },
-        }
-    </script>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/fonts.css">
+
     <style>
         .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-          font-size: 24px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
         }
+
         body {
-          min-height: max(884px, 100dvh);
+            min-height: max(884px, 100dvh);
         }
+
         .prose h3 {
             margin-top: 1.5em;
             margin-bottom: 0.5em;
             font-size: 1.25rem;
             font-weight: 600;
         }
+
         .prose ol {
             list-style-type: decimal;
             margin-left: 1.5rem;
         }
+
         .prose li {
             margin-bottom: 0.5em;
         }
+
         .prose code {
             background-color: #e5e7eb;
             padding: 0.2em 0.4em;
@@ -66,152 +55,205 @@
         }
     </style>
 </head>
-<body class="font-display" style="overflow-x: hidden;"> <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
-        
-        <div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-30 shadow-sm">
-            <button class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors" onclick="window.history.back()">
+
+<body class="font-display" style="overflow-x: hidden;">
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
+
+        <div
+            class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-30 shadow-sm">
+            <button
+                class="text-slate-800 dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-500/10 transition-colors"
+                onclick="window.history.back()">
                 <span class="material-symbols-outlined">arrow_back</span>
             </button>
-            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Panduan Ganti WiFi</h2>
+            <h2
+                class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">
+                Panduan Ganti WiFi</h2>
         </div>
 
-    <main class="flex-1 pb-24 px-4 prose max-w-none">
-        <p>Berikut adalah panduan langkah demi langkah untuk mengganti nama (SSID) dan password WiFi untuk beberapa model modem yang umum digunakan di jaringan kami.</p>
-        <p>Pastikan Anda memilih panduan yang sesuai dengan model modem WiFi yang Anda gunakan di rumah. Informasi model modem biasanya tertera pada stiker di bagian bawah atau belakang perangkat.</p>
+        <main class="flex-1 pb-24 px-4 prose max-w-none">
+            <p>Berikut adalah panduan langkah demi langkah untuk mengganti nama (SSID) dan password WiFi untuk beberapa
+                model modem yang umum digunakan di jaringan kami.</p>
+            <p>Pastikan Anda memilih panduan yang sesuai dengan model modem WiFi yang Anda gunakan di rumah. Informasi
+                model modem biasanya tertera pada stiker di bagian bawah atau belakang perangkat.</p>
 
-        <!-- TOTOLINK N200RE V.4 & V.5 -->
-        <section>
-            <h3>TOTOLINK N200RE (V.4 & V.5)</h3>
-            <ol>
-                <li>Hubungkan perangkat Anda (komputer atau HP) ke modem TOTOLINK, baik melalui kabel LAN atau WiFi.</li>
-                <li>Buka browser (Chrome, Firefox, dll.) dan ketik alamat IP <code>192.168.0.1</code> atau <code>192.168.1.1</code> di address bar, lalu tekan Enter.</li>
-                <li>Anda akan diminta login. Masukkan username <code>admin</code> dan password <code>admin</code> atau <code>admin123</code>.</li>
-                <li>Setelah berhasil login, masuk ke menu "Wireless".</li>
-                <li>Untuk mengganti nama WiFi, ubah isian pada kolom "SSID".</li>
-                <li>Untuk mengganti password, cari kolom "Password" dan masukkan password baru Anda.</li>
-                <li>Klik "Apply" untuk menyimpan perubahan. Modem akan restart secara otomatis.</li>
-            </ol>
-        </section>
+            <!-- TOTOLINK N200RE V.4 & V.5 -->
+            <section>
+                <h3>TOTOLINK N200RE (V.4 & V.5)</h3>
+                <ol>
+                    <li>Hubungkan perangkat Anda (komputer atau HP) ke modem TOTOLINK, baik melalui kabel LAN atau WiFi.
+                    </li>
+                    <li>Buka browser (Chrome, Firefox, dll.) dan ketik alamat IP <code>192.168.0.1</code> atau
+                        <code>192.168.1.1</code> di address bar, lalu tekan Enter.
+                    </li>
+                    <li>Anda akan diminta login. Masukkan username <code>admin</code> dan password <code>admin</code>
+                        atau <code>admin123</code>.</li>
+                    <li>Setelah berhasil login, masuk ke menu "Wireless".</li>
+                    <li>Untuk mengganti nama WiFi, ubah isian pada kolom "SSID".</li>
+                    <li>Untuk mengganti password, cari kolom "Password" dan masukkan password baru Anda.</li>
+                    <li>Klik "Apply" untuk menyimpan perubahan. Modem akan restart secara otomatis.</li>
+                </ol>
+            </section>
 
-        <!-- TOTOLINK N355RT -->
-        <section>
-            <h3>TOTOLINK N355RT</h3>
-            <ol>
-                <li>Hubungkan perangkat ke modem N355RT.</li>
-                <li>Buka browser dan masukkan alamat IP <code>192.168.0.1</code> atau <code>192.168.1.1</code>.</li>
-                <li>Login dengan username <code>admin</code> dan password <code>admin</code> atau <code>admin123</code>.</li>
-                <li>Untuk mengganti nama WiFi, ubah isian pada kolom "SSID".</li>
-                <li>Untuk mengganti password, cari kolom "Password" dan masukkan password baru Anda.</li>
-                <li>Klik "Apply" untuk menerapkan perubahan.</li>
-            </ol>
-        </section>
+            <!-- TOTOLINK N355RT -->
+            <section>
+                <h3>TOTOLINK N355RT</h3>
+                <ol>
+                    <li>Hubungkan perangkat ke modem N355RT.</li>
+                    <li>Buka browser dan masukkan alamat IP <code>192.168.0.1</code> atau <code>192.168.1.1</code>.</li>
+                    <li>Login dengan username <code>admin</code> dan password <code>admin</code> atau
+                        <code>admin123</code>.
+                    </li>
+                    <li>Untuk mengganti nama WiFi, ubah isian pada kolom "SSID".</li>
+                    <li>Untuk mengganti password, cari kolom "Password" dan masukkan password baru Anda.</li>
+                    <li>Klik "Apply" untuk menerapkan perubahan.</li>
+                </ol>
+            </section>
 
-        <!-- TP-LINK TL-WR820N -->
-        <section>
-            <h3>TP-LINK TL-WR820N</h3>
-            <ol>
-                <li>Hubungkan perangkat ke modem TL-WR820N.</li>
-                <li>Buka browser dan ketik <code>tplinkwifi.net</code> atau <code>192.168.0.1</code>.</li>
-                <li>Jika ini pertama kali, Anda akan diminta membuat password login baru. Jika sudah pernah, masukkan password login yang telah Anda buat. Defaultnya adalah <code>admin</code>.</li>
-                <li>Setelah login, masuk ke menu "Wireless" atau "Nirkabel".</li>
-                <li>Ubah nama WiFi pada bagian "Nama Jaringan (SSID)".</li>
-                <li>Ubah password pada bagian "Password" atau "Kata Sandi".</li>
-                <li>Klik "Save" atau "Simpan". Modem akan restart.</li>
-            </ol>
-        </section>
+            <!-- TP-LINK TL-WR820N -->
+            <section>
+                <h3>TP-LINK TL-WR820N</h3>
+                <ol>
+                    <li>Hubungkan perangkat ke modem TL-WR820N.</li>
+                    <li>Buka browser dan ketik <code>tplinkwifi.net</code> atau <code>192.168.0.1</code>.</li>
+                    <li>Jika ini pertama kali, Anda akan diminta membuat password login baru. Jika sudah pernah,
+                        masukkan password login yang telah Anda buat. Defaultnya adalah <code>admin</code>.</li>
+                    <li>Setelah login, masuk ke menu "Wireless" atau "Nirkabel".</li>
+                    <li>Ubah nama WiFi pada bagian "Nama Jaringan (SSID)".</li>
+                    <li>Ubah password pada bagian "Password" atau "Kata Sandi".</li>
+                    <li>Klik "Save" atau "Simpan". Modem akan restart.</li>
+                </ol>
+            </section>
 
-        <!-- TP-LINK TL-WR840N -->
-        <section>
-            <h3>TP-LINK TL-WR840N</h3>
-            <ol>    
-                <li>Hubungkan perangkat ke modem TL-WR840N.</li>
-                <li>Buka browser dan ketik <code>tplinkwifi.net</code> atau <code>192.168.0.1</code>.</li>
-                <li>Login dengan username <code>admin</code> dan password <code>admin</code> atau <code>admin123</code>.</li>
-                <li>Masuk ke menu "Wireless", lalu pilih "Wireless Security".</li>
-                <li>Ubah password Anda di kolom "Wireless Password".</li>
-                <li>Klik "Save" untuk menyimpan perubahan.</li>
-                <li>Masuk ke menu "Wireless", lalu pilih "Basic Settings".</li>
-                <li>Untuk mengubah nama WiFi, ubah isian pada kolom "Wireless Network Name (SSID)".</li>
-                <li>klik "Save" untuk menyimpan perubahan.</li>
-            </ol>
-        </section>
+            <!-- TP-LINK TL-WR840N -->
+            <section>
+                <h3>TP-LINK TL-WR840N</h3>
+                <ol>
+                    <li>Hubungkan perangkat ke modem TL-WR840N.</li>
+                    <li>Buka browser dan ketik <code>tplinkwifi.net</code> atau <code>192.168.0.1</code>.</li>
+                    <li>Login dengan username <code>admin</code> dan password <code>admin</code> atau
+                        <code>admin123</code>.
+                    </li>
+                    <li>Masuk ke menu "Wireless", lalu pilih "Wireless Security".</li>
+                    <li>Ubah password Anda di kolom "Wireless Password".</li>
+                    <li>Klik "Save" untuk menyimpan perubahan.</li>
+                    <li>Masuk ke menu "Wireless", lalu pilih "Basic Settings".</li>
+                    <li>Untuk mengubah nama WiFi, ubah isian pada kolom "Wireless Network Name (SSID)".</li>
+                    <li>klik "Save" untuk menyimpan perubahan.</li>
+                </ol>
+            </section>
 
-        <!-- TENDA N301 -->
-        <section>
-            <h3>TENDA N301</h3>
-            <ol>
-                <li>Hubungkan perangkat ke modem TENDA N301.</li>
-                <li>Buka browser dan ketik <code>192.168.0.1</code>.</li>
-                <li>Login dengan password <code>admin</code> atau <code>admin123</code> (username biasanya tidak diminta).</li>
-                <li>Masuk ke menu "Wireless Settings".</li>
-                <li>Ubah nama WiFi di kolom "WiFi Name (SSID)".</li>
-                <li>Ubah password di kolom "WiFi Password".</li>
-                <li>Klik "OK". Modem akan menyimpan pengaturan.</li>
-            </ol>
-        </section>
+            <!-- TENDA N301 -->
+            <section>
+                <h3>TENDA N301</h3>
+                <ol>
+                    <li>Hubungkan perangkat ke modem TENDA N301.</li>
+                    <li>Buka browser dan ketik <code>192.168.0.1</code>.</li>
+                    <li>Login dengan password <code>admin</code> atau <code>admin123</code> (username biasanya tidak
+                        diminta).</li>
+                    <li>Masuk ke menu "Wireless Settings".</li>
+                    <li>Ubah nama WiFi di kolom "WiFi Name (SSID)".</li>
+                    <li>Ubah password di kolom "WiFi Password".</li>
+                    <li>Klik "OK". Modem akan menyimpan pengaturan.</li>
+                </ol>
+            </section>
 
-        <!-- Troubleshooting -->
-        <section>
-            <h2>Mengatasi Masalah Umum</h2>
-            
-            <h3>Tidak bisa terhubung ke WiFi setelah ganti password</h3>
-            <p>Ini adalah masalah paling umum. Perangkat Anda (HP/Laptop) masih menyimpan password lama. Solusinya:</p>
-            <ol>
-                <li>Pada perangkat Anda, cari daftar jaringan WiFi yang tersedia.</li>
-                <li>Klik pada nama WiFi Anda, lalu pilih opsi "Lupakan Jaringan" (Forget Network).</li>
-                <li>Cari kembali jaringan WiFi Anda dan sambungkan lagi dengan memasukkan password yang baru.</li>
-            </ol>
+            <!-- Troubleshooting -->
+            <section>
+                <h2>Mengatasi Masalah Umum</h2>
 
-            <h3>Tidak bisa membuka halaman login modem</h3>
-            <ol>
-                <li>Pastikan perangkat Anda sudah terhubung ke modem yang benar (baik via kabel atau WiFi).</li>
-                <li>Pastikan alamat IP yang Anda masukkan di browser sudah benar (misal: <code>192.168.0.1</code>). Coba alamat alternatif seperti <code>192.168.1.1</code>.</li>
-                <li>Coba gunakan browser yang berbeda atau clear cache browser Anda.</li>
-                <li>Jika semua cara gagal, langkah terakhir adalah melakukan reset pabrik pada modem, namun ini akan mengembalikan semua pengaturan ke awal, termasuk pengaturan dari ISP. Hubungi kami sebelum melakukan ini.</li>
-            </ol>
+                <h3>Tidak bisa terhubung ke WiFi setelah ganti password</h3>
+                <p>Ini adalah masalah paling umum. Perangkat Anda (HP/Laptop) masih menyimpan password lama. Solusinya:
+                </p>
+                <ol>
+                    <li>Pada perangkat Anda, cari daftar jaringan WiFi yang tersedia.</li>
+                    <li>Klik pada nama WiFi Anda, lalu pilih opsi "Lupakan Jaringan" (Forget Network).</li>
+                    <li>Cari kembali jaringan WiFi Anda dan sambungkan lagi dengan memasukkan password yang baru.</li>
+                </ol>
 
-            <h3>Koneksi internet lambat atau sering terputus</h3>
-            <ol>
-                <li>Coba matikan modem selama 1-2 menit, lalu nyalakan kembali.</li>
-                <li>Pindahkan posisi modem ke tempat yang lebih terbuka dan minim halangan (seperti tembok tebal atau perabotan besar).</li>
-                <li>Jauhkan modem dari perangkat elektronik lain yang dapat menyebabkan interferensi, seperti microwave atau telepon nirkabel.</li>
-                <li>Jika masalah berlanjut, hubungi tim support kami untuk pengecekan lebih lanjut.</li>
-            </ol>
-        </section>
-    </main>
+                <h3>Tidak bisa membuka halaman login modem</h3>
+                <ol>
+                    <li>Pastikan perangkat Anda sudah terhubung ke modem yang benar (baik via kabel atau WiFi).</li>
+                    <li>Pastikan alamat IP yang Anda masukkan di browser sudah benar (misal: <code>192.168.0.1</code>).
+                        Coba alamat alternatif seperti <code>192.168.1.1</code>.</li>
+                    <li>Coba gunakan browser yang berbeda atau clear cache browser Anda.</li>
+                    <li>Jika semua cara gagal, langkah terakhir adalah melakukan reset pabrik pada modem, namun ini akan
+                        mengembalikan semua pengaturan ke awal, termasuk pengaturan dari ISP. Hubungi kami sebelum
+                        melakukan ini.</li>
+                </ol>
 
-    <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
-        <div class="flex gap-2 px-4 pb-3 pt-2">
-            <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_dashboard.html">
-                <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
-                </div>
-                <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
-            </a>
-            <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_riwayat_lunas.html">
-                <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z"></path>
-                    </svg>
-                </div>
-                <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Riwayat</p>
-            </a>
-            <a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="menu_bantuan.html">
-                <div class="text-primary flex h-8 items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path><path d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z"></path><circle cx="128" cy="180" r="12"></circle></svg>
-                </div>
-                <p class="text-primary text-xs font-medium leading-normal tracking-[0.015em]">Bantuan</p>
-            </a>
-            <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="pelanggan_profile.html">
-                <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
-                    </svg>
-                </div>
-                <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">Akun</p>
-            </a>
-        </div>
-    </footer>
-</div>
+                <h3>Koneksi internet lambat atau sering terputus</h3>
+                <ol>
+                    <li>Coba matikan modem selama 1-2 menit, lalu nyalakan kembali.</li>
+                    <li>Pindahkan posisi modem ke tempat yang lebih terbuka dan minim halangan (seperti tembok tebal
+                        atau perabotan besar).</li>
+                    <li>Jauhkan modem dari perangkat elektronik lain yang dapat menyebabkan interferensi, seperti
+                        microwave atau telepon nirkabel.</li>
+                    <li>Jika masalah berlanjut, hubungi tim support kami untuk pengecekan lebih lanjut.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#f9f8fc] border-t border-[#eae7f3]">
+            <div class="flex gap-2 px-4 pb-3 pt-2">
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_dashboard.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Home</p>
+                </a>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_riwayat_lunas.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M224,128A96,96,0,0,1,62.11,197.82a8,8,0,1,1,11-11.64A80,80,0,1,0,71.43,71.43C67.9,75,64.58,78.51,61.35,82L77.66,98.34A8,8,0,0,1,72,112H32a8,8,0,0,1-8-8V64a8,8,0,0,1,13.66-5.66L50,70.7c3.22-3.49,6.54-7,10.06-10.55A96,96,0,0,1,224,128ZM128,72a8,8,0,0,0-8,8v48a8,8,0,0,0,3.88,6.86l40,24a8,8,0,1,0,8.24-13.72L136,123.47V80A8,8,0,0,0,128,72Z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Riwayat</p>
+                </a>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="menu_bantuan.html">
+                    <div class="text-primary flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z">
+                            </path>
+                            <path
+                                d="M128,72c-22.1,0-40,17.9-40,40a8,8,0,0,0,16,0c0-13.2,10.8-24,24-24s24,10.8,24,24c0,13.2-10.8,24-24,24a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-1.1c19.6-4.3,32-21.7,32-40.9C168,89.9,150.1,72,128,72Z">
+                            </path>
+                            <circle cx="128" cy="180" r="12"></circle>
+                        </svg>
+                    </div>
+                    <p class="text-primary text-xs font-medium leading-normal tracking-[0.015em]">Bantuan</p>
+                </a>
+                <a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500"
+                    href="pelanggan_profile.html">
+                    <div class="text-slate-400 dark:text-slate-500 flex h-8 items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                            viewBox="0 0 256 256">
+                            <path
+                                d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs font-medium leading-normal tracking-[0.015em]">
+                        Akun</p>
+                </a>
+            </div>
+        </footer>
+    </div>
 </body>
+
 </html>
