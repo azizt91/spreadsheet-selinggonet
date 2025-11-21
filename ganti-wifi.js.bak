@@ -312,7 +312,6 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
         const { data: { session } } = await supabase.auth.getSession();
         token = session?.access_token; // Assign to the already declared token
         
-        const targetUrl = `${genieacsUrl}/devices`;
         const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
             "$or": [
                 { "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress },
