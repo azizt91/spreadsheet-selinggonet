@@ -15,8 +15,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="assets/logo_512x512.png">
     <link rel="manifest" href="manifest.json">
 
-    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
-<link rel="stylesheet" href="assets/css/fonts.css">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" <link rel="stylesheet" href="assets/css/fonts.css">
     <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
@@ -24,9 +23,9 @@
     <div class="relative flex size-full min-h-screen flex-col bg-[#f9f8fc] group/design-root overflow-x-hidden"
         style='font-family: Manrope, "Noto Sans", sans-serif;'>
 
-        <!-- Header (Sticky) -->
+        <!-- Header (Fixed) -->
         <header
-            class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
+            class="flex items-center bg-white p-4 justify-between border-b border-gray-200 shadow-sm fixed top-0 left-0 right-0 z-50 w-full">
             <button id="back-btn"
                 class="text-[#110e1b] flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
@@ -41,7 +40,7 @@
             <div class="w-10"></div>
         </header>
 
-        <main class="flex-1 pb-6">
+        <main class="flex-1 pb-6 pt-20">
             <!-- Info Card -->
             <div class="p-4">
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">

@@ -603,12 +603,18 @@ async function deleteHistoryLog(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus riwayat ini?')) return;
 
     try {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('wifi_change_logs')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .select();
 
         if (error) throw error;
+
+        // Check if any row was actually deleted
+        if (!data || data.length === 0) {
+            throw new Error('Gagal menghapus. Mungkin Anda tidak memiliki izin atau data sudah terhapus.');
+        }
 
         showNotification('✅ Riwayat berhasil dihapus', 'success');
         loadChangeHistory();
@@ -617,6 +623,9 @@ async function deleteHistoryLog(id) {
         showNotification(`❌ Gagal menghapus riwayat: ${error.message}`, 'error');
     }
 }
+
+// Make deleteHistoryLog available globally for inline onclick handlers
+window.deleteHistoryLog = deleteHistoryLog;
 
 function setLoading(isLoading) {
     const submitBtn = document.getElementById('submit-btn');
