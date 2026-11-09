@@ -26,12 +26,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Initialize event listeners
     initializeEventListeners();
-
-    // Load connected devices
-    await loadConnectedDevices();
-
-    // Load change history
-    await loadChangeHistory();
 });
 
 async function loadGenieACSSettings() {
@@ -153,6 +147,11 @@ async function loadCurrentWiFiInfo(ipAddress) {
             ssidElement.textContent = ssid || '(Kosong)';
             passwordElement.textContent = password || ' (Kosong)';
 
+            // Isi form dengan nilai saat ini, supaya pelanggan tinggal edit lalu SIMPAN
+            const isRealValue = (v) => v && !['Tidak dapat diambil', 'Device tidak ditemukan', 'Gagal mengambil data'].includes(v);
+            if (isRealValue(ssid)) document.getElementById('new-ssid').value = ssid;
+            if (isRealValue(password)) document.getElementById('new-password').value = password;
+
         } else {
             ssidElement.textContent = 'Device tidak ditemukan';
             passwordElement.textContent = 'Device tidak ditemukan';
@@ -177,26 +176,8 @@ function initializeEventListeners() {
         passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
     });
 
-    // Password match validation
-    const newPassword = document.getElementById('new-password');
-    const confirmPassword = document.getElementById('confirm-password');
-    const errorMsg = document.getElementById('password-match-error');
-
-    confirmPassword?.addEventListener('input', () => {
-        if (confirmPassword.value && newPassword.value !== confirmPassword.value) {
-            errorMsg.classList.remove('hidden');
-        } else {
-            errorMsg.classList.add('hidden');
-        }
-    });
-
     // Form submit
     document.getElementById('wifi-form')?.addEventListener('submit', handleFormSubmit);
-
-    // Refresh devices button
-    document.getElementById('refresh-devices-btn')?.addEventListener('click', async () => {
-        await loadConnectedDevices();
-    });
 }
 
 async function handleFormSubmit(e) {
@@ -204,7 +185,6 @@ async function handleFormSubmit(e) {
 
     const newSSID = document.getElementById('new-ssid').value.trim();
     const newPassword = document.getElementById('new-password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
 
     // Validation - at least one field must be filled
     if (!newSSID && !newPassword) {
@@ -213,16 +193,9 @@ async function handleFormSubmit(e) {
     }
 
     // Validate password if provided
-    if (newPassword || confirmPassword) {
-        if (newPassword !== confirmPassword) {
-            showNotification('Password tidak cocok', 'error');
-            return;
-        }
-
-        if (newPassword && newPassword.length < 8) {
-            showNotification('Password minimal 8 karakter', 'error');
-            return;
-        }
+    if (newPassword && newPassword.length < 8) {
+        showNotification('Password minimal 8 karakter', 'error');
+        return;
     }
 
     // Get IP from current profile
@@ -232,11 +205,6 @@ async function handleFormSubmit(e) {
     }
 
     const ipAddress = currentProfile.ip_static_pppoe;
-
-    // Confirm action
-    if (!confirm(`Yakin ingin mengganti WiFi?\n\nSSID Baru: ${newSSID}\n\nProses membutuhkan waktu 1-2 menit.`)) {
-        return;
-    }
 
     // Show loading
     setLoading(true);
@@ -269,11 +237,6 @@ async function handleFormSubmit(e) {
 
             showNotification('✅ Perintah ganti WiFi berhasil dikirim! Perangkat akan diperbarui dalam 1-2 menit.', 'success');
 
-            // // Reload data - DISABLED to prevent timeout errors as device needs time to update
-            // setTimeout(() => {
-            //     loadUserData();
-            //     loadChangeHistory();
-            // }, 2000);
         } else {
             // Update log status with error
             await supabase
@@ -419,213 +382,6 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
         return { success: false, message: error.message };
     }
 }
-
-async function loadConnectedDevices() {
-    const devicesList = document.getElementById('devices-list');
-
-    try {
-        devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Memuat perangkat...</p>';
-
-        if (!currentProfile || !currentProfile.ip_static_pppoe || currentProfile.ip_static_pppoe.trim() === '') {
-            devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">IP Address tidak ditemukan</p>';
-            return;
-        }
-
-        const ipAddress = currentProfile.ip_static_pppoe;
-        const genieacsUrl = genieacsSettings.genieacs_url;
-
-        if (!genieacsUrl) {
-            devicesList.innerHTML = '<p class="text-xs text-red-500 text-center py-4">URL GenieACS tidak dikonfigurasi</p>';
-            return;
-        }
-
-        const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password)
-            ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
-            : null;
-
-        const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
-        const targetUrl = `${genieacsUrl}/devices`;
-
-        const queryUrl = `${targetUrl}?query=${encodeURIComponent(JSON.stringify({
-            "$or": [
-                { "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.ExternalIPAddress": ipAddress },
-                { "VirtualParameters.pppoeIP": ipAddress }
-            ]
-        }))}`;
-
-        const response = await fetch(proxyUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token || supabase.supabaseKey}`,
-                'apikey': supabase.supabaseKey
-            },
-            body: JSON.stringify({
-                url: queryUrl,
-                method: 'GET',
-                auth: auth
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Gagal mengambil data dari GenieACS');
-        }
-
-        const devices = await response.json();
-
-        if (!devices || devices.length === 0) {
-            devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Device tidak ditemukan</p>';
-            return;
-        }
-
-        const device = devices[0];
-        const connectedDevices = [];
-
-        // Parse connected devices from InternetGatewayDevice.LANDevice.1.Hosts.Host
-        try {
-            const hosts = device.InternetGatewayDevice?.LANDevice?.['1']?.Hosts?.Host;
-
-            if (hosts) {
-                // Iterate through all host entries
-                for (const hostKey in hosts) {
-                    const host = hosts[hostKey];
-
-                    // Extract device info
-                    const hostname = host.HostName?._value || 'Unknown';
-                    const ipAddr = host.IPAddress?._value || '-';
-                    const macAddr = host.MACAddress?._value || '-';
-                    const interfaceType = host.InterfaceType?._value || '-';
-
-                    // Only add if IP address exists (active device)
-                    if (ipAddr && ipAddr !== '-' && ipAddr !== '0.0.0.0') {
-                        connectedDevices.push({
-                            hostname,
-                            ipAddress: ipAddr,
-                            macAddress: macAddr,
-                            type: interfaceType
-                        });
-                    }
-                }
-            }
-        } catch (e) {
-            console.error('Error parsing connected devices:', e);
-        }
-
-        // Render devices table
-        if (connectedDevices.length === 0) {
-            devicesList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Tidak ada perangkat terhubung</p>';
-            return;
-        }
-
-        const tableHTML = `
-            <table class="w-full text-xs">
-                <thead>
-                    <tr class="border-b border-gray-200">
-                        <th class="text-left py-2 px-2 font-semibold text-gray-700">Device</th>
-                        <th class="text-left py-2 px-2 font-semibold text-gray-700">IP Address</th>
-                        <th class="text-left py-2 px-2 font-semibold text-gray-700">MAC Address</th>
-                        <th class="text-left py-2 px-2 font-semibold text-gray-700">Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${connectedDevices.map(dev => `
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="py-2 px-2 text-gray-800">${dev.hostname}</td>
-                            <td class="py-2 px-2 text-gray-600">${dev.ipAddress}</td>
-                            <td class="py-2 px-2 text-gray-600 font-mono text-xs">${dev.macAddress}</td>
-                            <td class="py-2 px-2 text-gray-600">${dev.type}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            <p class="text-xs text-gray-400 mt-2">Total: ${connectedDevices.length} perangkat terhubung</p>
-        `;
-
-        devicesList.innerHTML = tableHTML;
-
-    } catch (error) {
-        console.error('Error loading connected devices:', error);
-        devicesList.innerHTML = '<p class="text-xs text-red-500 text-center py-4">Gagal memuat data perangkat</p>';
-    }
-}
-
-async function loadChangeHistory() {
-    try {
-        const { data, error } = await supabase
-            .from('wifi_change_logs')
-            .select('*')
-            .eq('customer_id', currentUser.id)
-            .order('changed_at', { ascending: false })
-            .limit(5);
-
-        if (error) throw error;
-
-        const historyList = document.getElementById('history-list');
-
-        if (!data || data.length === 0) {
-            historyList.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Belum ada riwayat perubahan</p>';
-            return;
-        }
-
-        historyList.innerHTML = data.map(log => {
-            const date = new Date(log.changed_at).toLocaleString('id-ID');
-            const statusColor = log.status === 'success' ? 'text-green-600' : log.status === 'failed' ? 'text-red-600' : 'text-yellow-600';
-            const statusText = log.status === 'success' ? 'Berhasil' : log.status === 'failed' ? 'Gagal' : 'Diproses';
-
-            return `
-                <div class="flex items-start gap-2 p-2 bg-gray-50 rounded-lg">
-                    <div class="flex-1">
-                        <p class="text-xs font-medium text-gray-800">${log.new_ssid}</p>
-                        <p class="text-xs text-gray-500">${date}</p>
-                        ${log.error_message ? `<p class="text-xs text-red-600 mt-1">${log.error_message}</p>` : ''}
-                    </div>
-                    <div class="flex flex-col items-end gap-1">
-                        <span class="text-xs font-semibold ${statusColor}">${statusText}</span>
-                        <button onclick="deleteHistoryLog('${log.id}')" class="text-gray-400 hover:text-red-500 transition-colors p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-    } catch (error) {
-        console.error('Error loading history:', error);
-        document.getElementById('history-list').innerHTML = '<p class="text-xs text-red-500 text-center py-4">Gagal memuat riwayat</p>';
-    }
-}
-
-async function deleteHistoryLog(id) {
-    if (!confirm('Apakah Anda yakin ingin menghapus riwayat ini?')) return;
-
-    try {
-        const { data, error } = await supabase
-            .from('wifi_change_logs')
-            .delete()
-            .eq('id', id)
-            .select();
-
-        if (error) throw error;
-
-        // Check if any row was actually deleted
-        if (!data || data.length === 0) {
-            throw new Error('Gagal menghapus. Mungkin Anda tidak memiliki izin atau data sudah terhapus.');
-        }
-
-        showNotification('✅ Riwayat berhasil dihapus', 'success');
-        loadChangeHistory();
-    } catch (error) {
-        console.error('Error deleting history:', error);
-        showNotification(`❌ Gagal menghapus riwayat: ${error.message}`, 'error');
-    }
-}
-
-// Make deleteHistoryLog available globally for inline onclick handlers
-window.deleteHistoryLog = deleteHistoryLog;
 
 function setLoading(isLoading) {
     const submitBtn = document.getElementById('submit-btn');
