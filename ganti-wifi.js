@@ -30,9 +30,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function loadGenieACSSettings() {
     try {
+        // Only non-sensitive keys are readable by customers.
+        // Username/password are NEVER stored here anymore; they live
+        // in Edge Function Secrets and are used server-side only.
         const { data, error } = await supabase
             .from('genieacs_settings')
-            .select('*');
+            .select('setting_key, setting_value')
+            .in('setting_key', ['genieacs_enabled', 'genieacs_url']);
 
         if (error) throw error;
 
@@ -89,10 +93,6 @@ async function loadCurrentWiFiInfo(ipAddress) {
             return;
         }
 
-        const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password)
-            ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
-            : null;
-
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
@@ -105,6 +105,9 @@ async function loadCurrentWiFiInfo(ipAddress) {
             ]
         }))}`;
 
+        // No `auth` is sent: the proxy verifies the JWT, checks the
+        // IP against the server-side profile, and uses the GenieACS
+        // credentials from Edge Function Secrets.
         const response = await fetch(proxyUrl, {
             method: 'POST',
             headers: {
@@ -114,8 +117,7 @@ async function loadCurrentWiFiInfo(ipAddress) {
             },
             body: JSON.stringify({
                 url: queryUrl,
-                method: 'GET',
-                auth: auth
+                method: 'GET'
             })
         });
 
@@ -265,11 +267,6 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             return { success: false, message: 'URL GenieACS tidak dikonfigurasi' };
         }
 
-        // Build auth object
-        const auth = (genieacsSettings.genieacs_username && genieacsSettings.genieacs_password)
-            ? { username: genieacsSettings.genieacs_username, password: genieacsSettings.genieacs_password }
-            : null;
-
         const proxyUrl = `${supabase.supabaseUrl}/functions/v1/genieacs-proxy`;
         let token = null; // Declare token here
         const { data: { session } } = await supabase.auth.getSession();
@@ -292,8 +289,7 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
             },
             body: JSON.stringify({
                 url: queryUrl,
-                method: 'GET',
-                auth: auth
+                method: 'GET'
             })
         });
 
@@ -324,7 +320,6 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 body: JSON.stringify({
                     url: ssidUrl,
                     method: 'POST',
-                    auth: auth,
                     body: {
                         name: 'setParameterValues',
                         parameterValues: [[ssidPath, newSSID, 'xsd:string']]
@@ -352,7 +347,6 @@ async function changeWiFiViaGenieACS(ipAddress, newSSID, newPassword) {
                 body: JSON.stringify({
                     url: passwordUrl,
                     method: 'POST',
-                    auth: auth,
                     body: {
                         name: 'setParameterValues',
                         parameterValues: [[passwordPath, newPassword, 'xsd:string']]

@@ -457,39 +457,29 @@
                         </label>
                     </div>
 
-                    <!-- GenieACS URL -->
+                    <!-- GenieACS URL (NBI, port 7557) -->
                     <label class="flex flex-col">
                         <p class="text-[#110e1b] text-sm font-medium pb-1">URL GenieACS</p>
                         <input id="genieacs-url-input" type="text"
                             class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm"
-                            placeholder="http://192.168.1.10:7547" />
-                        <small class="text-xs text-gray-400 mt-1">URL server GenieACS Anda (contoh:
-                            http://192.168.1.10:7547 atau http://acs.bayardong.my.id)</small>
+                            placeholder="http://121.101.134.146:7557" />
+                        <small class="text-xs text-gray-400 mt-1">URL NBI GenieACS (port 7557, bukan 7547).
+                            Contoh: http://121.101.134.146:7557</small>
                     </label>
 
-                    <!-- GenieACS Username (Optional) -->
-                    <label class="flex flex-col">
-                        <p class="text-[#110e1b] text-sm font-medium pb-1">Username (Opsional)</p>
-                        <input id="genieacs-username-input" type="text"
-                            class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm"
-                            placeholder="Kosongkan jika tidak ada autentikasi" />
-                        <small class="text-xs text-gray-400 mt-1">Username untuk akses GenieACS API (jika
-                            diperlukan)</small>
-                    </label>
-
-                    <!-- GenieACS Password (Optional) -->
-                    <label class="flex flex-col">
-                        <p class="text-[#110e1b] text-sm font-medium pb-1">Password (Opsional)</p>
-                        <input id="genieacs-password-input" type="password"
-                            class="form-input w-full rounded-lg text-[#110e1b] border border-[#d6d0e7] bg-white h-10 p-2 text-sm"
-                            placeholder="Kosongkan jika tidak ada autentikasi" />
-                        <small class="text-xs text-gray-400 mt-1">Password untuk akses GenieACS API (jika
-                            diperlukan)</small>
-                        <button type="button" id="toggle-genieacs-password"
-                            class="text-xs text-gray-600 hover:text-gray-800 mt-1 text-left">
-                            👁️ Tampilkan/Sembunyikan Password
-                        </button>
-                    </label>
+                    <!-- Kredensial GenieACS TIDAK diisi di sini lagi.
+                         Username/password nginx GenieACS diatur di
+                         Supabase Dashboard > Edge Functions > Secrets
+                         sebagai GENIEACS_USERNAME dan GENIEACS_PASSWORD.
+                         Jangan simpan password di tabel genieacs_settings,
+                         karena tabel itu bisa dibaca pelanggan yang login. -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <p class="text-xs font-medium text-amber-900 mb-1">Kredensial GenieACS</p>
+                        <p class="text-xs text-amber-700">Username dan password GenieACS diatur di Supabase
+                            Dashboard &gt; Edge Functions &gt; Secrets
+                            (GENIEACS_USERNAME dan GENIEACS_PASSWORD),
+                            bukan di halaman ini.</p>
+                    </div>
 
                     <!-- Info Box -->
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">

@@ -87,13 +87,6 @@ export default class AppSettings {
             input.type = input.type === 'password' ? 'text' : 'password';
         });
 
-        // Toggle GenieACS Password visibility
-        document.getElementById('toggle-genieacs-password')?.addEventListener('click', () => {
-            const input = document.getElementById('genieacs-password-input');
-            if (input) {
-                input.type = input.type === 'password' ? 'text' : 'password';
-            }
-        });
     }
 
     // View management methods removed - now using separate page
@@ -549,15 +542,13 @@ export default class AppSettings {
                 {
                     setting_key: 'genieacs_url',
                     setting_value: document.getElementById('genieacs-url-input')?.value.trim() || ''
-                },
-                {
-                    setting_key: 'genieacs_username',
-                    setting_value: document.getElementById('genieacs-username-input')?.value.trim() || ''
-                },
-                {
-                    setting_key: 'genieacs_password',
-                    setting_value: document.getElementById('genieacs-password-input')?.value.trim() || ''
                 }
+                // NOTE: genieacs_username / genieacs_password are NOT
+                // saved here anymore. They live in Supabase Edge
+                // Function Secrets (GENIEACS_USERNAME /
+                // GENIEACS_PASSWORD) and are used server-side only.
+                // Saving them to genieacs_settings would expose them
+                // to every logged-in customer.
             ];
 
             // Update each setting (with fallback to insert if not exists)
@@ -716,7 +707,8 @@ _____________________________
         try {
             const { data, error } = await supabase
                 .from('genieacs_settings')
-                .select('*');
+                .select('setting_key, setting_value')
+                .in('setting_key', ['genieacs_enabled', 'genieacs_url']);
 
             if (error) throw error;
 
@@ -728,12 +720,6 @@ _____________________________
                         if (toggle) toggle.checked = isEnabled;
                     } else if (setting.setting_key === 'genieacs_url') {
                         const input = document.getElementById('genieacs-url-input');
-                        if (input) input.value = setting.setting_value || '';
-                    } else if (setting.setting_key === 'genieacs_username') {
-                        const input = document.getElementById('genieacs-username-input');
-                        if (input) input.value = setting.setting_value || '';
-                    } else if (setting.setting_key === 'genieacs_password') {
-                        const input = document.getElementById('genieacs-password-input');
                         if (input) input.value = setting.setting_value || '';
                     }
                 });
