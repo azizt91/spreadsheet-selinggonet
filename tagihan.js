@@ -652,6 +652,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="mark-paid-btn flex min-w-[60px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-7 px-3 bg-[#eae8f3] text-[#110e1b] text-xs font-medium leading-normal w-fit" data-invoice-id="${invoiceId}">
                             <span class="truncate">LUNAS</span>
                         </button>
+                        <button class="delete-invoice-btn flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors" title="Hapus Tagihan" data-invoice-id="${invoiceId}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" /></svg>
+                        </button>
                     </div>
                 `;
             } else if (currentTab === 'installment') {
@@ -683,6 +686,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                         <button class="mark-paid-btn flex min-w-[50px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-7 px-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium leading-normal w-fit" data-invoice-id="${invoiceId}">
                             <span class="truncate">Lunas</span>
+                        </button>
+                        <button class="delete-invoice-btn flex items-center justify-center w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors" title="Hapus Tagihan" data-invoice-id="${invoiceId}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" /></svg>
                         </button>
                     </div>
                 `;
@@ -725,6 +731,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L60.63,81.29l17,17A8,8,0,0,1,72,112H24a8,8,0,0,1-8-8V56A8,8,0,0,1,29.66,50.3L49.31,70,59.78,59.43a96,96,0,0,1,164.2,68.5A8,8,0,0,1,224,128Z"></path>
                 </svg>
             </button>
+            <button class="delete-invoice-btn flex items-center justify-center w-7 h-7 text-red-500 hover:bg-red-50 rounded-lg transition-colors" data-invoice-id="${invoiceId}" title="Hapus Tagihan">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" /></svg>
+            </button>
         </div>
     `;
             }
@@ -762,6 +771,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleInstallmentPayment(targetItem);
             } else if (button.classList.contains('revert-paid-btn')) {
                 revertPaymentStatus(targetItem);
+            } else if (button.classList.contains('delete-invoice-btn')) {
+                deleteInvoice(targetItem);
             }
             return;
         }
@@ -948,6 +959,78 @@ document.addEventListener('DOMContentLoaded', () => {
             hidePaymentLoading();
             console.error('Error reverting payment:', error);
             showErrorNotification(`❌ Gagal membatalkan pembayaran: ${error.message}`);
+        }
+    }
+
+    async function deleteInvoice(invoice) {
+        if (!invoice || !invoice.id) {
+            showErrorNotification('Error: Data tagihan tidak lengkap.');
+            return;
+        }
+
+        const customerName = invoice.profiles?.full_name || 'Pelanggan';
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        });
+        const totalDue = invoice.total_due || invoice.amount || 0;
+        const amountPaid = invoice.amount_paid || 0;
+        const statusLabel = invoice.status === 'paid'
+            ? 'LUNAS'
+            : invoice.status === 'partially_paid'
+                ? 'CICILAN'
+                : 'BELUM DIBAYAR';
+
+        // Confirmation dialog. Deleting is permanent: the invoice row
+        // also holds its whole payment_history (jsonb), so the payment
+        // history is deleted together with the invoice. There is no
+        // other table referencing invoices, so nothing else is affected.
+        let confirmMessage = `🗑️ HAPUS TAGIHAN\n\n` +
+            `Pelanggan: ${customerName}\n` +
+            `Periode: ${invoice.invoice_period || 'N/A'}\n` +
+            `Status: ${statusLabel}\n` +
+            `Jumlah: ${formatter.format(totalDue)}\n`;
+        if (amountPaid > 0) {
+            confirmMessage += `Sudah dibayar: ${formatter.format(amountPaid)}\n`;
+        }
+        confirmMessage += `\nTagihan ini akan dihapus PERMANEN beserta seluruh riwayat pembayarannya dan tidak bisa dikembalikan.\n\n` +
+            `Apakah Anda yakin ingin menghapus tagihan ini?`;
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        try {
+            showPaymentLoading('Menghapus tagihan...');
+
+            // .select('id') lets us detect a silent no-op: if RLS blocks
+            // the delete (e.g. a non-admin somehow reaches this page),
+            // Supabase returns an empty array instead of an error.
+            const { data, error } = await supabase
+                .from('invoices')
+                .delete()
+                .eq('id', invoice.id)
+                .select('id');
+
+            hidePaymentLoading();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+            if (!data || data.length === 0) {
+                throw new Error('Tidak ada tagihan yang terhapus. Pastikan Anda login sebagai admin.');
+            }
+
+            showSuccessNotification(`✅ Tagihan "${invoice.invoice_period}" milik ${customerName} berhasil dihapus.`);
+
+            // Refresh data (fetchData also re-renders the active tab)
+            await fetchData();
+
+        } catch (error) {
+            hidePaymentLoading();
+            console.error('Error deleting invoice:', error);
+            showErrorNotification(`❌ Gagal menghapus tagihan: ${error.message}`);
         }
     }
 
